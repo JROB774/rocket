@@ -1,0 +1,3 @@
+[submodule "cstech"]
+	path = cstech
+	url = https://github.com/ChromoStudio/cstech.git
