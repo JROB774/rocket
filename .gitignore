@@ -4,11 +4,11 @@
 
 *.sublime-workspace
 
-binary/*.exe
-binary/*.exp
-binary/*.ilk
-binary/*.lib
-binary/*.pdb
+**/binary/*.exe
+**/binary/*.exp
+**/binary/*.ilk
+**/binary/*.lib
+**/binary/*.pdb
 
 imgui.ini
 

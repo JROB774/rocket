@@ -1,0 +1,68 @@
+# Right now we are just specifying a bunch of stuff manually with no arguments/options. In the future
+# we are going to want to implement a proper build script for this program which is more advanced.
+
+config = empty_config()
+
+config["dependencies"] = [ "../../cstech/build.script" ]
+config["output"] = "binary/hungry.exe"
+config["cpp"] = "c++17"
+config["debug"] = True
+config["compiler_params"] = "-EHsc -MT"
+config["linker_params"] =  "-ignore:4099 -LTCG"
+
+config["include_dirs"] = [
+    "source",
+    "source/third_party/gon",
+    "source/third_party/szlib",
+    "../../cstech/cstech",
+    "../../cstech/cstech/general",
+    "../../cstech/cstech/sdl2",
+    "../../cstech/cstech/faudio",
+    "../../cstech/cstech/opengl",
+    "../../cstech/cstech/third_party/sdl2/include",
+    "../../cstech/cstech/third_party/sdl2/include/SDL2",
+    "../../cstech/cstech/third_party/glad",
+    "../../cstech/cstech/third_party/imgui",
+    "../../cstech/cstech/third_party/nothings",
+    "../../cstech/cstech/third_party/nlohmann",
+    "../../cstech/cstech/third_party/faudio/include",
+    "../../cstech/cstech/third_party/faudio/include/FAudio"
+]
+config["library_dirs"] = [
+    "../../cstech/binary",
+    "../../cstech/cstech/third_party/sdl2/lib/win32",
+    "../../cstech/cstech/third_party/faudio/lib/win32"
+]
+config["libraries"] = [
+    "cstech.lib",
+    "SDL2main.lib",
+    "SDL2.lib",
+    "faudio.lib",
+    "opengl32.lib",
+    "dinput8.lib",
+    "dxguid.lib",
+    "user32.lib",
+    "gdi32.lib",
+    "winmm.lib",
+    "imm32.lib",
+    "ole32.lib",
+    "oleaut32.lib",
+    "shell32.lib",
+    "version.lib",
+    "uuid.lib",
+    "advapi32.lib",
+    "setupapi.lib",
+    "setargv.obj"
+]
+config["defines"] = [
+    "CS_PLATFORM_SDL2=1",
+    "CS_COMPILER_MSVC=1",
+    "CS_DEBUG=1",
+    "SDL_MAIN_HANDLED=1",
+    "SZLIB_IMPLEMENTATION=1"
+]
+config["sources"] = [
+    "source/hungry.cpp"
+]
+
+generate_config(config)
