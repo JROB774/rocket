@@ -1,5 +1,10 @@
+from shutil import copyfile
+
 # Right now we are just specifying a bunch of stuff manually with no arguments/options. In the future
 # we are going to want to implement a proper build script for this program which is more advanced.
+
+copyfile("../../cstech/cstech/third_party/sdl2/bin/win32/SDL2.dll", "binary/SDL2.dll")
+copyfile("../../cstech/cstech/third_party/sdl2_mixer/bin/win32/SDL2_mixer.dll", "binary/SDL2_mixer.dll")
 
 config = empty_config()
 
@@ -8,7 +13,7 @@ config["output"] = "binary/chomp.exe"
 config["cpp"] = "c++17"
 config["debug"] = True
 config["compiler_params"] = "-EHsc -MT"
-config["linker_params"] =  "-ignore:4099 -LTCG"
+config["linker_params"] =  "-ignore:4099"
 
 config["include_dirs"] = [
     "source",
@@ -17,27 +22,26 @@ config["include_dirs"] = [
     "../../cstech/cstech",
     "../../cstech/cstech/general",
     "../../cstech/cstech/sdl2",
-    "../../cstech/cstech/faudio",
     "../../cstech/cstech/opengl",
     "../../cstech/cstech/third_party/sdl2/include",
     "../../cstech/cstech/third_party/sdl2/include/SDL2",
+    "../../cstech/cstech/third_party/sdl2_mixer/include",
+    "../../cstech/cstech/third_party/sdl2_mixer/include/SDL2",
     "../../cstech/cstech/third_party/glad",
     "../../cstech/cstech/third_party/imgui",
     "../../cstech/cstech/third_party/nothings",
-    "../../cstech/cstech/third_party/nlohmann",
-    "../../cstech/cstech/third_party/faudio/include",
-    "../../cstech/cstech/third_party/faudio/include/FAudio"
+    "../../cstech/cstech/third_party/nlohmann"
 ]
 config["library_dirs"] = [
     "../../cstech/binary",
     "../../cstech/cstech/third_party/sdl2/lib/win32",
-    "../../cstech/cstech/third_party/faudio/lib/win32"
+    "../../cstech/cstech/third_party/sdl2_mixer/lib/win32"
 ]
 config["libraries"] = [
     "cstech.lib",
     "SDL2main.lib",
     "SDL2.lib",
-    "faudio.lib",
+    "SDL2_mixer.lib",
     "opengl32.lib",
     "dinput8.lib",
     "dxguid.lib",

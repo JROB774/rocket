@@ -9,6 +9,7 @@
 **/binary/*.ilk
 **/binary/*.lib
 **/binary/*.pdb
+**/binary/*.dll
 
 imgui.ini
 
