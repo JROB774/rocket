@@ -14,3 +14,14 @@
 using namespace cs;
 
 // Game headers and sources...
+
+class HungryApp: public Application
+{
+public:
+    Vec2 m_chompPos;
+
+    void Init() override;
+    void Quit() override;
+    void Update(f32 dt) override;
+    void Render(f32 dt) override;
+};

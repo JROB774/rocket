@@ -58,8 +58,7 @@ config["defines"] = [
     "CS_PLATFORM_SDL2=1",
     "CS_COMPILER_MSVC=1",
     "CS_DEBUG=1",
-    "SDL_MAIN_HANDLED=1",
-    "SZLIB_IMPLEMENTATION=1"
+    "SDL_MAIN_HANDLED=1"
 ]
 config["sources"] = [
     "source/hungry.cpp"

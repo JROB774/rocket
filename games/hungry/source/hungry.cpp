@@ -1,34 +1,44 @@
 #include "hungry.hpp"
 
-class HungryApp: public Application
+static const f32 k_minChompPos = 104.0f;
+static const f32 k_maxChompPos = 168.0f;
+static const f32 k_chompDownSpeed = 640.0f;
+
+void HungryApp::Init()
 {
-public:
-    void Init() override
-    {
-        // Nothing...
-    }
+    gfx::SetScreenScaleMode(gfx::ScaleMode_Pixel);
+    gfx::SetScreenFilter(gfx::Filter_Nearest);
 
-    void Quit() override
-    {
-        // Nothing...
-    }
+    m_chompPos = Vec2(196,104);
+}
+void HungryApp::Quit()
+{
+    // Nothing...
+}
+void HungryApp::Update(f32 dt)
+{
+    if(IsKeyDown(KeyCode_Space)) m_chompPos.y += (k_chompDownSpeed * dt);
+    else m_chompPos.y -= ((k_chompDownSpeed*0.75f) * dt);
+    m_chompPos.y = Clamp(m_chompPos.y, k_minChompPos,k_maxChompPos);
+}
+void HungryApp::Render(f32 dt)
+{
+    f32 halfX = CS_CAST(f32, gfx::GetScreenWidth()) / 2.0f;
+    f32 halfY = CS_CAST(f32, gfx::GetScreenHeight()) / 2.0f;
 
-    void Update(f32 dt) override
-    {
-        // Nothing...
-    }
+    gfx::Clear(RGBAToVec4(61,63,191));
 
-    void Render(f32 dt) override
-    {
-        gfx::Clear(1,0,0);
-    }
-};
+    imm::DrawTexture("background", halfX,halfY);
+    imm::DrawTexture("chomp", m_chompPos.x,m_chompPos.y);
+    imm::DrawTexture("foreground", halfX,halfY);
+}
 
 AppConfig csMain(int argc, char** argv)
 {
     AppConfig appConfig;
     appConfig.title = "Hungry";
     appConfig.window.min = Vec2i(320,180);
+    appConfig.screenSize = Vec2i(320,180);
     appConfig.app = Allocate<HungryApp>(CS_MEM_GAME);
     return appConfig;
 }
