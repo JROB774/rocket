@@ -4,7 +4,7 @@
 config = empty_config()
 
 config["dependencies"] = [ "../../cstech/build.script" ]
-config["output"] = "binary/hungry.exe"
+config["output"] = "binary/chomp.exe"
 config["cpp"] = "c++17"
 config["debug"] = True
 config["compiler_params"] = "-EHsc -MT"
@@ -61,7 +61,7 @@ config["defines"] = [
     "SDL_MAIN_HANDLED=1"
 ]
 config["sources"] = [
-    "source/hungry.cpp"
+    "source/chomp.cpp"
 ]
 
 generate_config(config)

@@ -15,7 +15,7 @@ using namespace cs;
 
 // Game headers and sources...
 
-class HungryApp: public Application
+class ChompApp: public Application
 {
 public:
     Vec2 m_chompPos;

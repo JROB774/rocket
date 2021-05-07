@@ -1,27 +1,27 @@
-#include "hungry.hpp"
+#include "chomp.hpp"
 
 static const f32 k_minChompPos = 104.0f;
 static const f32 k_maxChompPos = 168.0f;
 static const f32 k_chompDownSpeed = 640.0f;
 
-void HungryApp::Init()
+void ChompApp::Init()
 {
     gfx::SetScreenScaleMode(gfx::ScaleMode_Pixel);
     gfx::SetScreenFilter(gfx::Filter_Nearest);
 
     m_chompPos = Vec2(196,104);
 }
-void HungryApp::Quit()
+void ChompApp::Quit()
 {
     // Nothing...
 }
-void HungryApp::Update(f32 dt)
+void ChompApp::Update(f32 dt)
 {
     if(IsKeyDown(KeyCode_Space)) m_chompPos.y += (k_chompDownSpeed * dt);
     else m_chompPos.y -= ((k_chompDownSpeed*0.75f) * dt);
     m_chompPos.y = Clamp(m_chompPos.y, k_minChompPos,k_maxChompPos);
 }
-void HungryApp::Render(f32 dt)
+void ChompApp::Render(f32 dt)
 {
     f32 halfX = CS_CAST(f32, gfx::GetScreenWidth()) / 2.0f;
     f32 halfY = CS_CAST(f32, gfx::GetScreenHeight()) / 2.0f;
@@ -36,9 +36,9 @@ void HungryApp::Render(f32 dt)
 AppConfig csMain(int argc, char** argv)
 {
     AppConfig appConfig;
-    appConfig.title = "Hungry";
+    appConfig.title = "Chomp";
     appConfig.window.min = Vec2i(320,180);
     appConfig.screenSize = Vec2i(320,180);
-    appConfig.app = Allocate<HungryApp>(CS_MEM_GAME);
+    appConfig.app = Allocate<ChompApp>(CS_MEM_GAME);
     return appConfig;
 }
