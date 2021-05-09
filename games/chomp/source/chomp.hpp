@@ -13,12 +13,20 @@
 
 using namespace cs;
 
-// Game headers and sources...
+struct Chomp
+{
+    Vec2 pos;
+    f32 vel;
+    f32 landedCooldown;
+    bool chomping;
+    bool landed;
+};
 
 class ChompApp: public Application
 {
 public:
-    Vec2 m_chompPos;
+    Chomp m_chomp;
+    f32 m_cloudPosX;
 
     void Init() override;
     void Quit() override;
