@@ -5,6 +5,23 @@
 
 using namespace cs;
 
+static bool CollisionCheck(Vec2 aPos, Rect aBounds, Vec2 bPos, Rect bBounds)
+{
+    Rect a,b;
+
+    a.x = aPos.x + aBounds.x;
+    a.y = aPos.y + aBounds.y;
+    a.w =          aBounds.w;
+    a.h =          aBounds.h;
+    b.x = bPos.x + bBounds.x;
+    b.y = bPos.y + bBounds.y;
+    b.w =          bBounds.w;
+    b.h =          bBounds.h;
+
+    return ((a.x + a.w > b.x) && (a.y + a.h > b.y) &&
+            (a.x < b.x + b.w) && (a.y < b.y + b.h));
+}
+
 class ChompApp: public Application
 {
 public:
@@ -35,6 +52,7 @@ public:
         Rect collider;
         bool chomping;
         bool landed;
+        bool bloody;
     };
 
     struct Saddo
@@ -140,6 +158,12 @@ public:
                 saddo.pos.x += k_saddoSpeed * dt;
                 if(saddo.pos.x >= screenX+32.0f)
                     saddo.dead = true;
+                // Check collision with chomp.
+                if(CollisionCheck(m_chomp.pos,m_chomp.collider, saddo.pos,saddo.collider))
+                {
+                    m_chomp.bloody = true;
+                    saddo.dead = true;
+                }
             }
             // Remove dead saddos.
             m_saddos.erase(std::remove_if(m_saddos.begin(), m_saddos.end(),
@@ -176,6 +200,14 @@ public:
         Rect chompTop = { 0,  0,40, 40 };
         Rect chompMid = { 0, 40,40,152 };
         Rect chompBtm = { 0,192,40, 64 };
+
+        // If we're bloody then use the appropriate graphics.
+        if(m_chomp.bloody)
+        {
+            chompTop.x += 40;
+            chompMid.x += 40;
+            chompBtm.x += 40;
+        }
 
         // Do actual drawing.
         gfx::Clear(RGBAToVec4(61,63,191));
