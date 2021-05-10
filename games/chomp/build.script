@@ -3,8 +3,8 @@ from shutil import copyfile
 # Right now we are just specifying a bunch of stuff manually with no arguments/options. In the future
 # we are going to want to implement a proper build script for this program which is more advanced.
 
-copyfile("../../cstech/cstech/third_party/sdl2/bin/win32/SDL2.dll", "binary/SDL2.dll")
-copyfile("../../cstech/cstech/third_party/sdl2_mixer/bin/win32/SDL2_mixer.dll", "binary/SDL2_mixer.dll")
+copyfile("../../cstech/third_party/sdl2/bin/win32/SDL2.dll", "binary/SDL2.dll")
+copyfile("../../cstech/third_party/sdl2_mixer/bin/win32/SDL2_mixer.dll", "binary/SDL2_mixer.dll")
 
 config = empty_config()
 
@@ -19,23 +19,23 @@ config["include_dirs"] = [
     "source",
     "source/third_party/gon",
     "source/third_party/szlib",
-    "../../cstech/cstech",
-    "../../cstech/cstech/general",
-    "../../cstech/cstech/sdl2",
-    "../../cstech/cstech/opengl",
-    "../../cstech/cstech/third_party/sdl2/include",
-    "../../cstech/cstech/third_party/sdl2/include/SDL2",
-    "../../cstech/cstech/third_party/sdl2_mixer/include",
-    "../../cstech/cstech/third_party/sdl2_mixer/include/SDL2",
-    "../../cstech/cstech/third_party/glad",
-    "../../cstech/cstech/third_party/imgui",
-    "../../cstech/cstech/third_party/nothings",
-    "../../cstech/cstech/third_party/nlohmann"
+    "../../cstech/source",
+    "../../cstech/source/general",
+    "../../cstech/source/sdl2",
+    "../../cstech/source/opengl",
+    "../../cstech/third_party/sdl2/include",
+    "../../cstech/third_party/sdl2/include/SDL2",
+    "../../cstech/third_party/sdl2_mixer/include",
+    "../../cstech/third_party/sdl2_mixer/include/SDL2",
+    "../../cstech/third_party/glad",
+    "../../cstech/third_party/imgui",
+    "../../cstech/third_party/nothings",
+    "../../cstech/third_party/nlohmann"
 ]
 config["library_dirs"] = [
     "../../cstech/binary",
-    "../../cstech/cstech/third_party/sdl2/lib/win32",
-    "../../cstech/cstech/third_party/sdl2_mixer/lib/win32"
+    "../../cstech/third_party/sdl2/lib/win32",
+    "../../cstech/third_party/sdl2_mixer/lib/win32"
 ]
 config["libraries"] = [
     "cstech.lib",
