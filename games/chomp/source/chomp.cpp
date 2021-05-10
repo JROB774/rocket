@@ -17,8 +17,8 @@ public:
     static inline const f32 k_chompCooldown = 0.15f;
     static inline const f32 k_cloudSpeed = 10.0f;
     static inline const f32 k_saddoSpeed = 60.0f;
-    static inline const f32 k_saddoMinSpawn = 0.25f;
-    static inline const f32 k_saddoMaxSpawn = 1.75f;
+    static inline const f32 k_saddoMinSpawn = 0.33f;
+    static inline const f32 k_saddoMaxSpawn = 2.25f;
 
     enum SaddoType
     {
@@ -32,6 +32,7 @@ public:
         Vec2 pos;
         f32 vel;
         f32 landedCooldown;
+        Rect collider;
         bool chomping;
         bool landed;
     };
@@ -54,12 +55,13 @@ public:
         gfx::SetScreenScaleMode(gfx::ScaleMode_Pixel);
         gfx::SetScreenFilter(gfx::Filter_Nearest);
 
-        m_saddoSpawnTimer = RandomF32(k_saddoMinSpawn, k_saddoMaxSpawn) * 2.0f;
+        m_saddoSpawnTimer = RandomF32(k_saddoMinSpawn, k_saddoMaxSpawn);
         m_cloudOffset = gfx::GetScreenWidth();
 
         m_chomp.pos = Vec2(196.0f,104.0f);
         m_chomp.vel = 0.0f;
         m_chomp.landedCooldown = 0.0f;
+        m_chomp.collider = { -16,-72,32,32 };
         m_chomp.chomping = false;
         m_chomp.landed = false;
     }
@@ -127,7 +129,7 @@ public:
                 saddo.pos.x = -64.0f;
                 saddo.pos.y = 122.0f;
                 saddo.type = CS_CAST(SaddoType, RandomS32(SaddoType_0, SaddoType_2));
-                saddo.collider = {};
+                saddo.collider = { -6,-2,12,14 };
                 saddo.dead = false;
                 m_saddos.push_back(saddo);
                 m_saddoSpawnTimer = RandomF32(k_saddoMinSpawn, k_saddoMaxSpawn);
@@ -139,6 +141,13 @@ public:
                 if(saddo.pos.x >= screenX+32.0f)
                     saddo.dead = true;
             }
+            // Remove dead saddos.
+            m_saddos.erase(std::remove_if(m_saddos.begin(), m_saddos.end(),
+            [](const Saddo& saddo)
+            {
+                return saddo.dead;
+            }),
+            m_saddos.end());
         }
     }
 
@@ -146,13 +155,13 @@ public:
     {
         gfx::Texture background = *GetAsset<gfx::Texture>("background");
         gfx::Texture foreground = *GetAsset<gfx::Texture>("foreground");
-        gfx::Texture clouds = *GetAsset<gfx::Texture>("clouds");
-        gfx::Texture chomp = *GetAsset<gfx::Texture>("chomp");
+        gfx::Texture clouds     = *GetAsset<gfx::Texture>("clouds");
+        gfx::Texture chomp      = *GetAsset<gfx::Texture>("chomp");
 
         f32 screenX = gfx::GetScreenWidth();
         f32 screenY = gfx::GetScreenHeight();
-        f32 halfX = screenX / 2.0f;
-        f32 halfY = screenY / 2.0f;
+        f32 halfX   = screenX / 2.0f;
+        f32 halfY   = screenY / 2.0f;
 
         f32 cloudX = roundf(m_cloudOffset);
         f32 cloudY = halfY;
@@ -168,18 +177,33 @@ public:
         Rect chompMid = { 0, 40,40,152 };
         Rect chompBtm = { 0,192,40, 64 };
 
+        // Do actual drawing.
         gfx::Clear(RGBAToVec4(61,63,191));
-
         imm::DrawTexture(background, halfX,halfY);
         imm::DrawTexture(clouds, cloudX,cloudY);
         imm::DrawTexture(clouds, cloudX+(screenX*2.0f),halfY);
-
         imm::DrawTexture(chomp, chompMidX,chompMidY, &chompMid);
         imm::DrawTexture(foreground, halfX,halfY);
         for(auto& saddo: m_saddos)
-            imm::DrawTexture("saddo_" + std::to_string(saddo.type), saddo.pos.x,saddo.pos.y);
+            imm::DrawTexture("saddo_" + std::to_string(saddo.type), roundf(saddo.pos.x),roundf(saddo.pos.y));
         imm::DrawTexture(chomp, chompTopX,chompTopY, &chompTop);
         imm::DrawTexture(chomp, chompBtmX,chompBtmY, &chompBtm);
+    }
+
+    void DebugRender(f32 dt)
+    {
+        f32 x = roundf(m_chomp.pos.x), y = roundf(m_chomp.pos.y);
+        Rect c = m_chomp.collider;
+        imm::DrawRectFilled(x+c.x,y+c.y,x+c.x+c.w,y+c.y+c.h, Vec4(0,1,0,0.5f));
+        imm::DrawRectOutline(x+c.x,y+c.y,x+c.x+c.w,y+c.y+c.h, Vec4(0,1,0,1));
+
+        for(auto& saddo: m_saddos)
+        {
+            x = roundf(saddo.pos.x), y = roundf(saddo.pos.y);
+            c = saddo.collider;
+            imm::DrawRectFilled(x+c.x,y+c.y,x+c.x+c.w,y+c.y+c.h, Vec4(1,0,0,0.5f));
+            imm::DrawRectOutline(x+c.x,y+c.y,x+c.x+c.w,y+c.y+c.h, Vec4(1,0,0,1));
+        }
     }
 };
 
