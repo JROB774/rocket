@@ -27,8 +27,8 @@ void ChompApp::Quit()
 }
 void ChompApp::Update(f32 dt)
 {
-    f32 screenX = CS_CAST(f32, gfx::GetScreenWidth());
-    f32 screenY = CS_CAST(f32, gfx::GetScreenHeight());
+    f32 screenX = gfx::GetScreenWidth();
+    f32 screenY = gfx::GetScreenHeight();
 
     // CLOUD LOGIC
 
@@ -79,23 +79,31 @@ void ChompApp::Update(f32 dt)
 }
 void ChompApp::Render(f32 dt)
 {
-    f32 screenX = CS_CAST(f32, gfx::GetScreenWidth());
-    f32 screenY = CS_CAST(f32, gfx::GetScreenHeight());
+    f32 screenX = gfx::GetScreenWidth();
+    f32 screenY = gfx::GetScreenHeight();
     f32 halfX = screenX / 2.0f;
     f32 halfY = screenY / 2.0f;
 
     f32 cloudX = roundf(m_cloudPosX);
     f32 cloudY = halfY;
-    f32 chompX = roundf(m_chomp.pos.x);
-    f32 chompY = roundf(m_chomp.pos.y);
+
+    f32 chompTopX = roundf(m_chomp.pos.x);
+    f32 chompTopY = roundf(m_chomp.pos.y);
+    f32 chompBottomX = chompTopX;
+    f32 chompBottomY = 158.0f;
+
+    Rect chompTop = { 0,0,40,152 };
+    Rect chompBottom = { 0,152,40,64 };
 
     gfx::Clear(RGBAToVec4(61,63,191));
 
     imm::DrawTexture("background", halfX,halfY);
     imm::DrawTexture("clouds", cloudX,cloudY);
     imm::DrawTexture("clouds", cloudX+(screenX*2.0f),halfY);
-    imm::DrawTexture("chomp", chompX,chompY);
+
+    imm::DrawTexture("chomp", chompTopX,chompTopY, &chompTop);
     imm::DrawTexture("foreground", halfX,halfY);
+    imm::DrawTexture("chomp", chompBottomX,chompBottomY, &chompBottom);
 }
 
 AppConfig csMain(int argc, char** argv)
