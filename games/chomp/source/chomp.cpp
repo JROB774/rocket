@@ -73,6 +73,9 @@ public:
         gfx::SetScreenScaleMode(gfx::ScaleMode_Pixel);
         gfx::SetScreenFilter(gfx::Filter_Nearest);
 
+        LoadAllAssets<gfx::Texture>();
+        LoadAllAssets<gfx::Shader>();
+
         m_saddoSpawnTimer = RandomF32(k_saddoMinSpawn, k_saddoMaxSpawn);
         m_cloudOffset = gfx::GetScreenWidth();
 
