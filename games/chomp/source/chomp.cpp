@@ -30,7 +30,7 @@ public:
     RGBAToVec4( 86,22,32,255),
     RGBAToVec4( 99, 0, 4,255)};
 
-    static inline Rect s_splatXL[] {
+    static const inline Rect k_splatX[] {
     {   0,  0,32,32 },
     {  32,  0,32,32 },
     {  64,  0,32,32 },
@@ -40,7 +40,7 @@ public:
     {  32, 32,32,32 },
     {  64, 32,32,32 },
     {  96, 32,32,32 }};
-    static inline Rect s_splatL[] {
+    static const inline Rect k_splatL[] {
     {   0, 64,24,24 },
     {  24, 64,24,24 },
     {  48, 64,24,24 },
@@ -50,7 +50,7 @@ public:
     {   0, 88,24,24 },
     {  24, 88,24,24 },
     {  48, 88,24,24 }};
-    static inline Rect s_splatM[] {
+    static const inline Rect k_splatM[] {
     {   0,112,16,16 },
     {  16,112,16,16 },
     {  32,112,16,16 },
@@ -60,7 +60,7 @@ public:
     {  96,112,16,16 },
     { 112,112,16,16 },
     { 128,112,16,16 }};
-    static inline Rect s_splatS[] {
+    static const inline Rect k_splatS[] {
     {   0,128,16,16 },
     {  16,128,16,16 },
     {  32,128,16,16 },
@@ -120,47 +120,31 @@ public:
                 (a.x < b.x + b.w) && (a.y < b.y + b.h));
     }
 
+    void SpawnSplats(f32 minX, f32 maxX, f32 minY, f32 maxY, f32 min, f32 max, const Rect* splats)
+    {
+        s32 count = RandomS32(min,max);
+        for(s32 i=0; i<count; ++i)
+        {
+            Vec4 color = k_bloodColors[RandomS32(0,7)];
+            color.a = RandomF32(0.85f, 1.0f);
+            imm::DrawTexture("blood_splats", roundf(RandomF32(minX,maxX)),roundf(RandomF32(minY,maxY)), &splats[RandomS32(0,8)], color);
+        }
+    }
+
     void DoSaddoSplats(const Saddo& saddo)
     {
         gfx::SetRenderTarget(m_bloodMap);
         CS_DEFER { gfx::SetRenderTarget(); };
-
-        s32 xLargeCount = RandomS32(1,3);
-        s32 largeCount = RandomS32(2,5);
-        s32 mediumCount = RandomS32(4,8);
-        s32 smallCount = RandomS32(2,12);
 
         f32 minX = (saddo.pos.x+10) - 35.0f;
         f32 maxX = (saddo.pos.x+10) + 55.0f;
         f32 minY = (saddo.pos.y-10) + 10.0f;
         f32 maxY = (saddo.pos.y-10) + 45.0f;
 
-        f32 alpha = 0.85f;
-
-        for(s32 i=0; i<xLargeCount; ++i)
-        {
-            Vec4 color = k_bloodColors[RandomS32(0,7)];
-            color.a = RandomF32(alpha, 1.00f);
-            imm::DrawTexture("blood_splats", roundf(RandomF32(minX,maxX)),roundf(RandomF32(minY,maxY)), &s_splatXL[RandomS32(0,8)], color);
-        }
-        for(s32 i=0; i<largeCount; ++i)
-        {
-            Vec4 color = k_bloodColors[RandomS32(0,7)];
-            color.a = RandomF32(alpha, 1.00f);
-            imm::DrawTexture("blood_splats", roundf(RandomF32(minX,maxX)),roundf(RandomF32(minY,maxY)), &s_splatL[RandomS32(0,8)], color);
-        }
-        for(s32 i=0; i<mediumCount; ++i)
-        {
-            Vec4 color = k_bloodColors[RandomS32(0,7)];
-            color.a = RandomF32(alpha, 1.00f);
-            imm::DrawTexture("blood_splats", roundf(RandomF32(minX,maxX)),roundf(RandomF32(minY,maxY)), &s_splatM[RandomS32(0,8)], color);
-        }
-        for(s32 i=0; i<smallCount; ++i)
-        {
-            Vec4 color = k_bloodColors[RandomS32(0,7)];
-            color.a = RandomF32(alpha, 1.00f);
-            imm::DrawTexture("blood_splats", roundf(RandomF32(minX,maxX)),roundf(RandomF32(minY,maxY)), &s_splatS[RandomS32(0,8)], color);
-        }
+        SpawnSplats(minX,maxX,minY,maxY, 1,3, k_splatX);
+        SpawnSplats(minX,maxX,minY,maxY, 2,5, k_splatL);
+        SpawnSplats(minX,maxX,minY,maxY, 3,6, k_splatM);
+        SpawnSplats(minX,maxX,minY,maxY, 2,8, k_splatS);
     }
 
     void Init()
