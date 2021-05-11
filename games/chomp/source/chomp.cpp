@@ -5,23 +5,6 @@
 
 using namespace cs;
 
-static bool CollisionCheck(Vec2 aPos, Rect aBounds, Vec2 bPos, Rect bBounds)
-{
-    Rect a,b;
-
-    a.x = aPos.x + aBounds.x;
-    a.y = aPos.y + aBounds.y;
-    a.w =          aBounds.w;
-    a.h =          aBounds.h;
-    b.x = bPos.x + bBounds.x;
-    b.y = bPos.y + bBounds.y;
-    b.w =          bBounds.w;
-    b.h =          bBounds.h;
-
-    return ((a.x + a.w > b.x) && (a.y + a.h > b.y) &&
-            (a.x < b.x + b.w) && (a.y < b.y + b.h));
-}
-
 class ChompApp: public Application
 {
 public:
@@ -36,6 +19,57 @@ public:
     static inline const f32 k_saddoSpeed = 60.0f;
     static inline const f32 k_saddoMinSpawn = 0.33f;
     static inline const f32 k_saddoMaxSpawn = 2.25f;
+
+    static inline const Vec4 k_bloodColors[] {
+    RGBAToVec4(114,44,42,255),
+    RGBAToVec4(158,14,31,255),
+    RGBAToVec4(107,36,39,255),
+    RGBAToVec4(119,21,14,255),
+    RGBAToVec4(142, 0,21,255),
+    RGBAToVec4(122, 6,39,255),
+    RGBAToVec4( 86,22,32,255),
+    RGBAToVec4( 99, 0, 4,255)};
+
+    static inline Rect s_splatXL[] {
+    {   0,  0,32,32 },
+    {  32,  0,32,32 },
+    {  64,  0,32,32 },
+    {  96,  0,32,32 },
+    { 128,  0,32,32 },
+    {   0, 32,32,32 },
+    {  32, 32,32,32 },
+    {  64, 32,32,32 },
+    {  96, 32,32,32 }};
+    static inline Rect s_splatL[] {
+    {   0, 64,24,24 },
+    {  24, 64,24,24 },
+    {  48, 64,24,24 },
+    {  72, 64,24,24 },
+    {  96, 64,24,24 },
+    { 120, 64,24,24 },
+    {   0, 88,24,24 },
+    {  24, 88,24,24 },
+    {  48, 88,24,24 }};
+    static inline Rect s_splatM[] {
+    {   0,112,16,16 },
+    {  16,112,16,16 },
+    {  32,112,16,16 },
+    {  48,112,16,16 },
+    {  64,112,16,16 },
+    {  80,112,16,16 },
+    {  96,112,16,16 },
+    { 112,112,16,16 },
+    { 128,112,16,16 }};
+    static inline Rect s_splatS[] {
+    {   0,128,16,16 },
+    {  16,128,16,16 },
+    {  32,128,16,16 },
+    {  48,128,16,16 },
+    {  64,128,16,16 },
+    {  80,128,16,16 },
+    {  96,128,16,16 },
+    { 112,128,16,16 },
+    { 128,128,16,16 }};
 
     enum SaddoType
     {
@@ -63,10 +97,71 @@ public:
         bool dead;
     };
 
+    gfx::Framebuffer m_bloodMap;
     std::vector<Saddo> m_saddos;
     f32 m_saddoSpawnTimer;
     f32 m_cloudOffset;
     Chomp m_chomp;
+
+    bool CollisionCheck(Vec2 aPos, Rect aBounds, Vec2 bPos, Rect bBounds)
+    {
+        Rect a,b;
+
+        a.x = aPos.x + aBounds.x;
+        a.y = aPos.y + aBounds.y;
+        a.w =          aBounds.w;
+        a.h =          aBounds.h;
+        b.x = bPos.x + bBounds.x;
+        b.y = bPos.y + bBounds.y;
+        b.w =          bBounds.w;
+        b.h =          bBounds.h;
+
+        return ((a.x + a.w > b.x) && (a.y + a.h > b.y) &&
+                (a.x < b.x + b.w) && (a.y < b.y + b.h));
+    }
+
+    void DoSaddoSplats(const Saddo& saddo)
+    {
+        gfx::SetRenderTarget(m_bloodMap);
+        CS_DEFER { gfx::SetRenderTarget(); };
+
+        s32 xLargeCount = RandomS32(1,3);
+        s32 largeCount = RandomS32(2,5);
+        s32 mediumCount = RandomS32(4,8);
+        s32 smallCount = RandomS32(2,12);
+
+        f32 minX = (saddo.pos.x+10) - 35.0f;
+        f32 maxX = (saddo.pos.x+10) + 55.0f;
+        f32 minY = (saddo.pos.y-10) + 10.0f;
+        f32 maxY = (saddo.pos.y-10) + 45.0f;
+
+        f32 alpha = 0.85f;
+
+        for(s32 i=0; i<xLargeCount; ++i)
+        {
+            Vec4 color = k_bloodColors[RandomS32(0,7)];
+            color.a = RandomF32(alpha, 1.00f);
+            imm::DrawTexture("blood_splats", roundf(RandomF32(minX,maxX)),roundf(RandomF32(minY,maxY)), &s_splatXL[RandomS32(0,8)], color);
+        }
+        for(s32 i=0; i<largeCount; ++i)
+        {
+            Vec4 color = k_bloodColors[RandomS32(0,7)];
+            color.a = RandomF32(alpha, 1.00f);
+            imm::DrawTexture("blood_splats", roundf(RandomF32(minX,maxX)),roundf(RandomF32(minY,maxY)), &s_splatL[RandomS32(0,8)], color);
+        }
+        for(s32 i=0; i<mediumCount; ++i)
+        {
+            Vec4 color = k_bloodColors[RandomS32(0,7)];
+            color.a = RandomF32(alpha, 1.00f);
+            imm::DrawTexture("blood_splats", roundf(RandomF32(minX,maxX)),roundf(RandomF32(minY,maxY)), &s_splatM[RandomS32(0,8)], color);
+        }
+        for(s32 i=0; i<smallCount; ++i)
+        {
+            Vec4 color = k_bloodColors[RandomS32(0,7)];
+            color.a = RandomF32(alpha, 1.00f);
+            imm::DrawTexture("blood_splats", roundf(RandomF32(minX,maxX)),roundf(RandomF32(minY,maxY)), &s_splatS[RandomS32(0,8)], color);
+        }
+    }
 
     void Init()
     {
@@ -75,6 +170,13 @@ public:
 
         LoadAllAssets<gfx::Texture>();
         LoadAllAssets<gfx::Shader>();
+
+        gfx::SetTextureFilter(*GetAsset<gfx::Texture>("mask"), gfx::Filter_Nearest);
+
+        f32 screenX = gfx::GetScreenWidth();
+        f32 screenY = gfx::GetScreenHeight();
+
+        gfx::CreateFramebuffer(m_bloodMap, 340,200, gfx::Filter_Nearest, gfx::Wrap_ClampToEdge, Vec4(0));
 
         m_saddoSpawnTimer = RandomF32(k_saddoMinSpawn, k_saddoMaxSpawn);
         m_cloudOffset = gfx::GetScreenWidth();
@@ -85,6 +187,11 @@ public:
         m_chomp.collider = { -16,-72,32,32 };
         m_chomp.chomping = false;
         m_chomp.landed = false;
+    }
+
+    void Quit()
+    {
+        FreeFramebuffer(m_bloodMap);
     }
 
     void Update(f32 dt)
@@ -166,6 +273,7 @@ public:
                 {
                     m_chomp.bloody = true;
                     saddo.dead = true;
+                    DoSaddoSplats(saddo);
                 }
             }
             // Remove dead saddos.
@@ -184,6 +292,7 @@ public:
         gfx::Texture foreground = *GetAsset<gfx::Texture>("foreground");
         gfx::Texture clouds     = *GetAsset<gfx::Texture>("clouds");
         gfx::Texture chomp      = *GetAsset<gfx::Texture>("chomp");
+        gfx::Texture mask       = *GetAsset<gfx::Texture>("mask");
 
         f32 screenX = gfx::GetScreenWidth();
         f32 screenY = gfx::GetScreenHeight();
@@ -223,6 +332,23 @@ public:
             imm::DrawTexture("saddo_" + std::to_string(saddo.type), roundf(saddo.pos.x),roundf(saddo.pos.y));
         imm::DrawTexture(chomp, chompTopX,chompTopY, &chompTop);
         imm::DrawTexture(chomp, chompBtmX,chompBtmY, &chompBtm);
+
+        // Draw the blood map.
+        imm::SetCurrentShader("blood");
+        imm::SetCurrentTexture(GetFramebufferTexture(m_bloodMap), 0);
+        imm::SetCurrentTexture(mask, 1);
+        bool textureMapping = imm::IsTextureMappingEnabled();
+        imm::EnableTextureMapping(true);
+        imm::BeginDraw(gfx::DrawMode_TriangleStrip);
+        gfx::SetShaderInt("u_texture0", 0);
+        gfx::SetShaderInt("u_bloodMask", 1);
+        imm::PutVertex({ {-10.0f,  190.0f}, Vec4(1,0,0,1), {0,0} });
+        imm::PutVertex({ {-10.0f,  -10.0f}, Vec4(1,0,0,1), {0,1} });
+        imm::PutVertex({ {330.0f,  190.0f}, Vec4(1,0,0,1), {1,0} });
+        imm::PutVertex({ {330.0f,  -10.0f}, Vec4(1,0,0,1), {1,1} });
+        imm::EndDraw();
+        imm::EnableTextureMapping(textureMapping);
+        imm::SetCurrentShader("");
     }
 
     void DebugRender(f32 dt)
