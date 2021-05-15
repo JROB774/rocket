@@ -65,7 +65,7 @@ config["defines"] = [
     "SDL_MAIN_HANDLED=1"
 ]
 config["sources"] = [
-    "source/main.cpp"
+    "source/rocket.cpp"
 ]
 
 generate_config(config)

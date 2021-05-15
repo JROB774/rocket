@@ -1,3 +1,16 @@
+#include "cs_platform.hpp"
+#include "cs_application.hpp"
+#include "cs_graphics.hpp"
+#include "cs_utility.hpp"
+
+struct Rocket
+{
+    cs::Vec2 pos;
+    cs::Vec2 vel;
+    cs::f32 angle;
+    cs::f32 shake;
+};
+
 static constexpr cs::f32 k_rocketVelocityMultiplier = 25.0f;
 static constexpr cs::f32 k_rocketTerminalVelocity = 9.5;
 static constexpr cs::f32 k_rocketMaxAngle = 25.0f;
@@ -40,4 +53,50 @@ static void RenderRocket(Rocket& rocket, cs::f32 dt)
     cs::imm::DrawTexture("rocket", rocket.pos.x, rocket.pos.y, 1.0f, 1.0f, angle, cs::imm::Flip_None, &s_clip);
     s_clip.x += 48.0f;
     if(s_clip.x >= 288.0f) s_clip.x = 48.0f;
+}
+
+class RocketApp: public cs::Application
+{
+public:
+    Rocket m_rocket;
+
+    void Init()
+    {
+        cs::gfx::SetScreenScaleMode(cs::gfx::ScaleMode_Pixel);
+        cs::gfx::SetScreenFilter(cs::gfx::Filter_Nearest);
+
+        CreateRocket(m_rocket);
+    }
+
+    void Quit()
+    {
+        // Nothing...
+    }
+
+    void Update(cs::f32 dt)
+    {
+        cs::LockMouse(!cs::IsDebugMode());
+        UpdateRocket(m_rocket, dt);
+    }
+
+    void Render(cs::f32 dt)
+    {
+        cs::gfx::Clear(0.0f, 0.05f, 0.2f);
+        RenderRocket(m_rocket, dt);
+    }
+
+    void DebugRender(cs::f32 dt)
+    {
+        // Nothing...
+    }
+};
+
+cs::AppConfig csMain(int argc, char** argv)
+{
+    cs::AppConfig appConfig;
+    appConfig.title = "Rocket";
+    appConfig.window.min = cs::Vec2i(180,320);
+    appConfig.screenSize = cs::Vec2i(180,320);
+    appConfig.app = cs::Allocate<RocketApp>(CS_MEM_GAME);
+    return appConfig;
 }
