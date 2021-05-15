@@ -12,6 +12,7 @@ config["dependencies"] = [ "../../cstech/build.script" ]
 config["output"] = "binary/chomp.exe"
 config["cpp"] = "c++17"
 config["debug"] = True
+config["unity"] = True
 config["compiler_params"] = "-EHsc -MT"
 config["linker_params"] =  "-ignore:4099"
 
