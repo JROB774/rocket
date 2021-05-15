@@ -1,11 +1,11 @@
 #include "main.hpp"
 
-AppConfig csMain(int argc, char** argv)
+cs::AppConfig csMain(int argc, char** argv)
 {
-    AppConfig appConfig;
+    cs::AppConfig appConfig;
     appConfig.title = "Rocket";
-    appConfig.window.min = Vec2i(180,320);
-    appConfig.screenSize = Vec2i(180,320);
-    appConfig.app = Allocate<RocketApp>(CS_MEM_GAME);
+    appConfig.window.min = cs::Vec2i(180,320);
+    appConfig.screenSize = cs::Vec2i(180,320);
+    appConfig.app = cs::Allocate<RocketApp>(CS_MEM_GAME);
     return appConfig;
 }

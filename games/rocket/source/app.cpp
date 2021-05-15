@@ -1,6 +1,9 @@
 void RocketApp::Init()
 {
-    // Nothing...
+    cs::gfx::SetScreenScaleMode(cs::gfx::ScaleMode_Pixel);
+    cs::gfx::SetScreenFilter(cs::gfx::Filter_Nearest);
+
+    CreateRocket(m_rocket);
 }
 
 void RocketApp::Quit()
@@ -8,17 +11,19 @@ void RocketApp::Quit()
     // Nothing...
 }
 
-void RocketApp::Update(f32 dt)
+void RocketApp::Update(cs::f32 dt)
 {
-    // Nothing...
+    cs::LockMouse(!cs::IsDebugMode());
+    UpdateRocket(m_rocket, dt);
 }
 
-void RocketApp::Render(f32 dt)
+void RocketApp::Render(cs::f32 dt)
 {
-    gfx::Clear(0.0f, 0.05f, 0.2f);
+    cs::gfx::Clear(0.0f, 0.05f, 0.2f);
+    RenderRocket(m_rocket, dt);
 }
 
-void RocketApp::DebugRender(f32 dt)
+void RocketApp::DebugRender(cs::f32 dt)
 {
     // Nothing...
 }
