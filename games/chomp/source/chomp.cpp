@@ -149,6 +149,8 @@ public:
 
     void Init()
     {
+        ShowCursor(false);
+
         gfx::SetScreenScaleMode(gfx::ScaleMode_Pixel);
         gfx::SetScreenFilter(gfx::Filter_Nearest);
 
