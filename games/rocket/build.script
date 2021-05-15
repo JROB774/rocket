@@ -1,0 +1,71 @@
+from shutil import copyfile
+
+# Right now we are just specifying a bunch of stuff manually with no arguments/options. In the future
+# we are going to want to implement a proper build script for this program which is more advanced.
+
+copyfile("../../cstech/third_party/sdl2/bin/win32/SDL2.dll", "binary/SDL2.dll")
+copyfile("../../cstech/third_party/sdl2_mixer/bin/win32/SDL2_mixer.dll", "binary/SDL2_mixer.dll")
+
+config = empty_config()
+
+config["dependencies"] = [ "../../cstech/build.script" ]
+config["output"] = "binary/rocket.exe"
+config["cpp"] = "c++17"
+config["debug"] = True
+config["compiler_params"] = "-EHsc -MT"
+config["linker_params"] =  "-ignore:4099"
+
+config["include_dirs"] = [
+    "source",
+    "source/third_party/gon",
+    "source/third_party/szlib",
+    "../../cstech/source",
+    "../../cstech/source/general",
+    "../../cstech/source/sdl2",
+    "../../cstech/source/opengl",
+    "../../cstech/third_party/sdl2/include",
+    "../../cstech/third_party/sdl2/include/SDL2",
+    "../../cstech/third_party/sdl2_mixer/include",
+    "../../cstech/third_party/sdl2_mixer/include/SDL2",
+    "../../cstech/third_party/glad",
+    "../../cstech/third_party/imgui",
+    "../../cstech/third_party/nothings",
+    "../../cstech/third_party/nlohmann"
+]
+config["library_dirs"] = [
+    "../../cstech/binary",
+    "../../cstech/third_party/sdl2/lib/win32",
+    "../../cstech/third_party/sdl2_mixer/lib/win32"
+]
+config["libraries"] = [
+    "cstech.lib",
+    "SDL2main.lib",
+    "SDL2.lib",
+    "SDL2_mixer.lib",
+    "opengl32.lib",
+    "dinput8.lib",
+    "dxguid.lib",
+    "user32.lib",
+    "gdi32.lib",
+    "winmm.lib",
+    "imm32.lib",
+    "ole32.lib",
+    "oleaut32.lib",
+    "shell32.lib",
+    "version.lib",
+    "uuid.lib",
+    "advapi32.lib",
+    "setupapi.lib",
+    "setargv.obj"
+]
+config["defines"] = [
+    "CS_PLATFORM_SDL2=1",
+    "CS_COMPILER_MSVC=1",
+    "CS_DEBUG=1",
+    "SDL_MAIN_HANDLED=1"
+]
+config["sources"] = [
+    "source/main.cpp"
+]
+
+generate_config(config)
