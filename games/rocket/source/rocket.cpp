@@ -19,7 +19,12 @@ struct Smoke
 
 static std::vector<Smoke> s_smoke;
 
-static void SpawnSmoke(std::vector<Smoke>& smoke, cs::f32 x, cs::f32 y)
+static void CreateSmoke()
+{
+    s_smoke.reserve(1024);
+}
+
+static void SpawnSmoke(cs::f32 x, cs::f32 y)
 {
     Smoke s = {};
     s.pos = cs::Vec2(x,y);
@@ -28,12 +33,12 @@ static void SpawnSmoke(std::vector<Smoke>& smoke, cs::f32 x, cs::f32 y)
     s.timer = 0.0f;
     s.frameTime = cs::RandomF32(0.05f, 0.15f);
     s.dead = false;
-    smoke.push_back(s);
+    s_smoke.push_back(s);
 }
 
-static void UpdateSmoke(std::vector<Smoke>& smoke, cs::f32 dt)
+static void UpdateSmoke(cs::f32 dt)
 {
-    for(auto& s: smoke)
+    for(auto& s: s_smoke)
     {
         s.pos.y += 180.0f * dt;
         s.timer += dt;
@@ -47,17 +52,17 @@ static void UpdateSmoke(std::vector<Smoke>& smoke, cs::f32 dt)
             s.dead = true;
     }
 
-    smoke.erase(std::remove_if(smoke.begin(), smoke.end(),
+    s_smoke.erase(std::remove_if(s_smoke.begin(), s_smoke.end(),
     [](const Smoke& s)
     {
         return s.dead;
     }),
-    smoke.end());
+    s_smoke.end());
 }
 
-static void RenderSmoke(const std::vector<Smoke>& smoke, cs::f32 dt)
+static void RenderSmoke(cs::f32 dt)
 {
-    for(auto& s: smoke)
+    for(auto& s: s_smoke)
     {
         cs::Rect clip = { CS_CAST(cs::f32, 16*s.frame), 0, 16, 16 };
         cs::imm::DrawTexture("smoke", s.pos.x, s.pos.y, 1.0f, 1.0f, s.angle, cs::imm::Flip_None, &clip);
@@ -84,48 +89,85 @@ struct Rocket
 
 static Rocket s_rocket;
 
-static void CreateRocket(Rocket& rocket)
+static void CreateRocket()
 {
-    rocket.pos.x = (cs::gfx::GetScreenWidth()/2.0f);
-    rocket.pos.y = cs::gfx::GetScreenHeight() - 48.0f;
-    rocket.vel   = cs::Vec2(0);
-    rocket.angle = 0.0f;
-    rocket.shake = 0.0f;
-    rocket.timer = 0.0f;
+    s_rocket.pos.x = (cs::gfx::GetScreenWidth()/2.0f);
+    s_rocket.pos.y = cs::gfx::GetScreenHeight() - 48.0f;
+    s_rocket.vel   = cs::Vec2(0);
+    s_rocket.angle = 0.0f;
+    s_rocket.shake = 0.0f;
+    s_rocket.timer = 0.0f;
 }
 
-static void UpdateRocket(Rocket& rocket, cs::f32 dt)
+static void UpdateRocket(cs::f32 dt)
 {
-    rocket.vel.x += cs::GetRelativeMousePos().x / 10.0f;
-    rocket.vel.y += cs::GetRelativeMousePos().y / 20.0f;
+    s_rocket.vel.x += cs::GetRelativeMousePos().x / 10.0f;
+    s_rocket.vel.y += cs::GetRelativeMousePos().y / 20.0f;
 
-    rocket.angle = cs::Clamp(rocket.vel.x, -k_rocketMaxAngle, k_rocketMaxAngle);
-    rocket.shake = cs::RandomF32(-k_rocketMaxShake, k_rocketMaxShake);
+    s_rocket.angle = cs::Clamp(s_rocket.vel.x, -k_rocketMaxAngle, k_rocketMaxAngle);
+    s_rocket.shake = cs::RandomF32(-k_rocketMaxShake, k_rocketMaxShake);
 
-    rocket.vel.x = cs::Clamp(rocket.vel.x, -(k_rocketTerminalVelocity*1.5f), (k_rocketTerminalVelocity*1.5f));
-    rocket.vel.y = cs::Clamp(rocket.vel.y, -k_rocketTerminalVelocity, k_rocketTerminalVelocity);
+    s_rocket.vel.x = cs::Clamp(s_rocket.vel.x, -(k_rocketTerminalVelocity*1.5f), (k_rocketTerminalVelocity*1.5f));
+    s_rocket.vel.y = cs::Clamp(s_rocket.vel.y, -k_rocketTerminalVelocity, k_rocketTerminalVelocity);
 
-    rocket.pos += (rocket.vel * k_rocketVelocityMultiplier) * dt;
-    rocket.pos.x = cs::Clamp(rocket.pos.x, 0.0f, cs::gfx::GetScreenWidth());
-    rocket.pos.y = cs::Clamp(rocket.pos.y, 0.0f, cs::gfx::GetScreenHeight());
+    s_rocket.pos += (s_rocket.vel * k_rocketVelocityMultiplier) * dt;
+    s_rocket.pos.x = cs::Clamp(s_rocket.pos.x, 0.0f, cs::gfx::GetScreenWidth());
+    s_rocket.pos.y = cs::Clamp(s_rocket.pos.y, 0.0f, cs::gfx::GetScreenHeight());
 
-    rocket.vel = cs::Lerp(rocket.vel, cs::Vec2(0), cs::Vec2(0.1f));
+    s_rocket.vel = cs::Lerp(s_rocket.vel, cs::Vec2(0), cs::Vec2(0.1f));
 
-    rocket.timer += dt;
-    if(rocket.timer >= 0.05f)
+    s_rocket.timer += dt;
+    if(s_rocket.timer >= 0.05f)
     {
-        SpawnSmoke(s_smoke, rocket.pos.x+cs::RandomF32(-3.0f,3.0f), rocket.pos.y+20.0f);
-        rocket.timer -= 0.05f;
+        SpawnSmoke(s_rocket.pos.x+cs::RandomF32(-3.0f,3.0f), s_rocket.pos.y+20.0f);
+        s_rocket.timer -= 0.05f;
     }
 }
 
-static void RenderRocket(Rocket& rocket, cs::f32 dt)
+static void RenderRocket(cs::f32 dt)
 {
     static cs::Rect s_clip = { 48, 0, 48, 96 };
-    cs::f32 angle = cs::ToRad(rocket.angle + rocket.shake);
-    cs::imm::DrawTexture("rocket", rocket.pos.x, rocket.pos.y, 1.0f, 1.0f, angle, cs::imm::Flip_None, &s_clip);
+    cs::f32 angle = cs::ToRad(s_rocket.angle + s_rocket.shake);
+    cs::imm::DrawTexture("rocket", s_rocket.pos.x, s_rocket.pos.y, 1.0f, 1.0f, angle, cs::imm::Flip_None, &s_clip);
     s_clip.x += 48.0f;
     if(s_clip.x >= 288.0f) s_clip.x = 48.0f;
+}
+
+//
+// Background
+//
+
+static constexpr cs::s32 k_backCount = 3;
+
+static cs::f32 s_backSpeed[k_backCount];
+static cs::f32 s_backOffset[k_backCount];
+
+static void CreateBackground()
+{
+    cs::f32 speed = 240.0f;
+    for(cs::s32 i=k_backCount-1; i>=0; --i)
+    {
+        s_backSpeed[i] = speed;
+        s_backOffset[i] = cs::gfx::GetScreenHeight() * 0.5f;
+        speed += 12.0f;
+    }
+}
+
+static void RenderBackground(cs::f32 dt)
+{
+    cs::gfx::Clear(0.0f, 0.05f, 0.2f);
+    cs::f32 screenWidth = cs::gfx::GetScreenWidth();
+    cs::f32 screenHeight = cs::gfx::GetScreenHeight();
+    cs::Rect clip = { 0, 0, 180, 320 };
+    for(cs::s32 i=0; i<k_backCount; ++i)
+    {
+        s_backOffset[i] += s_backSpeed[i] * dt;
+        cs::imm::DrawTexture("back", screenWidth*0.5f,s_backOffset[i], &clip);
+        cs::imm::DrawTexture("back", screenWidth*0.5f,s_backOffset[i]-screenHeight, &clip);
+        if(s_backOffset[i] >= screenHeight * 1.5f)
+            s_backOffset[i] = screenHeight * 0.5f;
+        clip.x += 180.0f;
+    }
 }
 
 //
@@ -143,8 +185,9 @@ public:
         cs::gfx::SetTextureFilter(*cs::GetAsset<cs::gfx::Texture>("rocket"), cs::gfx::Filter_Nearest);
         cs::gfx::SetTextureFilter(*cs::GetAsset<cs::gfx::Texture>("smoke"), cs::gfx::Filter_Nearest);
 
-        CreateRocket(s_rocket);
-        s_smoke.reserve(1024);
+        CreateBackground();
+        CreateRocket();
+        CreateSmoke();
     }
 
     void Quit()
@@ -155,15 +198,15 @@ public:
     void Update(cs::f32 dt)
     {
         cs::LockMouse(!cs::IsDebugMode());
-        UpdateSmoke(s_smoke, dt);
-        UpdateRocket(s_rocket, dt);
+        UpdateSmoke(dt);
+        UpdateRocket(dt);
     }
 
     void Render(cs::f32 dt)
     {
-        cs::gfx::Clear(0.0f, 0.05f, 0.2f);
-        RenderSmoke(s_smoke, dt);
-        RenderRocket(s_rocket, dt);
+        RenderBackground(dt);
+        RenderSmoke(dt);
+        RenderRocket(dt);
     }
 
     void DebugRender(cs::f32 dt)
