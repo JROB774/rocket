@@ -178,8 +178,11 @@ static void CreateRocket()
 
 static void UpdateRocket(cs::f32 dt)
 {
-    s_rocket.vel.x += cs::GetRelativeMousePos().x / 10.0f;
-    s_rocket.vel.y += cs::GetRelativeMousePos().y / 20.0f;
+    if(cs::IsMouseLocked())
+    {
+        s_rocket.vel.x += cs::GetRelativeMousePos().x / 10.0f;
+        s_rocket.vel.y += cs::GetRelativeMousePos().y / 20.0f;
+    }
 
     s_rocket.angle = cs::Clamp(s_rocket.vel.x, -k_rocketMaxAngle, k_rocketMaxAngle);
     s_rocket.shake = cs::RandomF32(-k_rocketMaxShake, k_rocketMaxShake);
@@ -276,7 +279,19 @@ public:
 
     void Update(cs::f32 dt)
     {
-        cs::LockMouse(!cs::IsDebugMode());
+        // Handle locking/unlocking the mouse with debug mode.
+        static bool s_lockMouse = true;
+        if(cs::IsDebugMode())
+        {
+            if(cs::IsKeyPressed(cs::KeyCode_Escape))
+                s_lockMouse = !s_lockMouse;
+        }
+        else
+        {
+            s_lockMouse = true;
+        }
+        cs::LockMouse(s_lockMouse);
+
         MaybeSpawnEntity(dt);
         UpdateAsteroids(dt);
         UpdateSmoke(dt);
