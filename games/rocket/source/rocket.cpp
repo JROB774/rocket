@@ -4,6 +4,83 @@
 #include "cs_utility.hpp"
 
 //
+// Asteroid
+//
+
+enum AsteroidType
+{
+    AsteroidType_Large,
+    AsteroidType_Medium,
+    AsteroidType_Small,
+    AsteroidType_TOTAL
+};
+
+struct Asteroid
+{
+    cs::Vec2 pos;
+    cs::imm::Flip flip;
+    AsteroidType type;
+};
+
+static constexpr cs::f32 k_asteroidFallSpeed = 400.0f;
+static constexpr cs::f32 k_asteroidMinSpinSpeed = 240.0f;
+static constexpr cs::f32 k_asteroidMaxSpinSpeed = 420.0f;
+
+static std::vector<Asteroid> s_asteroids;
+
+static void SpawnAsteroid()
+{
+    Asteroid asteroid = {};
+    asteroid.pos = cs::Vec2(cs::RandomF32(0, cs::gfx::GetScreenWidth()), -48.0f);
+    asteroid.flip = (cs::RandomS32() % 2 == 0) ? cs::imm::Flip_None : cs::imm::Flip_Horizontal;
+    asteroid.type = CS_CAST(AsteroidType, cs::RandomS32(0,AsteroidType_TOTAL));
+    s_asteroids.push_back(asteroid);
+}
+
+static void UpdateAsteroids(cs::f32 dt)
+{
+    for(auto& asteroid: s_asteroids)
+        asteroid.pos.y += k_asteroidFallSpeed * dt;
+
+    s_asteroids.erase(std::remove_if(s_asteroids.begin(), s_asteroids.end(),
+    [](const Asteroid& asteroid)
+    {
+        return (asteroid.pos.y >= (cs::gfx::GetScreenHeight()+48.0f));
+    }),
+    s_asteroids.end());
+}
+
+static void RenderAsteroids(cs::f32 dt)
+{
+    for(auto& asteroid: s_asteroids)
+    {
+        cs::Rect clip = { 0, CS_CAST(cs::f32, 48*asteroid.type), 48, 48 };
+        cs::imm::DrawTexture("asteroid", asteroid.pos.x, asteroid.pos.y, 1.0f, 1.0f, 0.0f, asteroid.flip, &clip);
+    }
+}
+
+//
+// Entity Spawn
+//
+
+enum EntityType
+{
+    EntityType_Asteroid,
+    EntityType_TOTAL
+};
+
+static void MaybeSpawnEntity(cs::f32 dt)
+{
+    if(cs::RandomS32(0,1000) > 75) return;
+
+    EntityType type = CS_CAST(EntityType, cs::RandomS32(0,EntityType_TOTAL-1));
+    switch(type)
+    {
+        case(EntityType_Asteroid): SpawnAsteroid(); break;
+    }
+}
+
+//
 // Smoke
 //
 
@@ -29,7 +106,7 @@ static void SpawnSmoke(cs::f32 x, cs::f32 y)
     Smoke s = {};
     s.pos = cs::Vec2(x,y);
     s.frame = 0;
-    s.angle = cs::ToRad(cs::RandomF32(0,360.0f));
+    s.angle = cs::RandomF32(0,360.0f);
     s.timer = 0.0f;
     s.frameTime = cs::RandomF32(0.05f, 0.15f);
     s.dead = false;
@@ -65,7 +142,7 @@ static void RenderSmoke(cs::f32 dt)
     for(auto& s: s_smoke)
     {
         cs::Rect clip = { CS_CAST(cs::f32, 16*s.frame), 0, 16, 16 };
-        cs::imm::DrawTexture("smoke", s.pos.x, s.pos.y, 1.0f, 1.0f, s.angle, cs::imm::Flip_None, &clip);
+        cs::imm::DrawTexture("smoke", s.pos.x, s.pos.y, 1.0f, 1.0f, cs::ToRad(s.angle), cs::imm::Flip_None, &clip);
     }
 }
 
@@ -144,7 +221,7 @@ static cs::f32 s_backOffset[k_backCount];
 
 static void CreateBackground()
 {
-    cs::f32 speed = 240.0f;
+    cs::f32 speed = 360.0f;
     for(cs::s32 i=k_backCount-1; i>=0; --i)
     {
         s_backSpeed[i] = speed;
@@ -159,11 +236,12 @@ static void RenderBackground(cs::f32 dt)
     cs::f32 screenWidth = cs::gfx::GetScreenWidth();
     cs::f32 screenHeight = cs::gfx::GetScreenHeight();
     cs::Rect clip = { 0, 0, 180, 320 };
+    cs::Vec4 color = cs::Vec4(1,1,1,0.4f);
     for(cs::s32 i=0; i<k_backCount; ++i)
     {
         s_backOffset[i] += s_backSpeed[i] * dt;
-        cs::imm::DrawTexture("back", screenWidth*0.5f,s_backOffset[i], &clip);
-        cs::imm::DrawTexture("back", screenWidth*0.5f,s_backOffset[i]-screenHeight, &clip);
+        cs::imm::DrawTexture("back", screenWidth*0.5f,s_backOffset[i], &clip, color);
+        cs::imm::DrawTexture("back", screenWidth*0.5f,s_backOffset[i]-screenHeight, &clip, color);
         if(s_backOffset[i] >= screenHeight * 1.5f)
             s_backOffset[i] = screenHeight * 0.5f;
         clip.x += 180.0f;
@@ -182,6 +260,7 @@ public:
         cs::gfx::SetScreenScaleMode(cs::gfx::ScaleMode_Pixel);
         cs::gfx::SetScreenFilter(cs::gfx::Filter_Nearest);
 
+        cs::gfx::SetTextureFilter(*cs::GetAsset<cs::gfx::Texture>("asteroid"), cs::gfx::Filter_Nearest);
         cs::gfx::SetTextureFilter(*cs::GetAsset<cs::gfx::Texture>("rocket"), cs::gfx::Filter_Nearest);
         cs::gfx::SetTextureFilter(*cs::GetAsset<cs::gfx::Texture>("smoke"), cs::gfx::Filter_Nearest);
 
@@ -198,6 +277,8 @@ public:
     void Update(cs::f32 dt)
     {
         cs::LockMouse(!cs::IsDebugMode());
+        MaybeSpawnEntity(dt);
+        UpdateAsteroids(dt);
         UpdateSmoke(dt);
         UpdateRocket(dt);
     }
@@ -206,6 +287,7 @@ public:
     {
         RenderBackground(dt);
         RenderSmoke(dt);
+        RenderAsteroids(dt);
         RenderRocket(dt);
     }
 
