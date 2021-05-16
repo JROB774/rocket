@@ -4,6 +4,26 @@
 #include "cs_utility.hpp"
 
 //
+// Collision
+//
+
+struct Collider
+{
+    cs::Vec2 offset;
+    cs::f32 radius;
+};
+
+static bool CheckCollision(cs::Vec2 aPos, const Collider& a, cs::Vec2 bPos, const Collider& b)
+{
+    cs::f32 ax = aPos.x + a.offset.x, ay = aPos.y + a.offset.y;
+    cs::f32 bx = bPos.x + b.offset.x, by = bPos.y + b.offset.y;
+    cs::f32 x = abs(bx-ax);
+    cs::f32 y = abs(by-ay);
+    cs::f32 radius = a.radius+b.radius;
+    return (((x*x)+(y*y)) <= (radius*radius));
+}
+
+//
 // Asteroid
 //
 
@@ -19,6 +39,7 @@ struct Asteroid
 {
     cs::Vec2 pos;
     cs::imm::Flip flip;
+    Collider collider;
     AsteroidType type;
 };
 
@@ -34,6 +55,13 @@ static void SpawnAsteroid()
     asteroid.pos = cs::Vec2(cs::RandomF32(0, cs::gfx::GetScreenWidth()), -48.0f);
     asteroid.flip = (cs::RandomS32() % 2 == 0) ? cs::imm::Flip_None : cs::imm::Flip_Horizontal;
     asteroid.type = CS_CAST(AsteroidType, cs::RandomS32(0,AsteroidType_TOTAL));
+    asteroid.collider.offset = cs::Vec2(0,-2);
+    switch(asteroid.type)
+    {
+        case(AsteroidType_Large): asteroid.collider.radius = 12.0f; break;
+        case(AsteroidType_Medium): asteroid.collider.radius = 8.0f; break;
+        case(AsteroidType_Small): asteroid.collider.radius = 4.0f; break;
+    }
     s_asteroids.push_back(asteroid);
 }
 
@@ -56,6 +84,16 @@ static void RenderAsteroids(cs::f32 dt)
     {
         cs::Rect clip = { 0, CS_CAST(cs::f32, 48*asteroid.type), 48, 48 };
         cs::imm::DrawTexture("asteroid", asteroid.pos.x, asteroid.pos.y, 1.0f, 1.0f, 0.0f, asteroid.flip, &clip);
+    }
+}
+
+static void DebugRenderAsteroids(cs::f32 dt)
+{
+    for(auto& asteroid: s_asteroids)
+    {
+        cs::Vec2 pos(asteroid.pos + asteroid.collider.offset);
+        cs::imm::DrawCircleFilled(pos.x, pos.y, asteroid.collider.radius, cs::Vec4(1,0,0,0.25f));
+        cs::imm::DrawCircleOutline(pos.x, pos.y, asteroid.collider.radius, cs::Vec4(1,0,0,1.00f));
     }
 }
 
@@ -162,6 +200,7 @@ struct Rocket
     cs::f32 angle;
     cs::f32 shake;
     cs::f32 timer;
+    Collider collider;
 };
 
 static Rocket s_rocket;
@@ -174,6 +213,7 @@ static void CreateRocket()
     s_rocket.angle = 0.0f;
     s_rocket.shake = 0.0f;
     s_rocket.timer = 0.0f;
+    s_rocket.collider = { cs::Vec2(0,-8), 14.0f };
 }
 
 static void UpdateRocket(cs::f32 dt)
@@ -211,6 +251,24 @@ static void RenderRocket(cs::f32 dt)
     cs::imm::DrawTexture("rocket", s_rocket.pos.x, s_rocket.pos.y, 1.0f, 1.0f, angle, cs::imm::Flip_None, &s_clip);
     s_clip.x += 48.0f;
     if(s_clip.x >= 288.0f) s_clip.x = 48.0f;
+}
+
+static void DebugRenderRocket(cs::f32 dt)
+{
+    cs::Vec4 fill(0,1,0,0.25f);
+    cs::Vec4 outline(0,1,0,1.00f);
+    for(auto& asteroid: s_asteroids)
+    {
+        if(CheckCollision(s_rocket.pos, s_rocket.collider, asteroid.pos, asteroid.collider))
+        {
+            fill = cs::Vec4(1,0,0,0.25f);
+            outline = cs::Vec4(1,0,0,1.00f);
+        }
+    }
+
+    cs::Vec2 pos(s_rocket.pos + s_rocket.collider.offset);
+    cs::imm::DrawCircleFilled(pos.x, pos.y, s_rocket.collider.radius, fill);
+    cs::imm::DrawCircleOutline(pos.x, pos.y, s_rocket.collider.radius, outline);
 }
 
 //
@@ -308,7 +366,8 @@ public:
 
     void DebugRender(cs::f32 dt)
     {
-        // Nothing...
+        DebugRenderAsteroids(dt);
+        DebugRenderRocket(dt);
     }
 };
 
