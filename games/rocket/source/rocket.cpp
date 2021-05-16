@@ -246,7 +246,7 @@ static void RenderBackground(cs::f32 dt)
         cs::imm::DrawTexture("back", screenWidth*0.5f,s_backOffset[i], &clip, color);
         cs::imm::DrawTexture("back", screenWidth*0.5f,s_backOffset[i]-screenHeight, &clip, color);
         if(s_backOffset[i] >= screenHeight * 1.5f)
-            s_backOffset[i] = screenHeight * 0.5f;
+            s_backOffset[i] -= screenHeight;
         clip.x += 180.0f;
     }
 }
