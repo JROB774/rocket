@@ -98,24 +98,89 @@ static void DebugRenderAsteroids(cs::f32 dt)
 }
 
 //
+// Star
+//
+
+struct Star
+{
+    cs::Vec2 pos;
+    cs::f32 speed;
+    cs::f32 angle;
+    cs::f32 spin;
+    Collider collider;
+};
+
+static constexpr cs::f32 k_starMoveSpeed = 180.0f;
+static constexpr cs::f32 k_starFallSpeed = 400.0f;
+static constexpr cs::f32 k_starSpinSpeed = 240.0f;
+
+static std::vector<Star> s_stars;
+
+static void SpawnStar()
+{
+    Star star = {};
+    star.pos.x = (cs::RandomS32() % 2 == 0) ? -32 : cs::gfx::GetScreenWidth()+32.0f;
+    star.pos.y = -32;
+    star.speed = (star.pos.x < 0.0f) ? k_starMoveSpeed : -k_starMoveSpeed;
+    star.angle = 0.0f;
+    star.spin = (star.pos.x < 0.0f) ? k_starSpinSpeed : -k_starSpinSpeed;
+    star.collider = { cs::Vec2(0), 8 };
+    s_stars.push_back(star);
+}
+
+static void UpdateStars(cs::f32 dt)
+{
+    for(auto& star: s_stars)
+    {
+        star.angle += star.spin * dt;
+        star.pos.x += star.speed * dt;
+        star.pos.y += k_starFallSpeed * dt;
+    }
+
+    s_stars.erase(std::remove_if(s_stars.begin(), s_stars.end(),
+    [](const Star& star)
+    {
+        return ((star.speed < 0) ? (star.pos.x <= -32.0f) : (star.pos.x >= cs::gfx::GetScreenWidth()+32.0f));
+    }),
+    s_stars.end());
+}
+
+static void RenderStars(cs::f32 dt)
+{
+    for(auto& star: s_stars)
+    {
+        cs::Rect clip = { 0, 0, 32, 32 };
+        cs::imm::DrawTexture("star", star.pos.x, star.pos.y, 1.0f, 1.0f, cs::ToRad(star.angle), cs::imm::Flip_None, &clip);
+    }
+}
+
+static void DebugRenderStars(cs::f32 dt)
+{
+    for(auto& star: s_stars)
+    {
+        cs::Vec2 pos(star.pos + star.collider.offset);
+        cs::imm::DrawCircleFilled(pos.x, pos.y, star.collider.radius, cs::Vec4(1,0,0,0.25f));
+        cs::imm::DrawCircleOutline(pos.x, pos.y, star.collider.radius, cs::Vec4(1,0,0,1.00f));
+    }
+}
+
+//
 // Entity Spawn
 //
 
 enum EntityType
 {
     EntityType_Asteroid,
+    EntityType_Star,
     EntityType_TOTAL
 };
 
 static void MaybeSpawnEntity(cs::f32 dt)
 {
     if(cs::RandomS32(0,1000) > 75) return;
-
-    EntityType type = CS_CAST(EntityType, cs::RandomS32(0,EntityType_TOTAL-1));
-    switch(type)
-    {
-        case(EntityType_Asteroid): SpawnAsteroid(); break;
-    }
+    cs::s32 percent = cs::RandomS32(1,100);
+    if(percent <= 80) SpawnAsteroid();
+    else SpawnStar();
 }
 
 //
@@ -265,6 +330,14 @@ static void DebugRenderRocket(cs::f32 dt)
             outline = cs::Vec4(1,0,0,1.00f);
         }
     }
+    for(auto& star: s_stars)
+    {
+        if(CheckCollision(s_rocket.pos, s_rocket.collider, star.pos, star.collider))
+        {
+            fill = cs::Vec4(1,0,0,0.25f);
+            outline = cs::Vec4(1,0,0,1.00f);
+        }
+    }
 
     cs::Vec2 pos(s_rocket.pos + s_rocket.collider.offset);
     cs::imm::DrawCircleFilled(pos.x, pos.y, s_rocket.collider.radius, fill);
@@ -324,6 +397,7 @@ public:
         cs::gfx::SetTextureFilter(*cs::GetAsset<cs::gfx::Texture>("asteroid"), cs::gfx::Filter_Nearest);
         cs::gfx::SetTextureFilter(*cs::GetAsset<cs::gfx::Texture>("rocket"), cs::gfx::Filter_Nearest);
         cs::gfx::SetTextureFilter(*cs::GetAsset<cs::gfx::Texture>("smoke"), cs::gfx::Filter_Nearest);
+        cs::gfx::SetTextureFilter(*cs::GetAsset<cs::gfx::Texture>("star"), cs::gfx::Filter_Nearest);
 
         CreateBackground();
         CreateRocket();
@@ -352,6 +426,7 @@ public:
 
         MaybeSpawnEntity(dt);
         UpdateAsteroids(dt);
+        UpdateStars(dt);
         UpdateSmoke(dt);
         UpdateRocket(dt);
     }
@@ -361,12 +436,14 @@ public:
         RenderBackground(dt);
         RenderSmoke(dt);
         RenderAsteroids(dt);
+        RenderStars(dt);
         RenderRocket(dt);
     }
 
     void DebugRender(cs::f32 dt)
     {
         DebugRenderAsteroids(dt);
+        DebugRenderStars(dt);
         DebugRenderRocket(dt);
     }
 };
