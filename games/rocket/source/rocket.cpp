@@ -287,7 +287,7 @@ static void CreateBackground()
     {
         s_backSpeed[i] = speed;
         s_backOffset[i] = cs::gfx::GetScreenHeight() * 0.5f;
-        speed += 12.0f;
+        speed += 120.0f;
     }
 }
 
