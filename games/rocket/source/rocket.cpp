@@ -200,10 +200,8 @@ enum EntityType
 
 static void MaybeSpawnEntity(cs::f32 dt)
 {
-    if(cs::RandomS32(0,1000) > 75) return;
-    cs::s32 percent = cs::RandomS32(1,100);
-    if(percent <= 80) SpawnAsteroid();
-    else SpawnStar();
+    if(cs::RandomS32(0,1000) <= 75)
+        SpawnAsteroid();
 }
 
 //
@@ -301,7 +299,7 @@ static void CreateRocket()
     s_rocket.angle = 0.0f;
     s_rocket.shake = 0.0f;
     s_rocket.timer = 0.0f;
-    s_rocket.collider = { cs::Vec2(0,-8), 14.0f };
+    s_rocket.collider = { cs::Vec2(0,-8), 12.0f };
 }
 
 static void UpdateRocket(cs::f32 dt)
