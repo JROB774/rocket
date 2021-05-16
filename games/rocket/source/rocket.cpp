@@ -107,6 +107,8 @@ struct Star
     cs::f32 speed;
     cs::f32 angle;
     cs::f32 spin;
+    cs::f32 timer;
+    cs::s32 frame;
     Collider collider;
 };
 
@@ -124,6 +126,8 @@ static void SpawnStar()
     star.speed = (star.pos.x < 0.0f) ? k_starMoveSpeed : -k_starMoveSpeed;
     star.angle = 0.0f;
     star.spin = (star.pos.x < 0.0f) ? k_starSpinSpeed : -k_starSpinSpeed;
+    star.timer = 0.0f;
+    star.frame = 0;
     star.collider = { cs::Vec2(0), 8 };
     s_stars.push_back(star);
 }
@@ -132,6 +136,15 @@ static void UpdateStars(cs::f32 dt)
 {
     for(auto& star: s_stars)
     {
+        star.timer += dt;
+        if(star.timer >= 0.05f)
+        {
+            star.frame++;
+            star.timer -= 0.05f;
+        }
+        if(star.frame >= 13)
+            star.frame = 0;
+
         star.angle += star.spin * dt;
         star.pos.x += star.speed * dt;
         star.pos.y += k_starFallSpeed * dt;
@@ -149,7 +162,17 @@ static void RenderStars(cs::f32 dt)
 {
     for(auto& star: s_stars)
     {
-        cs::Rect clip = { 0, 0, 32, 32 };
+        // Trail.
+        cs::Rect clip = { 416, 0, 32, 32 };
+        cs::f32 alpha = 0.02f;
+        cs::f32 offset = (star.speed < 0) ? 5 : -5;
+        for(cs::s32 i=10; i>=0; --i)
+        {
+            cs::imm::DrawTexture("star", star.pos.x+(offset*i), star.pos.y, 1.0f, 1.0f, cs::ToRad(star.angle), cs::imm::Flip_None, &clip, cs::Vec4(1,1,1,alpha));
+            alpha += 0.02f;
+        }
+        // Star
+        clip = { CS_CAST(cs::f32, 32*star.frame), 0, 32, 32 };
         cs::imm::DrawTexture("star", star.pos.x, star.pos.y, 1.0f, 1.0f, cs::ToRad(star.angle), cs::imm::Flip_None, &clip);
     }
 }
