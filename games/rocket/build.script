@@ -31,7 +31,8 @@ config["include_dirs"] = [
     "../../cstech/third_party/glad",
     "../../cstech/third_party/imgui",
     "../../cstech/third_party/nothings",
-    "../../cstech/third_party/nlohmann"
+    "../../cstech/third_party/nlohmann",
+    "../../cstech/third_party/csmath"
 ]
 config["library_dirs"] = [
     "../../cstech/binary",

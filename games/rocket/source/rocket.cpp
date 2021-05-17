@@ -168,12 +168,12 @@ static void RenderStars(cs::f32 dt)
         cs::f32 offset = (star.speed < 0) ? 5 : -5;
         for(cs::s32 i=10; i>=0; --i)
         {
-            cs::imm::DrawTexture("star", star.pos.x+(offset*i), star.pos.y, 1.0f, 1.0f, cs::ToRad(star.angle), cs::imm::Flip_None, &clip, cs::Vec4(1,1,1,alpha));
+            cs::imm::DrawTexture("star", star.pos.x+(offset*i), star.pos.y, 1.0f, 1.0f, csm::ToRad(star.angle), cs::imm::Flip_None, &clip, cs::Vec4(1,1,1,alpha));
             alpha += 0.02f;
         }
         // Star
         clip = { CS_CAST(cs::f32, 32*star.frame), 0, 32, 32 };
-        cs::imm::DrawTexture("star", star.pos.x, star.pos.y, 1.0f, 1.0f, cs::ToRad(star.angle), cs::imm::Flip_None, &clip);
+        cs::imm::DrawTexture("star", star.pos.x, star.pos.y, 1.0f, 1.0f, csm::ToRad(star.angle), cs::imm::Flip_None, &clip);
     }
 }
 
@@ -266,7 +266,7 @@ static void RenderSmoke(cs::f32 dt)
     for(auto& s: s_smoke)
     {
         cs::Rect clip = { CS_CAST(cs::f32, 16*s.frame), 0, 16, 16 };
-        cs::imm::DrawTexture("smoke", s.pos.x, s.pos.y, 1.0f, 1.0f, cs::ToRad(s.angle), cs::imm::Flip_None, &clip);
+        cs::imm::DrawTexture("smoke", s.pos.x, s.pos.y, 1.0f, 1.0f, csm::ToRad(s.angle), cs::imm::Flip_None, &clip);
     }
 }
 
@@ -333,7 +333,7 @@ static void UpdateRocket(cs::f32 dt)
 static void RenderRocket(cs::f32 dt)
 {
     static cs::Rect s_clip = { 48, 0, 48, 96 };
-    cs::f32 angle = cs::ToRad(s_rocket.angle + s_rocket.shake);
+    cs::f32 angle = csm::ToRad(s_rocket.angle + s_rocket.shake);
     cs::imm::DrawTexture("rocket", s_rocket.pos.x, s_rocket.pos.y, 1.0f, 1.0f, angle, cs::imm::Flip_None, &s_clip);
     s_clip.x += 48.0f;
     if(s_clip.x >= 288.0f) s_clip.x = 48.0f;
