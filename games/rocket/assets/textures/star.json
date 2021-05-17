@@ -1,0 +1,5 @@
+{
+    "file": "star.png",
+    "filter": "nearest",
+    "wrap": "clamp"
+}

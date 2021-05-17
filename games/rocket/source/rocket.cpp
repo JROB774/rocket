@@ -415,11 +415,6 @@ public:
         cs::gfx::SetScreenScaleMode(cs::gfx::ScaleMode_Pixel);
         cs::gfx::SetScreenFilter(cs::gfx::Filter_Nearest);
 
-        cs::gfx::SetTextureFilter(*cs::GetAsset<cs::gfx::Texture>("asteroid"), cs::gfx::Filter_Nearest);
-        cs::gfx::SetTextureFilter(*cs::GetAsset<cs::gfx::Texture>("rocket"), cs::gfx::Filter_Nearest);
-        cs::gfx::SetTextureFilter(*cs::GetAsset<cs::gfx::Texture>("smoke"), cs::gfx::Filter_Nearest);
-        cs::gfx::SetTextureFilter(*cs::GetAsset<cs::gfx::Texture>("star"), cs::gfx::Filter_Nearest);
-
         CreateBackground();
         CreateRocket();
         CreateSmoke();
