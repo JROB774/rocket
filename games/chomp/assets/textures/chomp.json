@@ -1,0 +1,5 @@
+{
+    "file": "chomp.png",
+    "filter": "nearest",
+    "wrap": "clamp"
+}

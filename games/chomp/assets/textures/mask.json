@@ -1,0 +1,5 @@
+{
+    "file": "mask.png",
+    "filter": "nearest",
+    "wrap": "clamp"
+}

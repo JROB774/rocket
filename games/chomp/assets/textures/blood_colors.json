@@ -1,0 +1,5 @@
+{
+    "file": "blood_colors.png",
+    "filter": "nearest",
+    "wrap": "clamp"
+}
