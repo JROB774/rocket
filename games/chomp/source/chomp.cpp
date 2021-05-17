@@ -97,11 +97,11 @@ public:
         bool dead;
     };
 
-    gfx::Framebuffer m_bloodMap;
+    gfx::Framebuffer m_bloodMap = NULL;
     std::vector<Saddo> m_saddos;
-    f32 m_saddoSpawnTimer;
-    f32 m_cloudOffset;
-    Chomp m_chomp;
+    f32 m_saddoSpawnTimer = 0.0f;
+    f32 m_cloudOffset = 0.0f;
+    Chomp m_chomp = {};
 
     bool CollisionCheck(Vec2 aPos, Rect aBounds, Vec2 bPos, Rect bBounds)
     {
@@ -162,7 +162,7 @@ public:
         f32 screenX = gfx::GetScreenWidth();
         f32 screenY = gfx::GetScreenHeight();
 
-        gfx::CreateFramebuffer(m_bloodMap, 340,200, gfx::Filter_Nearest, gfx::Wrap_ClampToEdge, Vec4(0));
+        gfx::CreateFramebuffer(m_bloodMap, 340,200, gfx::Filter_Nearest, gfx::Wrap_Clamp, Vec4(0));
 
         m_saddoSpawnTimer = RandomF32(k_saddoMinSpawn, k_saddoMaxSpawn);
         m_cloudOffset = gfx::GetScreenWidth();
