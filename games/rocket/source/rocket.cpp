@@ -1,6 +1,7 @@
 #include "cs_platform.hpp"
 #include "cs_application.hpp"
 #include "cs_graphics.hpp"
+#include "cs_audio.hpp"
 #include "cs_utility.hpp"
 
 //
@@ -414,6 +415,10 @@ public:
     {
         cs::gfx::SetScreenScaleMode(cs::gfx::ScaleMode_Pixel);
         cs::gfx::SetScreenFilter(cs::gfx::Filter_Nearest);
+
+        cs::LoadAllAssets<cs::gfx::Texture>();
+        cs::LoadAllAssets<cs::gfx::Shader>();
+        cs::LoadAllAssets<cs::sfx::Sound>();
 
         CreateBackground();
         CreateRocket();
