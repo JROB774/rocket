@@ -310,17 +310,17 @@ static void UpdateRocket(cs::f32 dt)
         s_rocket.vel.y += cs::GetRelativeMousePos().y / 20.0f;
     }
 
-    s_rocket.angle = cs::Clamp(s_rocket.vel.x, -k_rocketMaxAngle, k_rocketMaxAngle);
+    s_rocket.angle = csm::Clamp(s_rocket.vel.x, -k_rocketMaxAngle, k_rocketMaxAngle);
     s_rocket.shake = cs::RandomF32(-k_rocketMaxShake, k_rocketMaxShake);
 
-    s_rocket.vel.x = cs::Clamp(s_rocket.vel.x, -(k_rocketTerminalVelocity*1.5f), (k_rocketTerminalVelocity*1.5f));
-    s_rocket.vel.y = cs::Clamp(s_rocket.vel.y, -k_rocketTerminalVelocity, k_rocketTerminalVelocity);
+    s_rocket.vel.x = csm::Clamp(s_rocket.vel.x, -(k_rocketTerminalVelocity*1.5f), (k_rocketTerminalVelocity*1.5f));
+    s_rocket.vel.y = csm::Clamp(s_rocket.vel.y, -k_rocketTerminalVelocity, k_rocketTerminalVelocity);
 
     s_rocket.pos += (s_rocket.vel * k_rocketVelocityMultiplier) * dt;
-    s_rocket.pos.x = cs::Clamp(s_rocket.pos.x, 0.0f, cs::gfx::GetScreenWidth());
-    s_rocket.pos.y = cs::Clamp(s_rocket.pos.y, 0.0f, cs::gfx::GetScreenHeight());
+    s_rocket.pos.x = csm::Clamp(s_rocket.pos.x, 0.0f, cs::gfx::GetScreenWidth());
+    s_rocket.pos.y = csm::Clamp(s_rocket.pos.y, 0.0f, cs::gfx::GetScreenHeight());
 
-    s_rocket.vel = cs::Lerp(s_rocket.vel, cs::Vec2(0), cs::Vec2(0.1f));
+    s_rocket.vel = csm::Lerp(s_rocket.vel, cs::Vec2(0), cs::Vec2(0.1f));
 
     s_rocket.timer += dt;
     if(s_rocket.timer >= 0.05f)
