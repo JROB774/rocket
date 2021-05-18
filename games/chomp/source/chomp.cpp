@@ -219,10 +219,10 @@ public:
                 // Update velocity.
                 if(m_chomp.chomping) m_chomp.vel += k_chompDownVelocity;
                 else m_chomp.vel -= k_chompUpVelocity;
-                m_chomp.vel = Clamp(m_chomp.vel, k_chompMinVelocity, k_chompMaxVelocity);
+                m_chomp.vel = csm::Clamp(m_chomp.vel, k_chompMinVelocity, k_chompMaxVelocity);
                 // Update position.
                 m_chomp.pos.y += m_chomp.vel * dt;
-                m_chomp.pos.y = Clamp(m_chomp.pos.y, k_chompPosMin, k_chompPosMax);
+                m_chomp.pos.y = csm::Clamp(m_chomp.pos.y, k_chompPosMin, k_chompPosMax);
                 // Check landed.
                 if(m_chomp.pos.y >= k_chompPosMax)
                 {
