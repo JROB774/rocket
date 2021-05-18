@@ -4,23 +4,25 @@
 #include "cs_audio.hpp"
 #include "cs_utility.hpp"
 
+using namespace cs;
+
 //
 // Collision
 //
 
 struct Collider
 {
-    cs::Vec2 offset;
-    cs::f32 radius;
+    Vec2 offset;
+    f32 radius;
 };
 
-static bool CheckCollision(cs::Vec2 aPos, const Collider& a, cs::Vec2 bPos, const Collider& b)
+static bool CheckCollision(Vec2 aPos, const Collider& a, Vec2 bPos, const Collider& b)
 {
-    cs::f32 ax = aPos.x + a.offset.x, ay = aPos.y + a.offset.y;
-    cs::f32 bx = bPos.x + b.offset.x, by = bPos.y + b.offset.y;
-    cs::f32 x = abs(bx-ax);
-    cs::f32 y = abs(by-ay);
-    cs::f32 radius = a.radius+b.radius;
+    f32 ax = aPos.x + a.offset.x, ay = aPos.y + a.offset.y;
+    f32 bx = bPos.x + b.offset.x, by = bPos.y + b.offset.y;
+    f32 x = abs(bx-ax);
+    f32 y = abs(by-ay);
+    f32 radius = a.radius+b.radius;
     return (((x*x)+(y*y)) <= (radius*radius));
 }
 
@@ -38,25 +40,25 @@ enum AsteroidType
 
 struct Asteroid
 {
-    cs::Vec2 pos;
-    cs::imm::Flip flip;
+    Vec2 pos;
+    imm::Flip flip;
     Collider collider;
     AsteroidType type;
 };
 
-static constexpr cs::f32 k_asteroidFallSpeed = 400.0f;
-static constexpr cs::f32 k_asteroidMinSpinSpeed = 240.0f;
-static constexpr cs::f32 k_asteroidMaxSpinSpeed = 420.0f;
+static constexpr f32 k_asteroidFallSpeed = 400.0f;
+static constexpr f32 k_asteroidMinSpinSpeed = 240.0f;
+static constexpr f32 k_asteroidMaxSpinSpeed = 420.0f;
 
 static std::vector<Asteroid> s_asteroids;
 
 static void SpawnAsteroid()
 {
     Asteroid asteroid = {};
-    asteroid.pos = cs::Vec2(cs::RandomF32(0, cs::gfx::GetScreenWidth()), -48.0f);
-    asteroid.flip = (cs::RandomS32() % 2 == 0) ? cs::imm::Flip_None : cs::imm::Flip_Horizontal;
-    asteroid.type = CS_CAST(AsteroidType, cs::RandomS32(0,AsteroidType_TOTAL));
-    asteroid.collider.offset = cs::Vec2(0,-2);
+    asteroid.pos = Vec2(RandomF32(0, gfx::GetScreenWidth()), -48.0f);
+    asteroid.flip = (RandomS32() % 2 == 0) ? imm::Flip_None : imm::Flip_Horizontal;
+    asteroid.type = CS_CAST(AsteroidType, RandomS32(0,AsteroidType_TOTAL));
+    asteroid.collider.offset = Vec2(0,-2);
     switch(asteroid.type)
     {
         case(AsteroidType_Large): asteroid.collider.radius = 12.0f; break;
@@ -66,7 +68,7 @@ static void SpawnAsteroid()
     s_asteroids.push_back(asteroid);
 }
 
-static void UpdateAsteroids(cs::f32 dt)
+static void UpdateAsteroids(f32 dt)
 {
     for(auto& asteroid: s_asteroids)
         asteroid.pos.y += k_asteroidFallSpeed * dt;
@@ -74,27 +76,27 @@ static void UpdateAsteroids(cs::f32 dt)
     s_asteroids.erase(std::remove_if(s_asteroids.begin(), s_asteroids.end(),
     [](const Asteroid& asteroid)
     {
-        return (asteroid.pos.y >= (cs::gfx::GetScreenHeight()+48.0f));
+        return (asteroid.pos.y >= (gfx::GetScreenHeight()+48.0f));
     }),
     s_asteroids.end());
 }
 
-static void RenderAsteroids(cs::f32 dt)
+static void RenderAsteroids(f32 dt)
 {
     for(auto& asteroid: s_asteroids)
     {
-        cs::Rect clip = { 0, CS_CAST(cs::f32, 48*asteroid.type), 48, 48 };
-        cs::imm::DrawTexture("asteroid", asteroid.pos.x, asteroid.pos.y, 1.0f, 1.0f, 0.0f, asteroid.flip, &clip);
+        Rect clip = { CS_CAST(f32, 48*asteroid.type), 0, 48, 48 };
+        imm::DrawTexture("asteroid", asteroid.pos.x, asteroid.pos.y, 1.0f, 1.0f, 0.0f, asteroid.flip, &clip);
     }
 }
 
-static void DebugRenderAsteroids(cs::f32 dt)
+static void DebugRenderAsteroids(f32 dt)
 {
     for(auto& asteroid: s_asteroids)
     {
-        cs::Vec2 pos(asteroid.pos + asteroid.collider.offset);
-        cs::imm::DrawCircleFilled(pos.x, pos.y, asteroid.collider.radius, cs::Vec4(1,0,0,0.25f));
-        cs::imm::DrawCircleOutline(pos.x, pos.y, asteroid.collider.radius, cs::Vec4(1,0,0,1.00f));
+        Vec2 pos(asteroid.pos + asteroid.collider.offset);
+        imm::DrawCircleFilled(pos.x, pos.y, asteroid.collider.radius, Vec4(1,0,0,0.25f));
+        imm::DrawCircleOutline(pos.x, pos.y, asteroid.collider.radius, Vec4(1,0,0,1.00f));
     }
 }
 
@@ -104,36 +106,36 @@ static void DebugRenderAsteroids(cs::f32 dt)
 
 struct Star
 {
-    cs::Vec2 pos;
-    cs::f32 speed;
-    cs::f32 angle;
-    cs::f32 spin;
-    cs::f32 timer;
-    cs::s32 frame;
+    Vec2 pos;
+    f32 speed;
+    f32 angle;
+    f32 spin;
+    f32 timer;
+    s32 frame;
     Collider collider;
 };
 
-static constexpr cs::f32 k_starMoveSpeed = 180.0f;
-static constexpr cs::f32 k_starFallSpeed = 400.0f;
-static constexpr cs::f32 k_starSpinSpeed = 240.0f;
+static constexpr f32 k_starMoveSpeed = 180.0f;
+static constexpr f32 k_starFallSpeed = 400.0f;
+static constexpr f32 k_starSpinSpeed = 240.0f;
 
 static std::vector<Star> s_stars;
 
 static void SpawnStar()
 {
     Star star = {};
-    star.pos.x = (cs::RandomS32() % 2 == 0) ? -32 : cs::gfx::GetScreenWidth()+32.0f;
+    star.pos.x = (RandomS32() % 2 == 0) ? -32 : gfx::GetScreenWidth()+32.0f;
     star.pos.y = -32;
     star.speed = (star.pos.x < 0.0f) ? k_starMoveSpeed : -k_starMoveSpeed;
     star.angle = 0.0f;
     star.spin = (star.pos.x < 0.0f) ? k_starSpinSpeed : -k_starSpinSpeed;
     star.timer = 0.0f;
     star.frame = 0;
-    star.collider = { cs::Vec2(0), 8 };
+    star.collider = { Vec2(0), 8 };
     s_stars.push_back(star);
 }
 
-static void UpdateStars(cs::f32 dt)
+static void UpdateStars(f32 dt)
 {
     for(auto& star: s_stars)
     {
@@ -154,37 +156,37 @@ static void UpdateStars(cs::f32 dt)
     s_stars.erase(std::remove_if(s_stars.begin(), s_stars.end(),
     [](const Star& star)
     {
-        return ((star.speed < 0) ? (star.pos.x <= -32.0f) : (star.pos.x >= cs::gfx::GetScreenWidth()+32.0f));
+        return ((star.speed < 0) ? (star.pos.x <= -32.0f) : (star.pos.x >= gfx::GetScreenWidth()+32.0f));
     }),
     s_stars.end());
 }
 
-static void RenderStars(cs::f32 dt)
+static void RenderStars(f32 dt)
 {
     for(auto& star: s_stars)
     {
         // Trail.
-        cs::Rect clip = { 416, 0, 32, 32 };
-        cs::f32 alpha = 0.02f;
-        cs::f32 offset = (star.speed < 0) ? 5 : -5;
-        for(cs::s32 i=10; i>=0; --i)
+        Rect clip = { 416, 0, 32, 32 };
+        f32 alpha = 0.02f;
+        f32 offset = (star.speed < 0) ? 5 : -5;
+        for(s32 i=10; i>=0; --i)
         {
-            cs::imm::DrawTexture("star", star.pos.x+(offset*i), star.pos.y, 1.0f, 1.0f, csm::ToRad(star.angle), cs::imm::Flip_None, &clip, cs::Vec4(1,1,1,alpha));
+            imm::DrawTexture("star", star.pos.x+(offset*i), star.pos.y, 1.0f, 1.0f, csm::ToRad(star.angle), imm::Flip_None, &clip, Vec4(1,1,1,alpha));
             alpha += 0.02f;
         }
         // Star
-        clip = { CS_CAST(cs::f32, 32*star.frame), 0, 32, 32 };
-        cs::imm::DrawTexture("star", star.pos.x, star.pos.y, 1.0f, 1.0f, csm::ToRad(star.angle), cs::imm::Flip_None, &clip);
+        clip = { CS_CAST(f32, 32*star.frame), 0, 32, 32 };
+        imm::DrawTexture("star", star.pos.x, star.pos.y, 1.0f, 1.0f, csm::ToRad(star.angle), imm::Flip_None, &clip);
     }
 }
 
-static void DebugRenderStars(cs::f32 dt)
+static void DebugRenderStars(f32 dt)
 {
     for(auto& star: s_stars)
     {
-        cs::Vec2 pos(star.pos + star.collider.offset);
-        cs::imm::DrawCircleFilled(pos.x, pos.y, star.collider.radius, cs::Vec4(1,0,0,0.25f));
-        cs::imm::DrawCircleOutline(pos.x, pos.y, star.collider.radius, cs::Vec4(1,0,0,1.00f));
+        Vec2 pos(star.pos + star.collider.offset);
+        imm::DrawCircleFilled(pos.x, pos.y, star.collider.radius, Vec4(1,0,0,0.25f));
+        imm::DrawCircleOutline(pos.x, pos.y, star.collider.radius, Vec4(1,0,0,1.00f));
     }
 }
 
@@ -199,9 +201,9 @@ enum EntityType
     EntityType_TOTAL
 };
 
-static void MaybeSpawnEntity(cs::f32 dt)
+static void MaybeSpawnEntity(f32 dt)
 {
-    if(cs::RandomS32(0,1000) <= 75)
+    if(RandomS32(0,1000) <= 75)
         SpawnAsteroid();
 }
 
@@ -211,11 +213,11 @@ static void MaybeSpawnEntity(cs::f32 dt)
 
 struct Smoke
 {
-    cs::Vec2 pos;
-    cs::s32 frame;
-    cs::f32 angle;
-    cs::f32 timer;
-    cs::f32 frameTime;
+    Vec2 pos;
+    s32 frame;
+    f32 angle;
+    f32 timer;
+    f32 frameTime;
     bool dead;
 };
 
@@ -226,19 +228,19 @@ static void CreateSmoke()
     s_smoke.reserve(1024);
 }
 
-static void SpawnSmoke(cs::f32 x, cs::f32 y)
+static void SpawnSmoke(f32 x, f32 y)
 {
     Smoke s = {};
-    s.pos = cs::Vec2(x,y);
+    s.pos = Vec2(x,y);
     s.frame = 0;
-    s.angle = cs::RandomF32(0,360.0f);
+    s.angle = RandomF32(0,360.0f);
     s.timer = 0.0f;
-    s.frameTime = cs::RandomF32(0.05f, 0.15f);
+    s.frameTime = RandomF32(0.05f, 0.15f);
     s.dead = false;
     s_smoke.push_back(s);
 }
 
-static void UpdateSmoke(cs::f32 dt)
+static void UpdateSmoke(f32 dt)
 {
     for(auto& s: s_smoke)
     {
@@ -248,7 +250,7 @@ static void UpdateSmoke(cs::f32 dt)
         {
             s.frame++;
             s.timer = 0.0f;
-            s.frameTime = cs::RandomF32(0.05f, 0.15f);
+            s.frameTime = RandomF32(0.05f, 0.15f);
         }
         if(s.frame >= 8)
             s.dead = true;
@@ -262,12 +264,12 @@ static void UpdateSmoke(cs::f32 dt)
     s_smoke.end());
 }
 
-static void RenderSmoke(cs::f32 dt)
+static void RenderSmoke(f32 dt)
 {
     for(auto& s: s_smoke)
     {
-        cs::Rect clip = { CS_CAST(cs::f32, 16*s.frame), 0, 16, 16 };
-        cs::imm::DrawTexture("smoke", s.pos.x, s.pos.y, 1.0f, 1.0f, csm::ToRad(s.angle), cs::imm::Flip_None, &clip);
+        Rect clip = { CS_CAST(f32, 16*s.frame), 0, 16, 16 };
+        imm::DrawTexture("smoke", s.pos.x, s.pos.y, 1.0f, 1.0f, csm::ToRad(s.angle), imm::Flip_None, &clip);
     }
 }
 
@@ -275,18 +277,18 @@ static void RenderSmoke(cs::f32 dt)
 // Rocket
 //
 
-static constexpr cs::f32 k_rocketVelocityMultiplier = 25.0f;
-static constexpr cs::f32 k_rocketTerminalVelocity = 9.5;
-static constexpr cs::f32 k_rocketMaxAngle = 25.0f;
-static constexpr cs::f32 k_rocketMaxShake = 2.0f;
+static constexpr f32 k_rocketVelocityMultiplier = 25.0f;
+static constexpr f32 k_rocketTerminalVelocity = 9.5;
+static constexpr f32 k_rocketMaxAngle = 25.0f;
+static constexpr f32 k_rocketMaxShake = 2.0f;
 
 struct Rocket
 {
-    cs::Vec2 pos;
-    cs::Vec2 vel;
-    cs::f32 angle;
-    cs::f32 shake;
-    cs::f32 timer;
+    Vec2 pos;
+    Vec2 vel;
+    f32 angle;
+    f32 shake;
+    f32 timer;
     Collider collider;
 };
 
@@ -294,110 +296,110 @@ static Rocket s_rocket;
 
 static void CreateRocket()
 {
-    s_rocket.pos.x = (cs::gfx::GetScreenWidth()/2.0f);
-    s_rocket.pos.y = cs::gfx::GetScreenHeight() - 48.0f;
-    s_rocket.vel   = cs::Vec2(0);
+    s_rocket.pos.x = (gfx::GetScreenWidth()/2.0f);
+    s_rocket.pos.y = gfx::GetScreenHeight() - 48.0f;
+    s_rocket.vel   = Vec2(0);
     s_rocket.angle = 0.0f;
     s_rocket.shake = 0.0f;
     s_rocket.timer = 0.0f;
-    s_rocket.collider = { cs::Vec2(0,-8), 12.0f };
+    s_rocket.collider = { Vec2(0,-8), 12.0f };
 }
 
-static void UpdateRocket(cs::f32 dt)
+static void UpdateRocket(f32 dt)
 {
-    if(cs::IsMouseLocked())
+    if(IsMouseLocked())
     {
-        s_rocket.vel.x += cs::GetRelativeMousePos().x / 10.0f;
-        s_rocket.vel.y += cs::GetRelativeMousePos().y / 20.0f;
+        s_rocket.vel.x += GetRelativeMousePos().x / 10.0f;
+        s_rocket.vel.y += GetRelativeMousePos().y / 20.0f;
     }
 
     s_rocket.angle = csm::Clamp(s_rocket.vel.x, -k_rocketMaxAngle, k_rocketMaxAngle);
-    s_rocket.shake = cs::RandomF32(-k_rocketMaxShake, k_rocketMaxShake);
+    s_rocket.shake = RandomF32(-k_rocketMaxShake, k_rocketMaxShake);
 
     s_rocket.vel.x = csm::Clamp(s_rocket.vel.x, -(k_rocketTerminalVelocity*1.5f), (k_rocketTerminalVelocity*1.5f));
     s_rocket.vel.y = csm::Clamp(s_rocket.vel.y, -k_rocketTerminalVelocity, k_rocketTerminalVelocity);
 
     s_rocket.pos += (s_rocket.vel * k_rocketVelocityMultiplier) * dt;
-    s_rocket.pos.x = csm::Clamp(s_rocket.pos.x, 0.0f, cs::gfx::GetScreenWidth());
-    s_rocket.pos.y = csm::Clamp(s_rocket.pos.y, 0.0f, cs::gfx::GetScreenHeight());
+    s_rocket.pos.x = csm::Clamp(s_rocket.pos.x, 0.0f, gfx::GetScreenWidth());
+    s_rocket.pos.y = csm::Clamp(s_rocket.pos.y, 0.0f, gfx::GetScreenHeight());
 
-    s_rocket.vel = csm::Lerp(s_rocket.vel, cs::Vec2(0), cs::Vec2(0.1f));
+    s_rocket.vel = csm::Lerp(s_rocket.vel, Vec2(0), Vec2(0.1f));
 
     s_rocket.timer += dt;
     if(s_rocket.timer >= 0.05f)
     {
-        SpawnSmoke(s_rocket.pos.x+cs::RandomF32(-3.0f,3.0f), s_rocket.pos.y+20.0f);
+        SpawnSmoke(s_rocket.pos.x+RandomF32(-3.0f,3.0f), s_rocket.pos.y+20.0f);
         s_rocket.timer -= 0.05f;
     }
 }
 
-static void RenderRocket(cs::f32 dt)
+static void RenderRocket(f32 dt)
 {
-    static cs::Rect s_clip = { 48, 0, 48, 96 };
-    cs::f32 angle = csm::ToRad(s_rocket.angle + s_rocket.shake);
-    cs::imm::DrawTexture("rocket", s_rocket.pos.x, s_rocket.pos.y, 1.0f, 1.0f, angle, cs::imm::Flip_None, &s_clip);
+    static Rect s_clip = { 48, 0, 48, 96 };
+    f32 angle = csm::ToRad(s_rocket.angle + s_rocket.shake);
+    imm::DrawTexture("rocket", s_rocket.pos.x, s_rocket.pos.y, 1.0f, 1.0f, angle, imm::Flip_None, &s_clip);
     s_clip.x += 48.0f;
     if(s_clip.x >= 288.0f) s_clip.x = 48.0f;
 }
 
-static void DebugRenderRocket(cs::f32 dt)
+static void DebugRenderRocket(f32 dt)
 {
-    cs::Vec4 fill(0,1,0,0.25f);
-    cs::Vec4 outline(0,1,0,1.00f);
+    Vec4 fill(0,1,0,0.25f);
+    Vec4 outline(0,1,0,1.00f);
     for(auto& asteroid: s_asteroids)
     {
         if(CheckCollision(s_rocket.pos, s_rocket.collider, asteroid.pos, asteroid.collider))
         {
-            fill = cs::Vec4(1,0,0,0.25f);
-            outline = cs::Vec4(1,0,0,1.00f);
+            fill = Vec4(1,0,0,0.25f);
+            outline = Vec4(1,0,0,1.00f);
         }
     }
     for(auto& star: s_stars)
     {
         if(CheckCollision(s_rocket.pos, s_rocket.collider, star.pos, star.collider))
         {
-            fill = cs::Vec4(1,0,0,0.25f);
-            outline = cs::Vec4(1,0,0,1.00f);
+            fill = Vec4(1,0,0,0.25f);
+            outline = Vec4(1,0,0,1.00f);
         }
     }
 
-    cs::Vec2 pos(s_rocket.pos + s_rocket.collider.offset);
-    cs::imm::DrawCircleFilled(pos.x, pos.y, s_rocket.collider.radius, fill);
-    cs::imm::DrawCircleOutline(pos.x, pos.y, s_rocket.collider.radius, outline);
+    Vec2 pos(s_rocket.pos + s_rocket.collider.offset);
+    imm::DrawCircleFilled(pos.x, pos.y, s_rocket.collider.radius, fill);
+    imm::DrawCircleOutline(pos.x, pos.y, s_rocket.collider.radius, outline);
 }
 
 //
 // Background
 //
 
-static constexpr cs::s32 k_backCount = 3;
+static constexpr s32 k_backCount = 3;
 
-static cs::f32 s_backSpeed[k_backCount];
-static cs::f32 s_backOffset[k_backCount];
+static f32 s_backSpeed[k_backCount];
+static f32 s_backOffset[k_backCount];
 
 static void CreateBackground()
 {
-    cs::f32 speed = 360.0f;
-    for(cs::s32 i=k_backCount-1; i>=0; --i)
+    f32 speed = 360.0f;
+    for(s32 i=k_backCount-1; i>=0; --i)
     {
         s_backSpeed[i] = speed;
-        s_backOffset[i] = cs::gfx::GetScreenHeight() * 0.5f;
+        s_backOffset[i] = gfx::GetScreenHeight() * 0.5f;
         speed += 120.0f;
     }
 }
 
-static void RenderBackground(cs::f32 dt)
+static void RenderBackground(f32 dt)
 {
-    cs::gfx::Clear(0.0f, 0.05f, 0.2f);
-    cs::f32 screenWidth = cs::gfx::GetScreenWidth();
-    cs::f32 screenHeight = cs::gfx::GetScreenHeight();
-    cs::Rect clip = { 0, 0, 180, 320 };
-    cs::Vec4 color = cs::Vec4(1,1,1,0.4f);
-    for(cs::s32 i=0; i<k_backCount; ++i)
+    gfx::Clear(0.0f, 0.05f, 0.2f);
+    f32 screenWidth = gfx::GetScreenWidth();
+    f32 screenHeight = gfx::GetScreenHeight();
+    Rect clip = { 0, 0, 180, 320 };
+    Vec4 color = Vec4(1,1,1,0.4f);
+    for(s32 i=0; i<k_backCount; ++i)
     {
         s_backOffset[i] += s_backSpeed[i] * dt;
-        cs::imm::DrawTexture("back", screenWidth*0.5f,s_backOffset[i], &clip, color);
-        cs::imm::DrawTexture("back", screenWidth*0.5f,s_backOffset[i]-screenHeight, &clip, color);
+        imm::DrawTexture("back", screenWidth*0.5f,s_backOffset[i], &clip, color);
+        imm::DrawTexture("back", screenWidth*0.5f,s_backOffset[i]-screenHeight, &clip, color);
         if(s_backOffset[i] >= screenHeight * 1.5f)
             s_backOffset[i] -= screenHeight;
         clip.x += 180.0f;
@@ -408,17 +410,17 @@ static void RenderBackground(cs::f32 dt)
 // Application
 //
 
-class RocketApp: public cs::Application
+class RocketApp: public Application
 {
 public:
     void Init()
     {
-        cs::gfx::SetScreenScaleMode(cs::gfx::ScaleMode_Pixel);
-        cs::gfx::SetScreenFilter(cs::gfx::Filter_Nearest);
+        gfx::SetScreenScaleMode(gfx::ScaleMode_Pixel);
+        gfx::SetScreenFilter(gfx::Filter_Nearest);
 
-        cs::LoadAllAssets<cs::gfx::Texture>();
-        cs::LoadAllAssets<cs::gfx::Shader>();
-        cs::LoadAllAssets<cs::sfx::Sound>();
+        LoadAllAssets<gfx::Texture>();
+        LoadAllAssets<gfx::Shader>();
+        LoadAllAssets<sfx::Sound>();
 
         CreateBackground();
         CreateRocket();
@@ -430,20 +432,20 @@ public:
         // Nothing...
     }
 
-    void Update(cs::f32 dt)
+    void Update(f32 dt)
     {
         // Handle locking/unlocking the mouse with debug mode.
         static bool s_lockMouse = true;
-        if(cs::IsDebugMode())
+        if(IsDebugMode())
         {
-            if(cs::IsKeyPressed(cs::KeyCode_Escape))
+            if(IsKeyPressed(KeyCode_Escape))
                 s_lockMouse = !s_lockMouse;
         }
         else
         {
             s_lockMouse = true;
         }
-        cs::LockMouse(s_lockMouse);
+        LockMouse(s_lockMouse);
 
         MaybeSpawnEntity(dt);
         UpdateAsteroids(dt);
@@ -452,7 +454,7 @@ public:
         UpdateRocket(dt);
     }
 
-    void Render(cs::f32 dt)
+    void Render(f32 dt)
     {
         RenderBackground(dt);
         RenderSmoke(dt);
@@ -461,7 +463,7 @@ public:
         RenderRocket(dt);
     }
 
-    void DebugRender(cs::f32 dt)
+    void DebugRender(f32 dt)
     {
         DebugRenderAsteroids(dt);
         DebugRenderStars(dt);
@@ -469,12 +471,12 @@ public:
     }
 };
 
-cs::AppConfig csMain(int argc, char** argv)
+AppConfig csMain(int argc, char** argv)
 {
-    cs::AppConfig appConfig;
+    AppConfig appConfig;
     appConfig.title = "Rocket";
-    appConfig.window.min = cs::Vec2i(180,320);
-    appConfig.screenSize = cs::Vec2i(180,320);
-    appConfig.app = cs::Allocate<RocketApp>(CS_MEM_GAME);
+    appConfig.window.min = Vec2i(180,320);
+    appConfig.screenSize = Vec2i(180,320);
+    appConfig.app = Allocate<RocketApp>(CS_MEM_GAME);
     return appConfig;
 }
