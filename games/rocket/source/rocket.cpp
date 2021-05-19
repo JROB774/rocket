@@ -22,7 +22,7 @@ static GameState s_gameState;
 // Utility
 //
 
-static f32 SinRange (f32 min, f32 max, f32 t)
+static f32 SinRange(f32 min, f32 max, f32 t)
 {
     f32 halfRange = (max - min) / 2;
     return (min + halfRange + sinf(t) * halfRange);
