@@ -303,6 +303,12 @@ static void CreateRocket()
     s_rocket.shake = 0.0f;
     s_rocket.timer = 0.0f;
     s_rocket.collider = { Vec2(0,-8), 12.0f };
+    sfx::PlaySound("thruster", -1);
+}
+
+static void HitRocket()
+{
+    // sfx::PlaySound("damage");
 }
 
 static void UpdateRocket(f32 dt)
@@ -331,6 +337,14 @@ static void UpdateRocket(f32 dt)
         SpawnSmoke(s_rocket.pos.x+RandomF32(-3.0f,3.0f), s_rocket.pos.y+20.0f);
         s_rocket.timer -= 0.05f;
     }
+
+    // Handle collision checks.
+    for(auto& asteroid: s_asteroids)
+        if(CheckCollision(s_rocket.pos, s_rocket.collider, asteroid.pos, asteroid.collider))
+            HitRocket();
+    for(auto& star: s_stars)
+        if(CheckCollision(s_rocket.pos, s_rocket.collider, star.pos, star.collider))
+            HitRocket();
 }
 
 static void RenderRocket(f32 dt)
@@ -346,23 +360,6 @@ static void DebugRenderRocket(f32 dt)
 {
     Vec4 fill(0,1,0,0.25f);
     Vec4 outline(0,1,0,1.00f);
-    for(auto& asteroid: s_asteroids)
-    {
-        if(CheckCollision(s_rocket.pos, s_rocket.collider, asteroid.pos, asteroid.collider))
-        {
-            fill = Vec4(1,0,0,0.25f);
-            outline = Vec4(1,0,0,1.00f);
-        }
-    }
-    for(auto& star: s_stars)
-    {
-        if(CheckCollision(s_rocket.pos, s_rocket.collider, star.pos, star.collider))
-        {
-            fill = Vec4(1,0,0,0.25f);
-            outline = Vec4(1,0,0,1.00f);
-        }
-    }
-
     Vec2 pos(s_rocket.pos + s_rocket.collider.offset);
     imm::DrawCircleFilled(pos.x, pos.y, s_rocket.collider.radius, fill);
     imm::DrawCircleOutline(pos.x, pos.y, s_rocket.collider.radius, outline);
