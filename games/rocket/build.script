@@ -5,6 +5,9 @@ from shutil import copyfile
 
 copyfile("../../cstech/third_party/sdl2/bin/win32/SDL2.dll", "binary/SDL2.dll")
 copyfile("../../cstech/third_party/sdl2_mixer/bin/win32/SDL2_mixer.dll", "binary/SDL2_mixer.dll")
+copyfile("../../cstech/third_party/sdl2_mixer/bin/win32/libogg-0.dll", "binary/libogg-0.dll")
+copyfile("../../cstech/third_party/sdl2_mixer/bin/win32/libvorbis-0.dll", "binary/libvorbis-0.dll")
+copyfile("../../cstech/third_party/sdl2_mixer/bin/win32/libvorbisfile-3.dll", "binary/libvorbisfile-3.dll")
 
 config = empty_config()
 

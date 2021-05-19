@@ -498,12 +498,15 @@ public:
         LoadAllAssets<gfx::Texture>();
         LoadAllAssets<gfx::Shader>();
         LoadAllAssets<sfx::Sound>();
+        LoadAllAssets<sfx::Music>();
 
         CreateBackground();
         CreateRocket();
         CreateSmoke();
 
         s_gameState = GameState_Menu;
+
+        sfx::PlayMusic("ambience");
     }
 
     void Quit()
