@@ -7,6 +7,28 @@
 using namespace cs;
 
 //
+// Game
+//
+
+enum GameState
+{
+    GameState_Menu,
+    GameState_Game
+};
+
+static GameState s_gameState;
+
+//
+// Utility
+//
+
+static f32 SinRange (f32 min, f32 max, f32 t)
+{
+    f32 halfRange = (max - min) / 2;
+    return (min + halfRange + sinf(t) * halfRange);
+}
+
+//
 // Collision
 //
 
@@ -201,10 +223,19 @@ enum EntityType
     EntityType_TOTAL
 };
 
+static f32 s_entitySpawnCooldown;
+
 static void MaybeSpawnEntity(f32 dt)
 {
-    if(RandomS32(0,1000) <= 75)
-        SpawnAsteroid();
+    if(s_entitySpawnCooldown > 0.0f)
+    {
+        s_entitySpawnCooldown -= dt;
+    }
+    else
+    {
+        if(RandomS32(0,1000) <= 75)
+            SpawnAsteroid();
+    }
 }
 
 //
@@ -278,7 +309,7 @@ static void RenderSmoke(f32 dt)
 //
 
 static constexpr f32 k_rocketVelocityMultiplier = 25.0f;
-static constexpr f32 k_rocketTerminalVelocity = 9.5;
+static constexpr f32 k_rocketTerminalVelocity = 9.5f;
 static constexpr f32 k_rocketMaxAngle = 25.0f;
 static constexpr f32 k_rocketMaxShake = 2.0f;
 
@@ -296,8 +327,8 @@ static Rocket s_rocket;
 
 static void CreateRocket()
 {
-    s_rocket.pos.x = (gfx::GetScreenWidth()/2.0f);
-    s_rocket.pos.y = gfx::GetScreenHeight() - 48.0f;
+    s_rocket.pos.x = (gfx::GetScreenWidth()*0.5f);
+    s_rocket.pos.y = gfx::GetScreenHeight() - 64.0f;
     s_rocket.vel   = Vec2(0);
     s_rocket.angle = 0.0f;
     s_rocket.shake = 0.0f;
@@ -339,12 +370,15 @@ static void UpdateRocket(f32 dt)
     }
 
     // Handle collision checks.
-    for(auto& asteroid: s_asteroids)
-        if(CheckCollision(s_rocket.pos, s_rocket.collider, asteroid.pos, asteroid.collider))
-            HitRocket();
-    for(auto& star: s_stars)
-        if(CheckCollision(s_rocket.pos, s_rocket.collider, star.pos, star.collider))
-            HitRocket();
+    if(s_gameState == GameState_Game)
+    {
+        for(auto& asteroid: s_asteroids)
+            if(CheckCollision(s_rocket.pos, s_rocket.collider, asteroid.pos, asteroid.collider))
+                HitRocket();
+        for(auto& star: s_stars)
+            if(CheckCollision(s_rocket.pos, s_rocket.collider, star.pos, star.collider))
+                HitRocket();
+    }
 }
 
 static void RenderRocket(f32 dt)
@@ -404,6 +438,49 @@ static void RenderBackground(f32 dt)
 }
 
 //
+// Menu
+//
+
+static void UpdateMenu(f32 dt)
+{
+    if(s_gameState == GameState_Menu)
+    {
+        if(IsMouseButtonPressed(MouseButton_Left))
+        {
+            s_gameState = GameState_Game;
+            s_entitySpawnCooldown = 1.0f;
+        }
+    }
+}
+
+static void RenderMenu(f32 dt)
+{
+    static f32 s_targetScaleX = 0.0f;
+    static f32 s_targetScaleY = 10.0f;
+
+    static f32 s_scaleX = 1.0f;
+    static f32 s_scaleY = 1.0f;
+    static f32 s_angle  = 0.0f;
+    static f32 s_timer  = 0.0f;
+
+    s_timer += dt;
+    s_angle = SinRange(-10.0f, 10.0f, s_timer*2.5f);
+
+    if(s_gameState == GameState_Menu)
+    {
+        s_scaleX = SinRange(0.8f, 1.0f, s_timer*1.5f);
+        s_scaleY = SinRange(0.8f, 1.0f, s_timer*2.0f);
+    }
+    else
+    {
+        s_scaleX = csm::Lerp(s_scaleX, s_targetScaleX, dt*30.0f);
+        s_scaleY = csm::Lerp(s_scaleY, s_targetScaleY, dt*5.0f);
+    }
+
+    imm::DrawTexture("title", gfx::GetScreenWidth()*0.5f,48.0f, s_scaleX,s_scaleY, csm::ToRad(s_angle), imm::Flip_None);
+}
+
+//
 // Application
 //
 
@@ -422,6 +499,8 @@ public:
         CreateBackground();
         CreateRocket();
         CreateSmoke();
+
+        s_gameState = GameState_Menu;
     }
 
     void Quit()
@@ -444,11 +523,13 @@ public:
         }
         LockMouse(s_lockMouse);
 
-        MaybeSpawnEntity(dt);
+        if(s_gameState == GameState_Game)
+            MaybeSpawnEntity(dt);
         UpdateAsteroids(dt);
         UpdateStars(dt);
         UpdateSmoke(dt);
         UpdateRocket(dt);
+        UpdateMenu(dt);
     }
 
     void Render(f32 dt)
@@ -458,6 +539,7 @@ public:
         RenderAsteroids(dt);
         RenderStars(dt);
         RenderRocket(dt);
+        RenderMenu(dt);
     }
 
     void DebugRender(f32 dt)
