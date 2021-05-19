@@ -320,7 +320,9 @@ struct Rocket
     f32 angle;
     f32 shake;
     f32 timer;
+    bool dead;
     Collider collider;
+    sfx::SoundRef thruster;
 };
 
 static Rocket s_rocket;
@@ -334,16 +336,19 @@ static void CreateRocket()
     s_rocket.shake = 0.0f;
     s_rocket.timer = 0.0f;
     s_rocket.collider = { Vec2(0,-8), 12.0f };
-    sfx::PlaySound("thruster", -1);
+    s_rocket.thruster = sfx::PlaySound("thruster", -1);
 }
 
 static void HitRocket()
 {
-    // sfx::PlaySound("damage");
+    sfx::StopSound(s_rocket.thruster);
+    s_rocket.dead = true;
 }
 
 static void UpdateRocket(f32 dt)
 {
+    if(s_rocket.dead) return;
+
     if(IsMouseLocked())
     {
         s_rocket.vel.x += GetRelativeMousePos().x / 10.0f;
@@ -375,14 +380,12 @@ static void UpdateRocket(f32 dt)
         for(auto& asteroid: s_asteroids)
             if(CheckCollision(s_rocket.pos, s_rocket.collider, asteroid.pos, asteroid.collider))
                 HitRocket();
-        for(auto& star: s_stars)
-            if(CheckCollision(s_rocket.pos, s_rocket.collider, star.pos, star.collider))
-                HitRocket();
     }
 }
 
 static void RenderRocket(f32 dt)
 {
+    if(s_rocket.dead) return;
     static Rect s_clip = { 48, 0, 48, 96 };
     f32 angle = csm::ToRad(s_rocket.angle + s_rocket.shake);
     imm::DrawTexture("rocket", s_rocket.pos.x, s_rocket.pos.y, 1.0f, 1.0f, angle, imm::Flip_None, &s_clip);
