@@ -31,6 +31,13 @@ static f32 SinRange(f32 min, f32 max, f32 t)
     return (min + halfRange + sinf(t) * halfRange);
 }
 
+static Vec2 RotateVec2(Vec2 vec, f32 rad)
+{
+    f32 x = vec.x * cosf(rad) - vec.y * sinf(rad);
+    f32 y = vec.x * sinf(rad) + vec.y * cosf(rad);
+    return Vec2(x,y);
+}
+
 //
 // Bitmap Font
 //
@@ -317,13 +324,24 @@ static void MaybeSpawnEntity(f32 dt)
 // Smoke
 //
 
+enum SmokeType
+{
+    SmokeType_Thruster,
+    SmokeType_Explosion,
+    SmokeType_Stationary
+};
+
 struct Smoke
 {
+    SmokeType type;
     Vec2 pos;
+    Vec2 vel;
     s32 frame;
     f32 angle;
+    f32 spin;
     f32 timer;
     f32 frameTime;
+    bool spawner;
     bool dead;
 };
 
@@ -334,23 +352,30 @@ static void CreateSmoke()
     s_smoke.reserve(1024);
 }
 
-static void SpawnSmoke(f32 x, f32 y)
+static void SpawnSmoke(SmokeType type, f32 x, f32 y, s32 count)
 {
-    Smoke s = {};
-    s.pos = Vec2(x,y);
-    s.frame = 0;
-    s.angle = RandomF32(0,360.0f);
-    s.timer = 0.0f;
-    s.frameTime = RandomF32(0.05f, 0.15f);
-    s.dead = false;
-    s_smoke.push_back(s);
+    for(s32 i=0; i<count; ++i)
+    {
+        Smoke s = {};
+        s.type = type;
+        s.pos = Vec2(x,y);
+        s.frame = 0;
+        s.angle = RandomF32(0,360.0f);
+        s.vel = RotateVec2(Vec2(RandomF32(80,140),0), csm::ToRad(s.angle));
+        s.spin = RandomF32(400,600);
+        s.timer = 0.0f;
+        s.frameTime = RandomF32(0.05f, 0.15f);
+        s.spawner = (RandomS32(1,100) <= 10);
+        s.dead = false;
+        if(s.spawner) s.vel = (s.vel * 3.0f) + RandomF32(0,40);
+        s_smoke.push_back(s);
+    }
 }
 
 static void UpdateSmoke(f32 dt)
 {
     for(auto& s: s_smoke)
     {
-        s.pos.y += 180.0f * dt;
         s.timer += dt;
         if(s.timer >= s.frameTime)
         {
@@ -359,7 +384,37 @@ static void UpdateSmoke(f32 dt)
             s.frameTime = RandomF32(0.05f, 0.15f);
         }
         if(s.frame >= 8)
+        {
             s.dead = true;
+        }
+
+        // Different smoke types move differently.
+        switch(s.type)
+        {
+            case(SmokeType_Thruster):
+            {
+                s.pos.y += 180.0f * dt;
+            } break;
+            case(SmokeType_Explosion):
+            {
+                s.pos += s.vel * dt;
+                s.angle += s.spin * dt;
+                if(s.spawner)
+                {
+                    if(RandomS32(1,100) < 25)
+                    {
+                        SpawnSmoke(SmokeType_Stationary, s.pos.x, s.pos.y, 1);
+                    }
+                }
+                else
+                {
+                    if(RandomS32(1,100) < 5)
+                    {
+                        SpawnSmoke(SmokeType_Stationary, s.pos.x, s.pos.y, 1);
+                    }
+                }
+            } break;
+        }
     }
 
     s_smoke.erase(std::remove_if(s_smoke.begin(), s_smoke.end(),
@@ -417,87 +472,115 @@ static void CreateRocket()
     s_rocket.thruster = sfx::PlaySound("thruster", -1);
 }
 
+static void RespawnRocket()
+{
+    s_rocket.thruster = sfx::PlaySound("thruster", -1);
+    s_rocket.dead = false;
+    s_rocket.score = 0;
+}
+
 static void HitRocket()
 {
+    SpawnSmoke(SmokeType_Explosion, s_rocket.pos.x, s_rocket.pos.y, RandomS32(20,40));
     sfx::StopSound(s_rocket.thruster);
+    sfx::PlaySound("explosion");
     s_rocket.dead = true;
+    s_rocket.timer = 0.0f;
 }
 
 static void UpdateRocket(f32 dt)
 {
-    if(s_rocket.dead) return;
-
-    if(IsMouseLocked())
+    if(s_rocket.dead)
     {
-        static f32 s_prevMouseX = 0.0f;
-        static f32 s_currMouseX = 0.0f;
-
-        s_prevMouseX = s_currMouseX;
-        s_currMouseX = GetRelativeMousePos().x;
-
-        s_rocket.vel.x += GetRelativeMousePos().x / 10.0f;
-        s_rocket.vel.y += GetRelativeMousePos().y / 20.0f;
-
-        // If the player moved the mouse fast enough then play a whoosh sound.
-        static bool s_canPlayWhoosh = true;
-        static f32 s_whooshVel = 0.0f;
-        if(abs(s_currMouseX - s_prevMouseX) >= 50.0f)
+        // ...
+    }
+    else
+    {
+        if(IsMouseLocked())
         {
-            if(s_canPlayWhoosh)
+            static f32 s_prevMouseX = 0.0f;
+            static f32 s_currMouseX = 0.0f;
+
+            s_prevMouseX = s_currMouseX;
+            s_currMouseX = GetRelativeMousePos().x;
+
+            s_rocket.vel.x += GetRelativeMousePos().x / 10.0f;
+            s_rocket.vel.y += GetRelativeMousePos().y / 20.0f;
+
+            // If the player moved the mouse fast enough then play a whoosh sound.
+            static bool s_canPlayWhoosh = true;
+            static f32 s_whooshVel = 0.0f;
+            if(abs(s_currMouseX - s_prevMouseX) >= 50.0f)
             {
-                sfx::PlaySound("whoosh");
-                s_whooshVel = s_rocket.vel.x;
-                s_canPlayWhoosh = false;
+                if(s_canPlayWhoosh)
+                {
+                    sfx::PlaySound("whoosh");
+                    s_whooshVel = s_rocket.vel.x;
+                    s_canPlayWhoosh = false;
+                }
+            }
+            if(!s_canPlayWhoosh)
+            {
+                // Direction change.
+                if(s_whooshVel > 0.0f && s_rocket.vel.x < 0.0f || s_whooshVel < 0.0f && s_rocket.vel.x > 0.0f)
+                    s_canPlayWhoosh = true;
+                // Speed goes down.
+                if(s_rocket.vel.x <= 5.0f && s_rocket.vel.x >= -5.0f)
+                    s_canPlayWhoosh = true;
             }
         }
-        if(!s_canPlayWhoosh)
+
+        s_rocket.angle = csm::Clamp(s_rocket.vel.x, -k_rocketMaxAngle, k_rocketMaxAngle);
+        s_rocket.shake = RandomF32(-k_rocketMaxShake, k_rocketMaxShake);
+
+        s_rocket.vel.x = csm::Clamp(s_rocket.vel.x, -(k_rocketTerminalVelocity*1.5f), (k_rocketTerminalVelocity*1.5f));
+        s_rocket.vel.y = csm::Clamp(s_rocket.vel.y, -k_rocketTerminalVelocity, k_rocketTerminalVelocity);
+
+        s_rocket.pos += (s_rocket.vel * k_rocketVelocityMultiplier) * dt;
+        s_rocket.pos.x = csm::Clamp(s_rocket.pos.x, 0.0f, gfx::GetScreenWidth());
+        s_rocket.pos.y = csm::Clamp(s_rocket.pos.y, 0.0f, gfx::GetScreenHeight());
+
+        s_rocket.vel = csm::Lerp(s_rocket.vel, Vec2(0), Vec2(0.1f));
+
+        s_rocket.timer += dt;
+        if(s_rocket.timer >= 0.05f)
         {
-            // Direction change.
-            if(s_whooshVel > 0.0f && s_rocket.vel.x < 0.0f || s_whooshVel < 0.0f && s_rocket.vel.x > 0.0f)
-                s_canPlayWhoosh = true;
-            // Speed goes down.
-            if(s_rocket.vel.x <= 5.0f && s_rocket.vel.x >= -5.0f)
-                s_canPlayWhoosh = true;
+            SpawnSmoke(SmokeType_Thruster, s_rocket.pos.x+RandomF32(-3.0f,3.0f), s_rocket.pos.y+20.0f, 1);
+            s_rocket.timer -= 0.05f;
         }
+
+        // Handle collision checks.
+        if(s_gameState == GameState_Game)
+        {
+            for(auto& asteroid: s_asteroids)
+                if(CheckCollision(s_rocket.pos, s_rocket.collider, asteroid.pos, asteroid.collider))
+                    HitRocket();
+        }
+
+        // Increment the score.
+        if(s_gameState == GameState_Game)
+            ++s_rocket.score;
     }
-
-    s_rocket.angle = csm::Clamp(s_rocket.vel.x, -k_rocketMaxAngle, k_rocketMaxAngle);
-    s_rocket.shake = RandomF32(-k_rocketMaxShake, k_rocketMaxShake);
-
-    s_rocket.vel.x = csm::Clamp(s_rocket.vel.x, -(k_rocketTerminalVelocity*1.5f), (k_rocketTerminalVelocity*1.5f));
-    s_rocket.vel.y = csm::Clamp(s_rocket.vel.y, -k_rocketTerminalVelocity, k_rocketTerminalVelocity);
-
-    s_rocket.pos += (s_rocket.vel * k_rocketVelocityMultiplier) * dt;
-    s_rocket.pos.x = csm::Clamp(s_rocket.pos.x, 0.0f, gfx::GetScreenWidth());
-    s_rocket.pos.y = csm::Clamp(s_rocket.pos.y, 0.0f, gfx::GetScreenHeight());
-
-    s_rocket.vel = csm::Lerp(s_rocket.vel, Vec2(0), Vec2(0.1f));
-
-    s_rocket.timer += dt;
-    if(s_rocket.timer >= 0.05f)
-    {
-        SpawnSmoke(s_rocket.pos.x+RandomF32(-3.0f,3.0f), s_rocket.pos.y+20.0f);
-        s_rocket.timer -= 0.05f;
-    }
-
-    // Handle collision checks.
-    if(s_gameState == GameState_Game)
-    {
-        for(auto& asteroid: s_asteroids)
-            if(CheckCollision(s_rocket.pos, s_rocket.collider, asteroid.pos, asteroid.collider))
-                HitRocket();
-    }
-
-    // Increment the score.
-    if(s_gameState == GameState_Game)
-        ++s_rocket.score;
 }
 
 static void RenderRocket(f32 dt)
 {
-    // Draw the rocket.
-    if(!s_rocket.dead)
+    if(s_rocket.dead)
     {
+        // Draw the explosion.
+        s_rocket.timer += dt;
+        f32 frame = floorf(s_rocket.timer / 0.04f);
+        if(frame < 12)
+        {
+            Rect clip = { 96*frame, 0, 96, 96 };
+            imm::DrawTexture("explosion", s_rocket.pos.x, s_rocket.pos.y, &clip);
+            imm::DrawTexture("explosion", s_rocket.pos.x-20, s_rocket.pos.y-10, 0.5f,0.5f, 0.0f, imm::Flip_None,  &clip);
+            imm::DrawTexture("explosion", s_rocket.pos.x+10, s_rocket.pos.y+30, 0.5f,0.5f, 0.0f, imm::Flip_None,  &clip);
+        }
+    }
+    else
+    {
+        // Draw the rocket.
         static Rect s_clip = { 48, 0, 48, 96 };
         f32 angle = csm::ToRad(s_rocket.angle + s_rocket.shake);
         imm::DrawTexture("rocket", s_rocket.pos.x, s_rocket.pos.y, 1.0f, 1.0f, angle, imm::Flip_None, &s_clip);
@@ -619,6 +702,9 @@ public:
         gfx::SetScreenScaleMode(gfx::ScaleMode_Pixel);
         gfx::SetScreenFilter(gfx::Filter_Nearest);
 
+        sfx::SetSoundVolume(1.0f);
+        sfx::SetMusicVolume(1.0f);
+
         LoadAllAssets<gfx::Texture>();
         LoadAllAssets<gfx::Shader>();
         LoadAllAssets<sfx::Sound>();
@@ -632,7 +718,7 @@ public:
 
         s_gameState = GameState_Menu;
 
-        sfx::PlayMusic("ambience");
+        sfx::PlayMusic("ambience", -1);
     }
 
     void Quit()
@@ -654,6 +740,18 @@ public:
             s_lockMouse = true;
         }
         LockMouse(s_lockMouse);
+
+        // If the rocket is dead then pressing R resets the game.
+        if(s_gameState == GameState_Game && s_rocket.dead)
+        {
+            if(IsKeyPressed(KeyCode_R))
+            {
+                RespawnRocket();
+                s_entitySpawnCooldown = 1.0f;
+                s_asteroids.clear();
+                s_smoke.clear();
+            }
+        }
 
         if(s_gameState == GameState_Game)
             MaybeSpawnEntity(dt);

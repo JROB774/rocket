@@ -1,0 +1,5 @@
+{
+    "file": "explosion.png",
+    "filter": "nearest",
+    "wrap": "clamp"
+}
