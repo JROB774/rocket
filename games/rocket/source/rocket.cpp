@@ -351,8 +351,36 @@ static void UpdateRocket(f32 dt)
 
     if(IsMouseLocked())
     {
+        static f32 s_prevMouseX = 0.0f;
+        static f32 s_currMouseX = 0.0f;
+
+        s_prevMouseX = s_currMouseX;
+        s_currMouseX = GetRelativeMousePos().x;
+
         s_rocket.vel.x += GetRelativeMousePos().x / 10.0f;
         s_rocket.vel.y += GetRelativeMousePos().y / 20.0f;
+
+        // If the player moved the mouse fast enough then play a whoosh sound.
+        static bool s_canPlayWhoosh = true;
+        static f32 s_whooshVel = 0.0f;
+        if(abs(s_currMouseX - s_prevMouseX) >= 50.0f)
+        {
+            if(s_canPlayWhoosh)
+            {
+                sfx::PlaySound("whoosh");
+                s_whooshVel = s_rocket.vel.x;
+                s_canPlayWhoosh = false;
+            }
+        }
+        if(!s_canPlayWhoosh)
+        {
+            // Direction change.
+            if(s_whooshVel > 0.0f && s_rocket.vel.x < 0.0f || s_whooshVel < 0.0f && s_rocket.vel.x > 0.0f)
+                s_canPlayWhoosh = true;
+            // Speed goes down.
+            if(s_rocket.vel.x <= 5.0f && s_rocket.vel.x >= -5.0f)
+                s_canPlayWhoosh = true;
+        }
     }
 
     s_rocket.angle = csm::Clamp(s_rocket.vel.x, -k_rocketMaxAngle, k_rocketMaxAngle);
