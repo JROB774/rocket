@@ -335,7 +335,7 @@ static void CreateRocket()
     s_rocket.angle = 0.0f;
     s_rocket.shake = 0.0f;
     s_rocket.timer = 0.0f;
-    s_rocket.collider = { Vec2(0,-8), 12.0f };
+    s_rocket.collider = { Vec2(0,-8), 8.0f };
     s_rocket.thruster = sfx::PlaySound("thruster", -1);
 }
 
