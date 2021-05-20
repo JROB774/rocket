@@ -79,7 +79,7 @@ static void SpawnAsteroid()
     Asteroid asteroid = {};
     asteroid.pos = Vec2(RandomF32(0, gfx::GetScreenWidth()), -48.0f);
     asteroid.flip = (RandomS32() % 2 == 0) ? imm::Flip_None : imm::Flip_Horizontal;
-    asteroid.type = CS_CAST(AsteroidType, RandomS32(0,AsteroidType_TOTAL));
+    asteroid.type = CS_CAST(AsteroidType, RandomS32(0,AsteroidType_TOTAL-1));
     asteroid.collider.offset = Vec2(0,-2);
     switch(asteroid.type)
     {
