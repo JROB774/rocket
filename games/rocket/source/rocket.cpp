@@ -4,6 +4,9 @@
 #include "cs_audio.hpp"
 #include "cs_utility.hpp"
 
+#include <iomanip>
+#include <sstream>
+
 using namespace cs;
 
 //
@@ -26,6 +29,78 @@ static f32 SinRange(f32 min, f32 max, f32 t)
 {
     f32 halfRange = (max - min) / 2;
     return (min + halfRange + sinf(t) * halfRange);
+}
+
+//
+// Bitmap Font
+//
+
+struct BitmapFont
+{
+    Rect bounds[256];
+    std::string texture;
+    f32 charWidth;
+    f32 charHeight;
+};
+
+static BitmapFont s_font;
+
+static void LoadBitmapFont(BitmapFont& font, f32 cw, f32 ch, std::string texture)
+{
+    font.texture = texture;
+    font.charWidth = cw;
+    font.charHeight = ch;
+
+    for(s32 iy=0; iy<3; ++iy)
+        for(s32 ix=0; ix<32; ++ix)
+            font.bounds[iy*32+ix] = { CS_CAST(f32,ix)*cw, CS_CAST(f32,iy)*ch, cw, ch };
+}
+
+static f32 GetTextLineWidth(BitmapFont& font, std::string text, s32 line = 0)
+{
+    f32 lineWidth = 0;
+    s32 lineIndex = 0;
+    for(size_t i=0; i<text.length(); ++i)
+    {
+        if(text[i] == '\n')
+        {
+            if(lineIndex++ == line) return lineWidth;
+            else lineWidth = 0;
+        }
+        else
+        {
+            lineWidth += font.charWidth;
+        }
+    }
+    return lineWidth;
+}
+
+static void DrawBitmapFont(BitmapFont& font, f32 x, f32 y, std::string text, Vec4 color = Vec4(1))
+{
+    // NOTE: We just assume the caller wants multi-line text to be center aligned.
+
+    f32 ix = x;
+    f32 iy = y;
+
+    s32 line = 0;
+
+    for(size_t i=0; i<text.length(); ++i)
+    {
+        if(text[i] == '\n')
+        {
+            ix = x + (GetTextLineWidth(font, text, 0)*0.5f) - (GetTextLineWidth(font, text, line+1)*0.5f);
+            iy += font.charHeight;
+            line++;
+        }
+        else
+        {
+            f32 dx = ix + (font.charWidth*0.5f);
+            f32 dy = iy + (font.charHeight*0.5f);
+            Rect bounds = font.bounds[CS_CAST(u8,text.at(i))];
+            imm::DrawTexture(font.texture, dx,dy, &bounds);
+            ix += font.charWidth;
+        }
+    }
 }
 
 //
@@ -320,6 +395,7 @@ struct Rocket
     f32 angle;
     f32 shake;
     f32 timer;
+    s32 score;
     bool dead;
     Collider collider;
     sfx::SoundRef thruster;
@@ -335,6 +411,8 @@ static void CreateRocket()
     s_rocket.angle = 0.0f;
     s_rocket.shake = 0.0f;
     s_rocket.timer = 0.0f;
+    s_rocket.score = 0;
+    s_rocket.dead  = false;
     s_rocket.collider = { Vec2(0,-8), 8.0f };
     s_rocket.thruster = sfx::PlaySound("thruster", -1);
 }
@@ -409,16 +487,34 @@ static void UpdateRocket(f32 dt)
             if(CheckCollision(s_rocket.pos, s_rocket.collider, asteroid.pos, asteroid.collider))
                 HitRocket();
     }
+
+    // Increment the score.
+    if(s_gameState == GameState_Game)
+        ++s_rocket.score;
 }
 
 static void RenderRocket(f32 dt)
 {
-    if(s_rocket.dead) return;
-    static Rect s_clip = { 48, 0, 48, 96 };
-    f32 angle = csm::ToRad(s_rocket.angle + s_rocket.shake);
-    imm::DrawTexture("rocket", s_rocket.pos.x, s_rocket.pos.y, 1.0f, 1.0f, angle, imm::Flip_None, &s_clip);
-    s_clip.x += 48.0f;
-    if(s_clip.x >= 288.0f) s_clip.x = 48.0f;
+    // Draw the rocket.
+    if(!s_rocket.dead)
+    {
+        static Rect s_clip = { 48, 0, 48, 96 };
+        f32 angle = csm::ToRad(s_rocket.angle + s_rocket.shake);
+        imm::DrawTexture("rocket", s_rocket.pos.x, s_rocket.pos.y, 1.0f, 1.0f, angle, imm::Flip_None, &s_clip);
+        s_clip.x += 48.0f;
+        if(s_clip.x >= 288.0f) s_clip.x = 48.0f;
+    }
+
+    // Draw the score.
+    if(s_gameState == GameState_Game)
+    {
+        std::stringstream scoreStream;
+        scoreStream << std::setw(6) << std::setfill('-') << s_rocket.score;
+        f32 screenWidth = gfx::GetScreenWidth();
+        f32 screenHeight = gfx::GetScreenHeight();
+        f32 textWidth = GetTextLineWidth(s_font, scoreStream.str());
+        DrawBitmapFont(s_font, (screenWidth-textWidth)*0.5f,0.0f, scoreStream.str());
+    }
 }
 
 static void DebugRenderRocket(f32 dt)
@@ -531,6 +627,8 @@ public:
         CreateBackground();
         CreateRocket();
         CreateSmoke();
+
+        LoadBitmapFont(s_font, 14,24, "font");
 
         s_gameState = GameState_Menu;
 
