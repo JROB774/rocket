@@ -570,7 +570,7 @@ static void RenderRocket(f32 dt)
         // Draw the explosion.
         s_rocket.timer += dt;
         f32 frame = floorf(s_rocket.timer / 0.04f);
-        if(frame < 12)
+        if(frame < 13)
         {
             Rect clip = { 96*frame, 0, 96, 96 };
             imm::DrawTexture("explosion", s_rocket.pos.x, s_rocket.pos.y, &clip);
