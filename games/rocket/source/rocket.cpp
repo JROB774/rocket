@@ -478,6 +478,7 @@ static constexpr f32 k_rocketMaxShake = 2.0f;
 
 static void StartThruster()
 {
+    if(s_rocket.thruster != sfx::k_invalidSoundRef) return;
     std::string thruster = (s_rocket.costume == Costume_Meat) ? "squirt" : "thruster";
     s_rocket.thruster = sfx::PlaySound(thruster, -1);
 }
@@ -485,6 +486,7 @@ static void StartThruster()
 static void StopThruster()
 {
     sfx::StopSound(s_rocket.thruster);
+    s_rocket.thruster = sfx::k_invalidSoundRef;
 }
 
 static void CreateRocket()
@@ -500,6 +502,7 @@ static void CreateRocket()
     s_rocket.dead  = false;
     s_rocket.collider = { Vec2(0,-8), 8.0f };
     s_rocket.costume = Costume_Red;
+    s_rocket.thruster = sfx::k_invalidSoundRef;
     StartThruster();
 }
 
