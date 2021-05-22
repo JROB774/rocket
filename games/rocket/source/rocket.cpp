@@ -468,64 +468,6 @@ static void RenderSmoke(f32 dt)
 }
 
 //
-// Transition
-//
-
-static f32 s_fadeHeight = 0.0f;
-static bool s_fadeOut = false;
-
-static void ResetGame()
-{
-    s_gameResetting = true;
-    s_fadeOut = true;
-    s_fadeHeight = 0.0f;
-}
-
-static void RenderTransition(f32 dt)
-{
-    f32 screenW = gfx::GetScreenWidth();
-    f32 screenH = gfx::GetScreenHeight();
-
-    f32 speed = 1400.0f;
-    Vec4 color = Vec4(0,0,0,1);
-
-    if(s_fadeOut)
-    {
-        s_fadeHeight += speed * dt;
-        f32 y = screenH - s_fadeHeight;
-        imm::DrawRectFilled(0,y,screenW,y+s_fadeHeight, color);
-        imm::DrawTexture("splatter", screenW*0.5f, y-32);
-
-        if(s_fadeHeight >= gfx::GetScreenHeight())
-        {
-            if(s_rocket.score > s_highScore)
-                s_highScore = s_rocket.score;
-            std::string thruster = (s_rocket.costume == Costume_Meat) ? "squirt" : "thruster";
-            s_rocket.pos.x = (screenW*0.5f);
-            s_rocket.pos.y = screenH - 64.0f;
-            s_rocket.thruster = sfx::PlaySound(thruster, -1);
-            s_rocket.dead = false;
-            s_rocket.score = 0;
-            s_entitySpawnCooldown = 1.0f;
-            s_asteroids.clear();
-            s_smoke.clear();
-            s_fadeOut = false;
-        }
-    }
-    else
-    {
-        s_fadeHeight -= speed * dt;
-        imm::DrawRectFilled(0,0,screenW,s_fadeHeight, color);
-        imm::DrawTexture("splatter", screenW*0.5f, s_fadeHeight+32.0f, 1.0f,1.0f, 0.0f, imm::Flip_Vertical);
-
-        if(s_fadeHeight <= 0.0f)
-        {
-            s_gameResetting = false;
-        }
-    }
-}
-
-//
 // Rocket
 //
 
@@ -533,6 +475,17 @@ static constexpr f32 k_rocketVelocityMultiplier = 25.0f;
 static constexpr f32 k_rocketTerminalVelocity = 9.5f;
 static constexpr f32 k_rocketMaxAngle = 25.0f;
 static constexpr f32 k_rocketMaxShake = 2.0f;
+
+static void StartThruster()
+{
+    std::string thruster = (s_rocket.costume == Costume_Meat) ? "squirt" : "thruster";
+    s_rocket.thruster = sfx::PlaySound(thruster, -1);
+}
+
+static void StopThruster()
+{
+    sfx::StopSound(s_rocket.thruster);
+}
 
 static void CreateRocket()
 {
@@ -547,13 +500,13 @@ static void CreateRocket()
     s_rocket.dead  = false;
     s_rocket.collider = { Vec2(0,-8), 8.0f };
     s_rocket.costume = Costume_Red;
-    s_rocket.thruster = sfx::PlaySound((s_rocket.costume == Costume_Meat) ? "squirt" : "thruster", -1);
+    StartThruster();
 }
 
 static void HitRocket()
 {
     SpawnSmoke(SmokeType_Explosion, s_rocket.pos.x, s_rocket.pos.y, RandomS32(20,40));
-    sfx::StopSound(s_rocket.thruster);
+    StopThruster();
     if(s_rocket.costume == Costume_Meat)
     {
         sfx::PlaySound("splat");
@@ -586,9 +539,8 @@ static void UpdateRocket(f32 dt)
         {
             if(!s_rocket.dead)
             {
-                sfx::StopSound(s_rocket.thruster);
-                std::string thruster = (s_rocket.costume == Costume_Meat) ? "squirt" : "thruster";
-                s_rocket.thruster = sfx::PlaySound((s_rocket.costume == Costume_Meat) ? "squirt" : "thruster", -1);
+                StopThruster();
+                StartThruster();
             }
         }
     }
@@ -730,6 +682,63 @@ static void DebugRenderRocket(f32 dt)
     Vec2 pos(s_rocket.pos + s_rocket.collider.offset);
     imm::DrawCircleFilled(pos.x, pos.y, s_rocket.collider.radius, fill);
     imm::DrawCircleOutline(pos.x, pos.y, s_rocket.collider.radius, outline);
+}
+
+//
+// Transition
+//
+
+static f32 s_fadeHeight = 0.0f;
+static bool s_fadeOut = false;
+
+static void ResetGame()
+{
+    s_gameResetting = true;
+    s_fadeOut = true;
+    s_fadeHeight = 0.0f;
+}
+
+static void RenderTransition(f32 dt)
+{
+    f32 screenW = gfx::GetScreenWidth();
+    f32 screenH = gfx::GetScreenHeight();
+
+    f32 speed = 1400.0f;
+    Vec4 color = Vec4(0,0,0,1);
+
+    if(s_fadeOut)
+    {
+        s_fadeHeight += speed * dt;
+        f32 y = screenH - s_fadeHeight;
+        imm::DrawRectFilled(0,y,screenW,y+s_fadeHeight, color);
+        imm::DrawTexture("splatter", screenW*0.5f, y-32);
+
+        if(s_fadeHeight >= gfx::GetScreenHeight())
+        {
+            if(s_rocket.score > s_highScore)
+                s_highScore = s_rocket.score;
+            s_rocket.pos.x = (screenW*0.5f);
+            s_rocket.pos.y = screenH - 64.0f;
+            s_rocket.dead = false;
+            s_rocket.score = 0;
+            s_entitySpawnCooldown = 1.0f;
+            s_asteroids.clear();
+            s_smoke.clear();
+            s_fadeOut = false;
+            StartThruster();
+        }
+    }
+    else
+    {
+        s_fadeHeight -= speed * dt;
+        imm::DrawRectFilled(0,0,screenW,s_fadeHeight, color);
+        imm::DrawTexture("splatter", screenW*0.5f, s_fadeHeight+32.0f, 1.0f,1.0f, 0.0f, imm::Flip_Vertical);
+
+        if(s_fadeHeight <= 0.0f)
+        {
+            s_gameResetting = false;
+        }
+    }
 }
 
 //
@@ -876,15 +885,28 @@ public:
         }
         else
         {
-            s_lockMouse = true;
+            s_lockMouse = !s_gamePaused;
         }
         LockMouse(s_lockMouse);
 
         if(!s_gameResetting)
         {
-            if(!s_rocket.dead)
-                if(IsKeyPressed(KeyCode_Escape))
-                    s_gamePaused = !s_gamePaused;
+            if(IsKeyPressed(KeyCode_Escape) && !s_rocket.dead)
+            {
+                s_gamePaused = !s_gamePaused;
+                sfx::PlaySound("pause");
+
+                if(s_gamePaused)
+                {
+                    sfx::PauseMusic();
+                    StopThruster();
+                }
+                else
+                {
+                    sfx::ResumeMusic();
+                    StartThruster();
+                }
+            }
         }
 
         if(!s_gamePaused)
