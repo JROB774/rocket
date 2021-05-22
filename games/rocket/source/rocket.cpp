@@ -10,19 +10,6 @@
 using namespace cs;
 
 //
-// Game
-//
-
-enum GameState
-{
-    GameState_Menu,
-    GameState_Game
-};
-
-static GameState s_gameState;
-static bool s_gamePaused;
-
-//
 // Utility
 //
 
@@ -38,6 +25,66 @@ static Vec2 RotateVec2(Vec2 vec, f32 rad)
     f32 y = vec.x * sinf(rad) + vec.y * cosf(rad);
     return Vec2(x,y);
 }
+
+//
+// Collision
+//
+
+struct Collider
+{
+    Vec2 offset;
+    f32 radius;
+};
+
+static bool CheckCollision(Vec2 aPos, const Collider& a, Vec2 bPos, const Collider& b)
+{
+    f32 ax = aPos.x + a.offset.x, ay = aPos.y + a.offset.y;
+    f32 bx = bPos.x + b.offset.x, by = bPos.y + b.offset.y;
+    f32 x = abs(bx-ax);
+    f32 y = abs(by-ay);
+    f32 radius = a.radius+b.radius;
+    return (((x*x)+(y*y)) <= (radius*radius));
+}
+
+//
+// Game
+//
+
+enum GameState
+{
+    GameState_Menu,
+    GameState_Game
+};
+
+enum Costume
+{
+    Costume_Red,
+    Costume_Blue,
+    Costume_Yellow,
+    Costume_Meat,
+    Costume_Doodle,
+    Costume_TOTAL
+};
+
+struct Rocket
+{
+    Vec2 pos;
+    Vec2 vel;
+    f32 angle;
+    f32 shake;
+    f32 timer;
+    s32 score;
+    s32 frame;
+    bool dead;
+    Collider collider;
+    sfx::SoundRef thruster;
+    Costume costume;
+};
+
+static GameState s_gameState;
+static bool s_gamePaused;
+static u32 s_gameFrame;
+static Rocket s_rocket;
 
 //
 // Bitmap Font
@@ -109,26 +156,6 @@ static void DrawBitmapFont(BitmapFont& font, f32 x, f32 y, std::string text, Vec
             ix += font.charWidth;
         }
     }
-}
-
-//
-// Collision
-//
-
-struct Collider
-{
-    Vec2 offset;
-    f32 radius;
-};
-
-static bool CheckCollision(Vec2 aPos, const Collider& a, Vec2 bPos, const Collider& b)
-{
-    f32 ax = aPos.x + a.offset.x, ay = aPos.y + a.offset.y;
-    f32 bx = bPos.x + b.offset.x, by = bPos.y + b.offset.y;
-    f32 x = abs(bx-ax);
-    f32 y = abs(by-ay);
-    f32 radius = a.radius+b.radius;
-    return (((x*x)+(y*y)) <= (radius*radius));
 }
 
 //
@@ -426,13 +453,12 @@ static void UpdateSmoke(f32 dt)
     s_smoke.end());
 }
 
-static void RenderSmoke(f32 dt, bool blood)
+static void RenderSmoke(f32 dt)
 {
-    std::string image = (blood) ? "blood" : "smoke";
     for(auto& s: s_smoke)
     {
-        Rect clip = { CS_CAST(f32, 16*s.frame), 0, 16, 16 };
-        imm::DrawTexture(image, s.pos.x, s.pos.y, 1.0f, 1.0f, csm::ToRad(s.angle), imm::Flip_None, &clip);
+        Rect clip = { CS_CAST(f32, 16*s.frame), 16*CS_CAST(f32, s_rocket.costume), 16, 16 };
+        imm::DrawTexture("smoke", s.pos.x, s.pos.y, 1.0f, 1.0f, csm::ToRad(s.angle), imm::Flip_None, &clip);
     }
 }
 
@@ -444,32 +470,6 @@ static constexpr f32 k_rocketVelocityMultiplier = 25.0f;
 static constexpr f32 k_rocketTerminalVelocity = 9.5f;
 static constexpr f32 k_rocketMaxAngle = 25.0f;
 static constexpr f32 k_rocketMaxShake = 2.0f;
-
-enum Costume
-{
-    Costume_Red,
-    Costume_Blue,
-    Costume_Yellow,
-    Costume_Meat,
-    Costume_TOTAL
-};
-
-struct Rocket
-{
-    Vec2 pos;
-    Vec2 vel;
-    f32 angle;
-    f32 shake;
-    f32 timer;
-    s32 score;
-    s32 frame;
-    bool dead;
-    Collider collider;
-    sfx::SoundRef thruster;
-    Costume costume;
-};
-
-static Rocket s_rocket;
 
 static void CreateRocket()
 {
@@ -484,7 +484,7 @@ static void CreateRocket()
     s_rocket.dead  = false;
     s_rocket.collider = { Vec2(0,-8), 8.0f };
     s_rocket.thruster = sfx::PlaySound("thruster", -1);
-    s_rocket.costume = Costume_Meat;
+    s_rocket.costume = Costume_Doodle;
 }
 
 static void RespawnRocket()
@@ -515,9 +515,19 @@ static void UpdateRocket(f32 dt)
 {
     s_rocket.timer += dt;
 
-    s_rocket.frame++;
+    if(s_rocket.costume == Costume_Doodle)
+    {
+        if(s_gameFrame % 3 == 0)
+            s_rocket.frame++;
+    }
+    else
+    {
+        s_rocket.frame++;
+    }
     if(s_rocket.frame >= 5)
+    {
         s_rocket.frame = 0;
+    }
 
     if(s_rocket.dead)
     {
@@ -599,11 +609,10 @@ static void RenderRocket(f32 dt)
         f32 frame = floorf(s_rocket.timer / 0.04f);
         if(frame < 13)
         {
-            std::string image = (s_rocket.costume == Costume_Meat) ? "bloodsplosion" : "explosion";
-            Rect clip = { 96*frame, 0, 96, 96 };
-            imm::DrawTexture(image, s_rocket.pos.x, s_rocket.pos.y, &clip);
-            imm::DrawTexture(image, s_rocket.pos.x-20, s_rocket.pos.y-10, 0.5f,0.5f, 0.0f, imm::Flip_None,  &clip);
-            imm::DrawTexture(image, s_rocket.pos.x+10, s_rocket.pos.y+30, 0.5f,0.5f, 0.0f, imm::Flip_None,  &clip);
+            Rect clip = { 96*frame, 96*CS_CAST(f32, s_rocket.costume), 96, 96 };
+            imm::DrawTexture("explosion", s_rocket.pos.x, s_rocket.pos.y, &clip);
+            imm::DrawTexture("explosion", s_rocket.pos.x-20, s_rocket.pos.y-10, 0.5f,0.5f, 0.0f, imm::Flip_None,  &clip);
+            imm::DrawTexture("explosion", s_rocket.pos.x+10, s_rocket.pos.y+30, 0.5f,0.5f, 0.0f, imm::Flip_None,  &clip);
         }
     }
     else
@@ -808,12 +817,14 @@ public:
             UpdateRocket(dt);
             UpdateMenu(dt);
         }
+
+        s_gameFrame++;
     }
 
     void Render(f32 dt)
     {
         RenderBackground(dt);
-        RenderSmoke(dt, (s_rocket.costume == Costume_Meat));
+        RenderSmoke(dt);
         RenderAsteroids(dt);
         RenderStars(dt);
         RenderRocket(dt);
