@@ -717,10 +717,17 @@ public:
         // sfx::SetSoundVolume(1.0f);
         // sfx::SetMusicVolume(1.0f);
 
-        LoadAllAssets<gfx::Texture>();
-        LoadAllAssets<gfx::Shader>();
-        LoadAllAssets<sfx::Sound>();
-        LoadAllAssets<sfx::Music>();
+        LoadAllAssetsOfType<gfx::Texture>();
+        LoadAllAssetsOfType<gfx::Shader>();
+        LoadAllAssetsOfType<sfx::Sound>();
+        LoadAllAssetsOfType<sfx::Music>();
+
+        auto& textures = GetAllAssetsOfType<gfx::Texture>();
+        for(auto& texture: textures)
+        {
+            gfx::SetTextureFilter(*texture, gfx::Filter_Nearest);
+            gfx::SetTextureWrap(*texture, gfx::Wrap_Clamp);
+        }
 
         CreateBackground();
         CreateRocket();
