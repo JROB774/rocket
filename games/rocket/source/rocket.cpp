@@ -514,6 +514,27 @@ static void HitRocket()
 
 static void UpdateRocket(f32 dt)
 {
+    // Change costume.
+    if(CS_DEBUG)
+    {
+        Costume oldCostume = s_rocket.costume;
+        if(IsKeyPressed(KeyCode_1)) s_rocket.costume = Costume_Red;
+        if(IsKeyPressed(KeyCode_2)) s_rocket.costume = Costume_Blue;
+        if(IsKeyPressed(KeyCode_3)) s_rocket.costume = Costume_Yellow;
+        if(IsKeyPressed(KeyCode_4)) s_rocket.costume = Costume_Meat;
+        if(IsKeyPressed(KeyCode_5)) s_rocket.costume = Costume_Doodle;
+        // Need to reset the thruster sound.
+        if(oldCostume != s_rocket.costume)
+        {
+            if(!s_rocket.dead)
+            {
+                sfx::StopSound(s_rocket.thruster);
+                std::string thruster = (s_rocket.costume == Costume_Meat) ? "squirt" : "thruster";
+                s_rocket.thruster = sfx::PlaySound((s_rocket.costume == Costume_Meat) ? "squirt" : "thruster", -1);
+            }
+        }
+    }
+
     s_rocket.timer += dt;
 
     if(s_rocket.costume == Costume_Doodle)
