@@ -426,12 +426,13 @@ static void UpdateSmoke(f32 dt)
     s_smoke.end());
 }
 
-static void RenderSmoke(f32 dt)
+static void RenderSmoke(f32 dt, bool blood)
 {
+    std::string image = (blood) ? "blood" : "smoke";
     for(auto& s: s_smoke)
     {
         Rect clip = { CS_CAST(f32, 16*s.frame), 0, 16, 16 };
-        imm::DrawTexture("smoke", s.pos.x, s.pos.y, 1.0f, 1.0f, csm::ToRad(s.angle), imm::Flip_None, &clip);
+        imm::DrawTexture(image, s.pos.x, s.pos.y, 1.0f, 1.0f, csm::ToRad(s.angle), imm::Flip_None, &clip);
     }
 }
 
@@ -443,6 +444,15 @@ static constexpr f32 k_rocketVelocityMultiplier = 25.0f;
 static constexpr f32 k_rocketTerminalVelocity = 9.5f;
 static constexpr f32 k_rocketMaxAngle = 25.0f;
 static constexpr f32 k_rocketMaxShake = 2.0f;
+
+enum Costume
+{
+    Costume_Red,
+    Costume_Blue,
+    Costume_Yellow,
+    Costume_Meat,
+    Costume_TOTAL
+};
 
 struct Rocket
 {
@@ -456,6 +466,7 @@ struct Rocket
     bool dead;
     Collider collider;
     sfx::SoundRef thruster;
+    Costume costume;
 };
 
 static Rocket s_rocket;
@@ -473,6 +484,7 @@ static void CreateRocket()
     s_rocket.dead  = false;
     s_rocket.collider = { Vec2(0,-8), 8.0f };
     s_rocket.thruster = sfx::PlaySound("thruster", -1);
+    s_rocket.costume = Costume_Meat;
 }
 
 static void RespawnRocket()
@@ -486,7 +498,15 @@ static void HitRocket()
 {
     SpawnSmoke(SmokeType_Explosion, s_rocket.pos.x, s_rocket.pos.y, RandomS32(20,40));
     sfx::StopSound(s_rocket.thruster);
-    sfx::PlaySound("explosion");
+    if(s_rocket.costume == Costume_Meat)
+    {
+        sfx::PlaySound("splat");
+        sfx::PlaySound("fried");
+    }
+    else
+    {
+        sfx::PlaySound("explosion");
+    }
     s_rocket.dead = true;
     s_rocket.timer = 0.0f;
 }
@@ -579,16 +599,17 @@ static void RenderRocket(f32 dt)
         f32 frame = floorf(s_rocket.timer / 0.04f);
         if(frame < 13)
         {
+            std::string image = (s_rocket.costume == Costume_Meat) ? "bloodsplosion" : "explosion";
             Rect clip = { 96*frame, 0, 96, 96 };
-            imm::DrawTexture("explosion", s_rocket.pos.x, s_rocket.pos.y, &clip);
-            imm::DrawTexture("explosion", s_rocket.pos.x-20, s_rocket.pos.y-10, 0.5f,0.5f, 0.0f, imm::Flip_None,  &clip);
-            imm::DrawTexture("explosion", s_rocket.pos.x+10, s_rocket.pos.y+30, 0.5f,0.5f, 0.0f, imm::Flip_None,  &clip);
+            imm::DrawTexture(image, s_rocket.pos.x, s_rocket.pos.y, &clip);
+            imm::DrawTexture(image, s_rocket.pos.x-20, s_rocket.pos.y-10, 0.5f,0.5f, 0.0f, imm::Flip_None,  &clip);
+            imm::DrawTexture(image, s_rocket.pos.x+10, s_rocket.pos.y+30, 0.5f,0.5f, 0.0f, imm::Flip_None,  &clip);
         }
     }
     else
     {
         // Draw the rocket.
-        Rect clip = { 48+(48*CS_CAST(f32,s_rocket.frame)), 0, 48, 96 };
+        Rect clip = { 48+(48*CS_CAST(f32,s_rocket.frame)), 96*CS_CAST(f32,s_rocket.costume), 48, 96 };
         f32 angle = csm::ToRad(s_rocket.angle + s_rocket.shake);
         imm::DrawTexture("rocket", s_rocket.pos.x, s_rocket.pos.y, 1.0f, 1.0f, angle, imm::Flip_None, &clip);
     }
@@ -714,8 +735,8 @@ public:
         gfx::SetScreenScaleMode(gfx::ScaleMode_Pixel);
         gfx::SetScreenFilter(gfx::Filter_Nearest);
 
-        // sfx::SetSoundVolume(1.0f);
-        // sfx::SetMusicVolume(1.0f);
+        sfx::SetSoundVolume(1.0f);
+        sfx::SetMusicVolume(1.0f);
 
         LoadAllAssetsOfType<gfx::Texture>();
         LoadAllAssetsOfType<gfx::Shader>();
@@ -792,7 +813,7 @@ public:
     void Render(f32 dt)
     {
         RenderBackground(dt);
-        RenderSmoke(dt);
+        RenderSmoke(dt, (s_rocket.costume == Costume_Meat));
         RenderAsteroids(dt);
         RenderStars(dt);
         RenderRocket(dt);
