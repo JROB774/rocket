@@ -567,7 +567,7 @@ static void UpdateRocket(f32 dt)
 
         // Increment the score.
         if(s_gameState == GameState_Game)
-            ++s_rocket.score;
+            s_rocket.score += 2;
     }
 }
 
@@ -714,8 +714,8 @@ public:
         gfx::SetScreenScaleMode(gfx::ScaleMode_Pixel);
         gfx::SetScreenFilter(gfx::Filter_Nearest);
 
-        sfx::SetSoundVolume(1.0f);
-        sfx::SetMusicVolume(1.0f);
+        // sfx::SetSoundVolume(1.0f);
+        // sfx::SetMusicVolume(1.0f);
 
         LoadAllAssets<gfx::Texture>();
         LoadAllAssets<gfx::Shader>();
