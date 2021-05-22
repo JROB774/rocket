@@ -564,11 +564,7 @@ static void UpdateRocket(f32 dt)
         s_rocket.frame = 0;
     }
 
-    if(s_rocket.dead)
-    {
-        // ...
-    }
-    else
+    if(!s_rocket.dead)
     {
         if(IsMouseLocked() && (s_gameState == GameState_Game))
         {
@@ -661,7 +657,7 @@ static void RenderRocket(f32 dt)
     else
     {
         // Draw the rocket.
-        Rect clip = { 48+(48*CS_CAST(f32,s_rocket.frame)), 96*CS_CAST(f32,s_rocket.costume), 48, 96 };
+        Rect clip = { 96+(48*CS_CAST(f32,s_rocket.frame)), 96*CS_CAST(f32,s_rocket.costume), 48, 96 };
         f32 angle = csm::ToRad(s_rocket.angle + s_rocket.shake);
         imm::DrawTexture("rocket", s_rocket.pos.x, s_rocket.pos.y, 1.0f, 1.0f, angle, imm::Flip_None, &clip);
     }
