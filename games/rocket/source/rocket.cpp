@@ -20,6 +20,7 @@ enum GameState
 };
 
 static GameState s_gameState;
+static bool s_gamePaused;
 
 //
 // Utility
@@ -451,6 +452,7 @@ struct Rocket
     f32 shake;
     f32 timer;
     s32 score;
+    s32 frame;
     bool dead;
     Collider collider;
     sfx::SoundRef thruster;
@@ -467,6 +469,7 @@ static void CreateRocket()
     s_rocket.shake = 0.0f;
     s_rocket.timer = 0.0f;
     s_rocket.score = 0;
+    s_rocket.frame = 0;
     s_rocket.dead  = false;
     s_rocket.collider = { Vec2(0,-8), 8.0f };
     s_rocket.thruster = sfx::PlaySound("thruster", -1);
@@ -490,6 +493,12 @@ static void HitRocket()
 
 static void UpdateRocket(f32 dt)
 {
+    s_rocket.timer += dt;
+
+    s_rocket.frame++;
+    if(s_rocket.frame >= 5)
+        s_rocket.frame = 0;
+
     if(s_rocket.dead)
     {
         // ...
@@ -542,7 +551,6 @@ static void UpdateRocket(f32 dt)
 
         s_rocket.vel = csm::Lerp(s_rocket.vel, Vec2(0), Vec2(0.1f));
 
-        s_rocket.timer += dt;
         if(s_rocket.timer >= 0.05f)
         {
             SpawnSmoke(SmokeType_Thruster, s_rocket.pos.x+RandomF32(-3.0f,3.0f), s_rocket.pos.y+20.0f, 1);
@@ -568,7 +576,6 @@ static void RenderRocket(f32 dt)
     if(s_rocket.dead)
     {
         // Draw the explosion.
-        s_rocket.timer += dt;
         f32 frame = floorf(s_rocket.timer / 0.04f);
         if(frame < 13)
         {
@@ -581,11 +588,9 @@ static void RenderRocket(f32 dt)
     else
     {
         // Draw the rocket.
-        static Rect s_clip = { 48, 0, 48, 96 };
+        Rect clip = { 48+(48*CS_CAST(f32,s_rocket.frame)), 0, 48, 96 };
         f32 angle = csm::ToRad(s_rocket.angle + s_rocket.shake);
-        imm::DrawTexture("rocket", s_rocket.pos.x, s_rocket.pos.y, 1.0f, 1.0f, angle, imm::Flip_None, &s_clip);
-        s_clip.x += 48.0f;
-        if(s_clip.x >= 288.0f) s_clip.x = 48.0f;
+        imm::DrawTexture("rocket", s_rocket.pos.x, s_rocket.pos.y, 1.0f, 1.0f, angle, imm::Flip_None, &clip);
     }
 
     // Draw the score.
@@ -628,6 +633,17 @@ static void CreateBackground()
     }
 }
 
+static void UpdateBackground(f32 dt)
+{
+    f32 screenHeight = gfx::GetScreenHeight();
+    for(s32 i=0; i<k_backCount; ++i)
+    {
+        s_backOffset[i] += s_backSpeed[i] * dt;
+        if(s_backOffset[i] >= screenHeight * 1.5f)
+            s_backOffset[i] -= screenHeight;
+    }
+}
+
 static void RenderBackground(f32 dt)
 {
     gfx::Clear(0.0f, 0.05f, 0.2f);
@@ -637,11 +653,8 @@ static void RenderBackground(f32 dt)
     Vec4 color = Vec4(1,1,1,0.4f);
     for(s32 i=0; i<k_backCount; ++i)
     {
-        s_backOffset[i] += s_backSpeed[i] * dt;
         imm::DrawTexture("back", screenWidth*0.5f,s_backOffset[i], &clip, color);
         imm::DrawTexture("back", screenWidth*0.5f,s_backOffset[i]-screenHeight, &clip, color);
-        if(s_backOffset[i] >= screenHeight * 1.5f)
-            s_backOffset[i] -= screenHeight;
         clip.x += 180.0f;
     }
 }
@@ -715,9 +728,10 @@ public:
 
         LoadBitmapFont(s_font, 14,24, "font");
 
-        s_gameState = GameState_Menu;
-
         sfx::PlayMusic("ambience", -1);
+
+        s_gameState = GameState_Menu;
+        s_gamePaused = false;
     }
 
     void Quit()
@@ -731,7 +745,7 @@ public:
         static bool s_lockMouse = true;
         if(IsDebugMode())
         {
-            if(IsKeyPressed(KeyCode_Escape))
+            if(IsKeyPressed(KeyCode_Space))
                 s_lockMouse = !s_lockMouse;
         }
         else
@@ -740,25 +754,32 @@ public:
         }
         LockMouse(s_lockMouse);
 
-        // If the rocket is dead then pressing R resets the game.
-        if(s_gameState == GameState_Game && s_rocket.dead)
-        {
-            if(IsKeyPressed(KeyCode_R))
-            {
-                RespawnRocket();
-                s_entitySpawnCooldown = 1.0f;
-                s_asteroids.clear();
-                s_smoke.clear();
-            }
-        }
+        if(IsKeyPressed(KeyCode_Escape))
+            s_gamePaused = !s_gamePaused;
 
-        if(s_gameState == GameState_Game)
-            MaybeSpawnEntity(dt);
-        UpdateAsteroids(dt);
-        UpdateStars(dt);
-        UpdateSmoke(dt);
-        UpdateRocket(dt);
-        UpdateMenu(dt);
+        if(!s_gamePaused)
+        {
+            // If the rocket is dead then pressing R resets the game.
+            if(s_gameState == GameState_Game && s_rocket.dead)
+            {
+                if(IsKeyPressed(KeyCode_R))
+                {
+                    RespawnRocket();
+                    s_entitySpawnCooldown = 1.0f;
+                    s_asteroids.clear();
+                    s_smoke.clear();
+                }
+            }
+
+            if(s_gameState == GameState_Game)
+                MaybeSpawnEntity(dt);
+            UpdateBackground(dt);
+            UpdateAsteroids(dt);
+            UpdateStars(dt);
+            UpdateSmoke(dt);
+            UpdateRocket(dt);
+            UpdateMenu(dt);
+        }
     }
 
     void Render(f32 dt)
