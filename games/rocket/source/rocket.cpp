@@ -490,7 +490,7 @@ static void StopThruster()
 static void CreateRocket()
 {
     s_rocket.pos.x = (gfx::GetScreenWidth()*0.5f);
-    s_rocket.pos.y = gfx::GetScreenHeight() - 64.0f;
+    s_rocket.pos.y = gfx::GetScreenHeight() - 32.0f;
     s_rocket.vel   = Vec2(0);
     s_rocket.angle = 0.0f;
     s_rocket.shake = 0.0f;
@@ -567,7 +567,7 @@ static void UpdateRocket(f32 dt)
     }
     else
     {
-        if(IsMouseLocked())
+        if(IsMouseLocked() && (s_gameState == GameState_Game))
         {
             static f32 s_prevMouseX = 0.0f;
             static f32 s_currMouseX = 0.0f;
@@ -720,10 +720,11 @@ static void RenderTransition(f32 dt)
 
         if(s_fadeHeight >= gfx::GetScreenHeight())
         {
+            s_gameState = GameState_Game;
             if(s_rocket.score > s_highScore)
                 s_highScore = s_rocket.score;
             s_rocket.pos.x = (screenW*0.5f);
-            s_rocket.pos.y = screenH - 64.0f;
+            s_rocket.pos.y = screenH - 32.0f;
             s_rocket.dead = false;
             s_rocket.score = 0;
             s_entitySpawnCooldown = 1.0f;
@@ -802,8 +803,8 @@ static void UpdateMenu(f32 dt)
     {
         if(IsMouseButtonPressed(MouseButton_Left))
         {
-            s_gameState = GameState_Game;
             s_entitySpawnCooldown = 1.0f;
+            ResetGame();
         }
     }
 }
@@ -813,26 +814,24 @@ static void RenderMenu(f32 dt)
     static f32 s_targetScaleX = 0.0f;
     static f32 s_targetScaleY = 10.0f;
 
-    static f32 s_scaleX = 1.0f;
-    static f32 s_scaleY = 1.0f;
-    static f32 s_angle  = 0.0f;
-    static f32 s_timer  = 0.0f;
+    static f32 s_scaleX0 = 1.0f;
+    static f32 s_scaleY0 = 1.0f;
+    static f32 s_scaleX1 = 1.0f;
+    static f32 s_scaleY1 = 1.0f;
+    static f32 s_angle   = 0.0f;
+    static f32 s_timer   = 0.0f;
 
     s_timer += dt;
     s_angle = SinRange(-10.0f, 10.0f, s_timer*2.5f);
 
     if(s_gameState == GameState_Menu)
     {
-        s_scaleX = SinRange(0.8f, 1.0f, s_timer*1.5f);
-        s_scaleY = SinRange(0.8f, 1.0f, s_timer*2.0f);
-    }
-    else
-    {
-        s_scaleX = csm::Lerp(s_scaleX, s_targetScaleX, dt*30.0f);
-        s_scaleY = csm::Lerp(s_scaleY, s_targetScaleY, dt*5.0f);
-    }
+        s_scaleX0 = SinRange(0.8f, 1.0f, s_timer*1.5f);
+        s_scaleY0 = SinRange(0.8f, 1.0f, s_timer*2.0f);
 
-    imm::DrawTexture("title", gfx::GetScreenWidth()*0.5f,48.0f, s_scaleX,s_scaleY, csm::ToRad(s_angle), imm::Flip_None);
+        imm::DrawTexture("title", gfx::GetScreenWidth()*0.5f,48.0f, s_scaleX0,s_scaleY0, csm::ToRad(s_angle), imm::Flip_None);
+        imm::DrawTexture("start", gfx::GetScreenWidth()*0.5f,(gfx::GetScreenHeight()*0.5f)+32.0f, s_scaleX1,s_scaleY1, 0.0f, imm::Flip_None);
+    }
 }
 
 //
