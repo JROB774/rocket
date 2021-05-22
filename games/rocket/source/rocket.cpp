@@ -85,6 +85,8 @@ struct Rocket
 
 static GameState s_gameState;
 static bool s_gamePaused;
+static bool s_gameResetting;
+static s32 s_highScore;
 static u32 s_gameFrame;
 static Rocket s_rocket;
 
@@ -154,7 +156,7 @@ static void DrawBitmapFont(BitmapFont& font, f32 x, f32 y, std::string text, Vec
             f32 dx = ix + (font.charWidth*0.5f);
             f32 dy = iy + (font.charHeight*0.5f);
             Rect bounds = font.bounds[CS_CAST(u8,text.at(i))];
-            imm::DrawTexture(font.texture, dx,dy, &bounds);
+            imm::DrawTexture(font.texture, dx,dy, &bounds, color);
             ix += font.charWidth;
         }
     }
@@ -465,6 +467,64 @@ static void RenderSmoke(f32 dt)
 }
 
 //
+// Transition
+//
+
+static f32 s_fadeHeight = 0.0f;
+static bool s_fadeOut = false;
+
+static void ResetGame()
+{
+    s_gameResetting = true;
+    s_fadeOut = true;
+    s_fadeHeight = 0.0f;
+}
+
+static void RenderTransition(f32 dt)
+{
+    f32 screenW = gfx::GetScreenWidth();
+    f32 screenH = gfx::GetScreenHeight();
+
+    f32 speed = 1400.0f;
+    Vec4 color = Vec4(0,0,0,1);
+
+    if(s_fadeOut)
+    {
+        s_fadeHeight += speed * dt;
+        f32 y = screenH - s_fadeHeight;
+        imm::DrawRectFilled(0,y,screenW,y+s_fadeHeight, color);
+        imm::DrawTexture("splatter", screenW*0.5f, y-32);
+
+        if(s_fadeHeight >= gfx::GetScreenHeight())
+        {
+            if(s_rocket.score > s_highScore)
+                s_highScore = s_rocket.score;
+            std::string thruster = (s_rocket.costume == Costume_Meat) ? "squirt" : "thruster";
+            s_rocket.pos.x = (screenW*0.5f);
+            s_rocket.pos.y = screenH - 64.0f;
+            s_rocket.thruster = sfx::PlaySound(thruster, -1);
+            s_rocket.dead = false;
+            s_rocket.score = 0;
+            s_entitySpawnCooldown = 1.0f;
+            s_asteroids.clear();
+            s_smoke.clear();
+            s_fadeOut = false;
+        }
+    }
+    else
+    {
+        s_fadeHeight -= speed * dt;
+        imm::DrawRectFilled(0,0,screenW,s_fadeHeight, color);
+        imm::DrawTexture("splatter", screenW*0.5f, s_fadeHeight+32.0f, 1.0f,1.0f, 0.0f, imm::Flip_Vertical);
+
+        if(s_fadeHeight <= 0.0f)
+        {
+            s_gameResetting = false;
+        }
+    }
+}
+
+//
 // Rocket
 //
 
@@ -487,14 +547,6 @@ static void CreateRocket()
     s_rocket.collider = { Vec2(0,-8), 8.0f };
     s_rocket.costume = Costume_Red;
     s_rocket.thruster = sfx::PlaySound((s_rocket.costume == Costume_Meat) ? "squirt" : "thruster", -1);
-}
-
-static void RespawnRocket()
-{
-    std::string thruster = (s_rocket.costume == Costume_Meat) ? "squirt" : "thruster";
-    s_rocket.thruster = sfx::PlaySound(thruster, -1);
-    s_rocket.dead = false;
-    s_rocket.score = 0;
 }
 
 static void HitRocket()
@@ -622,7 +674,7 @@ static void UpdateRocket(f32 dt)
         }
 
         // Increment the score.
-        if(s_gameState == GameState_Game)
+        if((s_gameState == GameState_Game) && !s_gameResetting)
             s_rocket.score += 2;
     }
 }
@@ -637,8 +689,11 @@ static void RenderRocket(f32 dt)
         {
             Rect clip = { 96*frame, 96*CS_CAST(f32, s_rocket.costume), 96, 96 };
             imm::DrawTexture("explosion", s_rocket.pos.x, s_rocket.pos.y, &clip);
-            imm::DrawTexture("explosion", s_rocket.pos.x-20, s_rocket.pos.y-10, 0.5f,0.5f, 0.0f, imm::Flip_None,  &clip);
-            imm::DrawTexture("explosion", s_rocket.pos.x+10, s_rocket.pos.y+30, 0.5f,0.5f, 0.0f, imm::Flip_None,  &clip);
+            if(s_rocket.costume != Costume_Doodle)
+            {
+                imm::DrawTexture("explosion", s_rocket.pos.x-20, s_rocket.pos.y-10, 0.5f,0.5f, 0.0f, imm::Flip_None, &clip);
+                imm::DrawTexture("explosion", s_rocket.pos.x+10, s_rocket.pos.y+30, 0.5f,0.5f, 0.0f, imm::Flip_None, &clip);
+            }
         }
     }
     else
@@ -652,11 +707,17 @@ static void RenderRocket(f32 dt)
     // Draw the score.
     if(s_gameState == GameState_Game)
     {
+        Vec4 color = Vec4(1,1,1,0.5f);
         std::string scoreStr = std::to_string(s_rocket.score);
+        f32 textWidth = GetTextLineWidth(s_font, scoreStr);
+        if(s_rocket.score > s_highScore)
+        {
+            scoreStr += "!";
+            color.a = 1.0f;
+        }
         f32 screenWidth = gfx::GetScreenWidth();
         f32 screenHeight = gfx::GetScreenHeight();
-        f32 textWidth = GetTextLineWidth(s_font, scoreStr);
-        DrawBitmapFont(s_font, (screenWidth-textWidth)*0.5f,0.0f, scoreStr);
+        DrawBitmapFont(s_font, (screenWidth-textWidth)*0.5f,0.0f, scoreStr, color);
     }
 }
 
@@ -771,7 +832,7 @@ public:
         gfx::SetScreenFilter(gfx::Filter_Nearest);
 
         sfx::SetSoundVolume(1.0f);
-        sfx::SetMusicVolume(1.0f);
+        sfx::SetMusicVolume(0.5f);
 
         LoadAllAssetsOfType<gfx::Texture>();
         LoadAllAssetsOfType<gfx::Shader>();
@@ -791,7 +852,7 @@ public:
 
         LoadBitmapFont(s_font, 14,24, "font");
 
-        sfx::PlayMusic("ambience", -1);
+        sfx::PlayMusic("music", -1);
 
         s_gameState = GameState_Menu;
         s_gamePaused = false;
@@ -817,24 +878,21 @@ public:
         }
         LockMouse(s_lockMouse);
 
-        if(IsKeyPressed(KeyCode_Escape))
-            s_gamePaused = !s_gamePaused;
+        if(!s_gameResetting)
+        {
+            if(!s_rocket.dead)
+                if(IsKeyPressed(KeyCode_Escape))
+                    s_gamePaused = !s_gamePaused;
+        }
 
         if(!s_gamePaused)
         {
             // If the rocket is dead then pressing R resets the game.
-            if(s_gameState == GameState_Game && s_rocket.dead)
-            {
-                if(IsKeyPressed(KeyCode_R))
-                {
-                    RespawnRocket();
-                    s_entitySpawnCooldown = 1.0f;
-                    s_asteroids.clear();
-                    s_smoke.clear();
-                }
-            }
+            if(s_gameState == GameState_Game && s_rocket.dead && !s_gameResetting)
+                if(IsMouseButtonPressed(MouseButton_Left))
+                    ResetGame();
 
-            if(s_gameState == GameState_Game)
+            if((s_gameState == GameState_Game) && !s_gameResetting)
                 MaybeSpawnEntity(dt);
             UpdateBackground(dt);
             UpdateAsteroids(dt);
@@ -855,6 +913,7 @@ public:
         RenderStars(dt);
         RenderRocket(dt);
         RenderMenu(dt);
+        RenderTransition(dt);
     }
 
     void DebugRender(f32 dt)
