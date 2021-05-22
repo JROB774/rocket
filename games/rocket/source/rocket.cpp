@@ -65,6 +65,7 @@ enum Costume
     Costume_Doodle,
     Costume_Happy,
     Costume_Sad,
+    Costume_Sick,
     Costume_TOTAL
 };
 
@@ -579,6 +580,7 @@ static void UpdateRocket(f32 dt)
         if(IsKeyPressed(KeyCode_5)) s_rocket.costume = Costume_Doodle;
         if(IsKeyPressed(KeyCode_6)) s_rocket.costume = Costume_Happy;
         if(IsKeyPressed(KeyCode_7)) s_rocket.costume = Costume_Sad;
+        if(IsKeyPressed(KeyCode_8)) s_rocket.costume = Costume_Sick;
         // Need to reset the thruster sound.
         if(oldCostume != s_rocket.costume)
         {
