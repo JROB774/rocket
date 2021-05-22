@@ -483,13 +483,14 @@ static void CreateRocket()
     s_rocket.frame = 0;
     s_rocket.dead  = false;
     s_rocket.collider = { Vec2(0,-8), 8.0f };
-    s_rocket.thruster = sfx::PlaySound("thruster", -1);
-    s_rocket.costume = Costume_Doodle;
+    s_rocket.costume = Costume_Red;
+    s_rocket.thruster = sfx::PlaySound((s_rocket.costume == Costume_Meat) ? "squirt" : "thruster", -1);
 }
 
 static void RespawnRocket()
 {
-    s_rocket.thruster = sfx::PlaySound("thruster", -1);
+    std::string thruster = (s_rocket.costume == Costume_Meat) ? "squirt" : "thruster";
+    s_rocket.thruster = sfx::PlaySound(thruster, -1);
     s_rocket.dead = false;
     s_rocket.score = 0;
 }
