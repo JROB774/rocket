@@ -591,12 +591,11 @@ static void RenderRocket(f32 dt)
     // Draw the score.
     if(s_gameState == GameState_Game)
     {
-        std::stringstream scoreStream;
-        scoreStream << std::setw(6) << std::setfill('-') << s_rocket.score;
+        std::string scoreStr = std::to_string(s_rocket.score);
         f32 screenWidth = gfx::GetScreenWidth();
         f32 screenHeight = gfx::GetScreenHeight();
-        f32 textWidth = GetTextLineWidth(s_font, scoreStream.str());
-        DrawBitmapFont(s_font, (screenWidth-textWidth)*0.5f,0.0f, scoreStream.str());
+        f32 textWidth = GetTextLineWidth(s_font, scoreStr);
+        DrawBitmapFont(s_font, (screenWidth-textWidth)*0.5f,0.0f, scoreStr);
     }
 }
 
