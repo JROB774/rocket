@@ -629,7 +629,12 @@ static void UpdateRocket(f32 dt)
 
         // Increment the score.
         if((s_gameState == GameState_Game) && !s_gameResetting)
+        {
+            s32 oldScore = s_rocket.score;
             s_rocket.score += 2;
+            if(oldScore != 0 && oldScore <= s_highScore && s_rocket.score > s_highScore)
+                sfx::PlaySound("highscore");
+        }
     }
 }
 
