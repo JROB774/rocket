@@ -362,8 +362,11 @@ static void MaybeSpawnEntity(f32 dt)
 enum SmokeType
 {
     SmokeType_Thruster,
+    SmokeType_Blood,
+    SmokeType_Small,
     SmokeType_Explosion,
-    SmokeType_Stationary
+    SmokeType_Stationary,
+    SmokeType_SmallStationary
 };
 
 struct Smoke
@@ -397,10 +400,12 @@ static void SpawnSmoke(SmokeType type, f32 x, f32 y, s32 count)
         s.frame = 0;
         s.angle = RandomF32(0,360.0f);
         s.vel = RotateVec2(Vec2(RandomF32(80,140),0), csm::ToRad(s.angle));
+        if(type == SmokeType_Blood) s.vel = RotateVec2(Vec2(180.0f,0), csm::ToRad(RandomF32(45.0f,135.0f)));
         s.spin = RandomF32(400,600);
         s.timer = 0.0f;
         s.frameTime = RandomF32(0.05f, 0.15f);
-        s.spawner = (RandomS32(1,100) <= 10);
+        if(type == SmokeType_Explosion) s.spawner = RandomS32(1,100) <= 10;
+        else s.spawner = false;
         s.dead = false;
         if(s.spawner) s.vel = (s.vel * 3.0f) + RandomF32(0,40);
         s_smoke.push_back(s);
@@ -412,6 +417,10 @@ static void UpdateSmoke(f32 dt)
     for(auto& s: s_smoke)
     {
         s.timer += dt;
+        if(s.type == SmokeType_Small)
+        {
+            s.timer += dt;
+        }
         if(s.timer >= s.frameTime)
         {
             s.frame++;
@@ -430,22 +439,30 @@ static void UpdateSmoke(f32 dt)
             {
                 s.pos.y += 180.0f * dt;
             } break;
+            case(SmokeType_Blood):
+            {
+                s.pos += s.vel * dt;
+            } break;
+            case(SmokeType_Small):
             case(SmokeType_Explosion):
             {
                 s.pos += s.vel * dt;
                 s.angle += s.spin * dt;
-                if(s.spawner)
+                if(s.type != SmokeType_Small)
                 {
-                    if(RandomS32(1,100) < 25)
+                    if(s.spawner)
                     {
-                        SpawnSmoke(SmokeType_Stationary, s.pos.x, s.pos.y, 1);
+                        if(RandomS32(1,100) < 25)
+                        {
+                            SpawnSmoke(SmokeType_Stationary, s.pos.x, s.pos.y, 1);
+                        }
                     }
-                }
-                else
-                {
-                    if(RandomS32(1,100) < 5)
+                    else
                     {
-                        SpawnSmoke(SmokeType_Stationary, s.pos.x, s.pos.y, 1);
+                        if(RandomS32(1,100) < 5)
+                        {
+                            SpawnSmoke(SmokeType_Stationary, s.pos.x, s.pos.y, 1);
+                        }
                     }
                 }
             } break;
@@ -465,7 +482,8 @@ static void RenderSmoke(f32 dt)
     for(auto& s: s_smoke)
     {
         Rect clip = { CS_CAST(f32, 16*s.frame), 16*CS_CAST(f32, s_rocket.costume), 16, 16 };
-        imm::DrawTexture("smoke", s.pos.x, s.pos.y, 1.0f, 1.0f, csm::ToRad(s.angle), imm::Flip_None, &clip);
+        f32 scale = (s.type == SmokeType_Small || s.type == SmokeType_SmallStationary) ? 0.5f : 1.0f;
+        imm::DrawTexture("smoke", s.pos.x, s.pos.y, scale,scale, csm::ToRad(s.angle), imm::Flip_None, &clip);
     }
 }
 
@@ -604,7 +622,21 @@ static void UpdateRocket(f32 dt)
             {
                 if(s_canPlayWhoosh)
                 {
-                    sfx::PlaySound((s_rocket.costume == Costume_Glitch) ? "fuzz" : "whoosh");
+                    std::string whoosh;
+                    if(s_rocket.costume == Costume_Meat)
+                    {
+                        SpawnSmoke(SmokeType_Small, s_rocket.pos.x, s_rocket.pos.y, RandomS32(2,5));
+                        whoosh = "squelch";
+                    }
+                    else if(s_rocket.costume == Costume_Glitch)
+                    {
+                        whoosh = "fuzz";
+                    }
+                    else
+                    {
+                        whoosh = "whoosh";
+                    }
+                    sfx::PlaySound(whoosh);
                     s_whooshVel = s_rocket.vel.x;
                     s_canPlayWhoosh = false;
                 }
@@ -634,7 +666,9 @@ static void UpdateRocket(f32 dt)
 
         if(s_rocket.timer >= 0.05f)
         {
-            SpawnSmoke(SmokeType_Thruster, s_rocket.pos.x+RandomF32(-3.0f,3.0f), s_rocket.pos.y+20.0f, 1);
+            SmokeType smokeType = (s_rocket.costume == Costume_Meat) ? SmokeType_Blood : SmokeType_Thruster;
+            s32 smokeCount = (s_rocket.costume == Costume_Meat) ? 2 : 1;
+            SpawnSmoke(smokeType, s_rocket.pos.x+RandomF32(-3.0f,3.0f), s_rocket.pos.y+20.0f, smokeCount);
             s_rocket.timer -= 0.05f;
         }
 
