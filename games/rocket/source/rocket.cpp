@@ -66,6 +66,8 @@ enum Costume
     Costume_Happy,
     Costume_Sad,
     Costume_Sick,
+    Costume_Unfinished,
+    Costume_Glitch,
     Costume_TOTAL
 };
 
@@ -479,7 +481,19 @@ static constexpr f32 k_rocketMaxShake = 2.0f;
 static void StartThruster()
 {
     if(s_rocket.thruster != sfx::k_invalidSoundRef) return;
-    std::string thruster = (s_rocket.costume == Costume_Meat) ? "squirt" : "thruster";
+    std::string thruster;
+    if(s_rocket.costume == Costume_Meat)
+    {
+        thruster = "squirt";
+    }
+    else if(s_rocket.costume == Costume_Glitch)
+    {
+        thruster = "static";
+    }
+    else
+    {
+        thruster = "thruster";
+    }
     s_rocket.thruster = sfx::PlaySound(thruster, -1);
 }
 
@@ -515,6 +529,10 @@ static void HitRocket()
         sfx::PlaySound("splat");
         sfx::PlaySound("fried");
     }
+    else if(s_rocket.costume == Costume_Glitch)
+    {
+        sfx::PlaySound("glitch");
+    }
     else
     {
         sfx::PlaySound("explosion");
@@ -537,6 +555,8 @@ static void UpdateRocket(f32 dt)
         if(IsKeyPressed(KeyCode_6)) s_rocket.costume = Costume_Happy;
         if(IsKeyPressed(KeyCode_7)) s_rocket.costume = Costume_Sad;
         if(IsKeyPressed(KeyCode_8)) s_rocket.costume = Costume_Sick;
+        if(IsKeyPressed(KeyCode_9)) s_rocket.costume = Costume_Unfinished;
+        if(IsKeyPressed(KeyCode_0)) s_rocket.costume = Costume_Glitch;
         // Need to reset the thruster sound.
         if(oldCostume != s_rocket.costume)
         {
@@ -584,7 +604,7 @@ static void UpdateRocket(f32 dt)
             {
                 if(s_canPlayWhoosh)
                 {
-                    sfx::PlaySound("whoosh");
+                    sfx::PlaySound((s_rocket.costume == Costume_Glitch) ? "fuzz" : "whoosh");
                     s_whooshVel = s_rocket.vel.x;
                     s_canPlayWhoosh = false;
                 }
