@@ -769,7 +769,7 @@ static void RenderTransition(f32 dt)
         s_fadeHeight += speed * dt;
         f32 y = screenH - s_fadeHeight;
         imm::DrawRectFilled(0,y,screenW,y+s_fadeHeight, color);
-        imm::DrawTexture("splatter", screenW*0.5f, y-32);
+        imm::DrawTexture("transition", screenW*0.5f, y-32);
 
         if(s_fadeHeight >= gfx::GetScreenHeight())
         {
@@ -791,7 +791,7 @@ static void RenderTransition(f32 dt)
     {
         s_fadeHeight -= speed * dt;
         imm::DrawRectFilled(0,0,screenW,s_fadeHeight, color);
-        imm::DrawTexture("splatter", screenW*0.5f, s_fadeHeight+32.0f, 1.0f,1.0f, 0.0f, imm::Flip_Vertical);
+        imm::DrawTexture("transition", screenW*0.5f, s_fadeHeight+32.0f, 1.0f,1.0f, 0.0f, imm::Flip_Vertical);
 
         if(s_fadeHeight <= 0.0f)
         {
