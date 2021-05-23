@@ -61,12 +61,12 @@ enum Costume
     Costume_Red,
     Costume_Blue,
     Costume_Yellow,
-    Costume_Meat,
-    Costume_Doodle,
     Costume_Happy,
     Costume_Sad,
     Costume_Sick,
-    Costume_Unfinished,
+    Costume_Meat,
+    Costume_Doodle,
+    Costume_Rainbow,
     Costume_Glitch,
     Costume_TOTAL
 };
@@ -568,12 +568,12 @@ static void UpdateRocket(f32 dt)
         if(IsKeyPressed(KeyCode_1)) s_rocket.costume = Costume_Red;
         if(IsKeyPressed(KeyCode_2)) s_rocket.costume = Costume_Blue;
         if(IsKeyPressed(KeyCode_3)) s_rocket.costume = Costume_Yellow;
-        if(IsKeyPressed(KeyCode_4)) s_rocket.costume = Costume_Meat;
-        if(IsKeyPressed(KeyCode_5)) s_rocket.costume = Costume_Doodle;
-        if(IsKeyPressed(KeyCode_6)) s_rocket.costume = Costume_Happy;
-        if(IsKeyPressed(KeyCode_7)) s_rocket.costume = Costume_Sad;
-        if(IsKeyPressed(KeyCode_8)) s_rocket.costume = Costume_Sick;
-        if(IsKeyPressed(KeyCode_9)) s_rocket.costume = Costume_Unfinished;
+        if(IsKeyPressed(KeyCode_4)) s_rocket.costume = Costume_Happy;
+        if(IsKeyPressed(KeyCode_5)) s_rocket.costume = Costume_Sad;
+        if(IsKeyPressed(KeyCode_6)) s_rocket.costume = Costume_Sick;
+        if(IsKeyPressed(KeyCode_7)) s_rocket.costume = Costume_Meat;
+        if(IsKeyPressed(KeyCode_8)) s_rocket.costume = Costume_Doodle;
+        if(IsKeyPressed(KeyCode_9)) s_rocket.costume = Costume_Rainbow;
         if(IsKeyPressed(KeyCode_0)) s_rocket.costume = Costume_Glitch;
         // Need to reset the thruster sound.
         if(oldCostume != s_rocket.costume)
