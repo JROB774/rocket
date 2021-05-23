@@ -387,7 +387,7 @@ static std::vector<Smoke> s_smoke;
 
 static void CreateSmoke()
 {
-    s_smoke.reserve(1024);
+    s_smoke.reserve(4096);
 }
 
 static void SpawnSmoke(SmokeType type, f32 x, f32 y, s32 count)
@@ -499,18 +499,12 @@ static constexpr f32 k_rocketMaxShake = 2.0f;
 static void StartThruster()
 {
     if(s_rocket.thruster != sfx::k_invalidSoundRef) return;
-    std::string thruster;
-    if(s_rocket.costume == Costume_Meat)
+    std::string thruster = "thruster";
+    switch(s_rocket.costume)
     {
-        thruster = "squirt";
-    }
-    else if(s_rocket.costume == Costume_Glitch)
-    {
-        thruster = "static";
-    }
-    else
-    {
-        thruster = "thruster";
+        case(Costume_Meat): thruster = "squirt"; break;
+        case(Costume_Rainbow): thruster = "sparkle"; break;
+        case(Costume_Glitch): thruster = "static"; break;
     }
     s_rocket.thruster = sfx::PlaySound(thruster, -1);
 }
@@ -542,19 +536,14 @@ static void HitRocket()
 {
     SpawnSmoke(SmokeType_Explosion, s_rocket.pos.x, s_rocket.pos.y, RandomS32(20,40));
     StopThruster();
-    if(s_rocket.costume == Costume_Meat)
+    std::string explosion = "explosion";
+    switch(s_rocket.costume)
     {
-        sfx::PlaySound("splat");
-        sfx::PlaySound("fried");
+        case(Costume_Meat): explosion = "splat"; break;
+        case(Costume_Rainbow): explosion = "ignite"; break;
+        case(Costume_Glitch): explosion = "glitch"; break;
     }
-    else if(s_rocket.costume == Costume_Glitch)
-    {
-        sfx::PlaySound("glitch");
-    }
-    else
-    {
-        sfx::PlaySound("explosion");
-    }
+    sfx::PlaySound(explosion);
     s_rocket.dead = true;
     s_rocket.timer = 0.0f;
 }
@@ -622,19 +611,12 @@ static void UpdateRocket(f32 dt)
             {
                 if(s_canPlayWhoosh)
                 {
-                    std::string whoosh;
-                    if(s_rocket.costume == Costume_Meat)
+                    std::string whoosh = "whoosh";
+                    switch(s_rocket.costume)
                     {
-                        SpawnSmoke(SmokeType_Small, s_rocket.pos.x, s_rocket.pos.y, RandomS32(2,5));
-                        whoosh = "squelch";
-                    }
-                    else if(s_rocket.costume == Costume_Glitch)
-                    {
-                        whoosh = "fuzz";
-                    }
-                    else
-                    {
-                        whoosh = "whoosh";
+                        case(Costume_Meat): whoosh = "squelch"; SpawnSmoke(SmokeType_Small, s_rocket.pos.x, s_rocket.pos.y, RandomS32(2,5)); break;
+                        case(Costume_Rainbow): whoosh = "magic"; break;
+                        case(Costume_Glitch): whoosh = "fuzz"; break;
                     }
                     sfx::PlaySound(whoosh);
                     s_whooshVel = s_rocket.vel.x;
@@ -901,8 +883,8 @@ public:
         gfx::SetScreenScaleMode(gfx::ScaleMode_Pixel);
         gfx::SetScreenFilter(gfx::Filter_Nearest);
 
-        sfx::SetSoundVolume(1.0f);
-        sfx::SetMusicVolume(0.5f);
+        sfx::SetSoundVolume(0.4f);
+        sfx::SetMusicVolume(0.0f);
 
         LoadAllAssetsOfType<gfx::Texture>();
         LoadAllAssetsOfType<gfx::Shader>();
