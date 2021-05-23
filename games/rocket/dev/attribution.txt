@@ -22,4 +22,5 @@ Blackout Font by Tyler Finch (SIL Open Font License v1.10)
 
 Images Used (With Modifications)
 --------------------------------------------------------------------------------
-Splatter Brush Effects by Brusheezy.com
+Smoke Effect by KnoblePersona on OpenGameArt.org (CC BY 3.0)
+Splatter Brush Effects by Brusheezy.com (Brusheezy License)
