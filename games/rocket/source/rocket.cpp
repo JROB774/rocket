@@ -667,7 +667,9 @@ static void UpdateRocket(f32 dt)
         if(s_rocket.timer >= 0.05f)
         {
             SmokeType smokeType = (s_rocket.costume == Costume_Meat) ? SmokeType_Blood : SmokeType_Thruster;
-            s32 smokeCount = (s_rocket.costume == Costume_Meat) ? 2 : 1;
+            s32 smokeCount = 1;
+            if(s_rocket.costume == Costume_Meat) smokeCount = 2;
+            if(s_rocket.costume == Costume_Rainbow) smokeCount = 4;
             SpawnSmoke(smokeType, s_rocket.pos.x+RandomF32(-3.0f,3.0f), s_rocket.pos.y+20.0f, smokeCount);
             s_rocket.timer -= 0.05f;
         }
