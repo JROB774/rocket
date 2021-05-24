@@ -933,9 +933,9 @@ public:
         }
         LockMouse(s_lockMouse);
 
-        if(!s_gameResetting)
+        if((s_gameState == GameState_Game) && !s_gameResetting && !s_rocket.dead)
         {
-            if(IsKeyPressed(KeyCode_Escape) && !s_rocket.dead)
+            if(IsKeyPressed(KeyCode_Escape))
             {
                 s_gamePaused = !s_gamePaused;
                 sfx::PlaySound("pause");
