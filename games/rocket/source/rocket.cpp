@@ -523,14 +523,13 @@ static void CreateRocket()
     s_rocket.vel   = Vec2(0);
     s_rocket.angle = 0.0f;
     s_rocket.shake = 0.0f;
-    s_rocket.timer = 0.0f;
+    s_rocket.timer = 1000.0f; // Stop the explosion on start.
     s_rocket.score = 0;
     s_rocket.frame = 0;
-    s_rocket.dead  = false;
+    s_rocket.dead  = true;
     s_rocket.collider = { Vec2(0,-8), 8.0f };
     s_rocket.costume = Costume_Red;
     s_rocket.thruster = sfx::k_invalidSoundRef;
-    StartThruster();
 }
 
 static void HitRocket()
@@ -767,6 +766,7 @@ static void RenderTransition(f32 dt)
             s_rocket.pos.y = screenH - 32.0f;
             s_rocket.dead = false;
             s_rocket.score = 0;
+            s_rocket.timer = 0.0f;
             s_entitySpawnCooldown = 1.0f;
             s_asteroids.clear();
             s_smoke.clear();
@@ -869,8 +869,10 @@ static void RenderMenu(f32 dt)
         s_scaleX0 = SinRange(0.8f, 1.0f, s_timer*1.5f);
         s_scaleY0 = SinRange(0.8f, 1.0f, s_timer*2.0f);
 
+        Rect menuClip = { 0,0,96,96 };
+
         imm::DrawTexture("title", gfx::GetScreenWidth()*0.5f,48.0f, s_scaleX0,s_scaleY0, csm::ToRad(s_angle), imm::Flip_None);
-        imm::DrawTexture("start", gfx::GetScreenWidth()*0.5f,(gfx::GetScreenHeight()*0.5f)+32.0f, s_scaleX1,s_scaleY1, 0.0f, imm::Flip_None);
+        imm::DrawTexture("menu", gfx::GetScreenWidth()*0.5f,(gfx::GetScreenHeight()*0.5f)+48.0f, s_scaleX1,s_scaleY1, 0.0f, imm::Flip_None, &menuClip);
     }
 }
 
