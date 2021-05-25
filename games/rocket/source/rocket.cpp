@@ -789,7 +789,7 @@ static void RenderMenu(f32 dt)
         s_scaleX = SinRange(0.8f, 1.0f, s_timer*1.5f);
         s_scaleY = SinRange(0.8f, 1.0f, s_timer*2.0f);
 
-        Rect titleClip = { 0,0,192,64 };
+        Rect titleClip = { 0,0,256,64 };
         imm::DrawTexture("menu", gfx::GetScreenWidth()*0.5f,48.0f, s_scaleX,s_scaleY, csm::ToRad(s_angle), imm::Flip_None, &titleClip);
     }
 }
