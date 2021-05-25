@@ -240,103 +240,12 @@ static void DebugRenderAsteroids(f32 dt)
 }
 
 //
-// Star
-//
-
-struct Star
-{
-    Vec2 pos;
-    f32 speed;
-    f32 angle;
-    f32 spin;
-    f32 timer;
-    s32 frame;
-    Collider collider;
-};
-
-static constexpr f32 k_starMoveSpeed = 180.0f;
-static constexpr f32 k_starFallSpeed = 400.0f;
-static constexpr f32 k_starSpinSpeed = 240.0f;
-
-static std::vector<Star> s_stars;
-
-static void SpawnStar()
-{
-    Star star = {};
-    star.pos.x = (RandomS32() % 2 == 0) ? -32 : gfx::GetScreenWidth()+32.0f;
-    star.pos.y = -32;
-    star.speed = (star.pos.x < 0.0f) ? k_starMoveSpeed : -k_starMoveSpeed;
-    star.angle = 0.0f;
-    star.spin = (star.pos.x < 0.0f) ? k_starSpinSpeed : -k_starSpinSpeed;
-    star.timer = 0.0f;
-    star.frame = 0;
-    star.collider = { Vec2(0), 8 };
-    s_stars.push_back(star);
-}
-
-static void UpdateStars(f32 dt)
-{
-    for(auto& star: s_stars)
-    {
-        star.timer += dt;
-        if(star.timer >= 0.05f)
-        {
-            star.frame++;
-            star.timer -= 0.05f;
-        }
-        if(star.frame >= 13)
-            star.frame = 0;
-
-        star.angle += star.spin * dt;
-        star.pos.x += star.speed * dt;
-        star.pos.y += k_starFallSpeed * dt;
-    }
-
-    s_stars.erase(std::remove_if(s_stars.begin(), s_stars.end(),
-    [](const Star& star)
-    {
-        return ((star.speed < 0) ? (star.pos.x <= -32.0f) : (star.pos.x >= gfx::GetScreenWidth()+32.0f));
-    }),
-    s_stars.end());
-}
-
-static void RenderStars(f32 dt)
-{
-    for(auto& star: s_stars)
-    {
-        // Trail.
-        Rect clip = { 416, 0, 32, 32 };
-        f32 alpha = 0.02f;
-        f32 offset = (star.speed < 0) ? 5 : -5;
-        for(s32 i=10; i>=0; --i)
-        {
-            imm::DrawTexture("star", star.pos.x+(offset*i), star.pos.y, 1.0f, 1.0f, csm::ToRad(star.angle), imm::Flip_None, &clip, Vec4(1,1,1,alpha));
-            alpha += 0.02f;
-        }
-        // Star
-        clip = { CS_CAST(f32, 32*star.frame), 0, 32, 32 };
-        imm::DrawTexture("star", star.pos.x, star.pos.y, 1.0f, 1.0f, csm::ToRad(star.angle), imm::Flip_None, &clip);
-    }
-}
-
-static void DebugRenderStars(f32 dt)
-{
-    for(auto& star: s_stars)
-    {
-        Vec2 pos(star.pos + star.collider.offset);
-        imm::DrawCircleFilled(pos.x, pos.y, star.collider.radius, Vec4(1,0,0,0.25f));
-        imm::DrawCircleOutline(pos.x, pos.y, star.collider.radius, Vec4(1,0,0,1.00f));
-    }
-}
-
-//
 // Entity Spawn
 //
 
 enum EntityType
 {
     EntityType_Asteroid,
-    EntityType_Star,
     EntityType_TOTAL
 };
 
@@ -755,7 +664,7 @@ static void RenderTransition(f32 dt)
         s_fadeHeight += speed * dt;
         f32 y = screenH - s_fadeHeight;
         imm::DrawRectFilled(0,y,screenW,y+s_fadeHeight, color);
-        imm::DrawTexture("transition", screenW*0.5f, y-32);
+        imm::DrawTexture("transition", screenW*0.5f, y-8.0f);
 
         if(s_fadeHeight >= gfx::GetScreenHeight())
         {
@@ -778,7 +687,7 @@ static void RenderTransition(f32 dt)
     {
         s_fadeHeight -= speed * dt;
         imm::DrawRectFilled(0,0,screenW,s_fadeHeight, color);
-        imm::DrawTexture("transition", screenW*0.5f, s_fadeHeight+32.0f, 1.0f,1.0f, 0.0f, imm::Flip_Vertical);
+        imm::DrawTexture("transition", screenW*0.5f, s_fadeHeight+8.0f, 1.0f,1.0f, 0.0f, imm::Flip_Vertical);
 
         if(s_fadeHeight <= 0.0f)
         {
@@ -966,7 +875,6 @@ public:
                 MaybeSpawnEntity(dt);
             UpdateBackground(dt);
             UpdateAsteroids(dt);
-            UpdateStars(dt);
             UpdateSmoke(dt);
             UpdateRocket(dt);
             UpdateMenu(dt);
@@ -980,7 +888,6 @@ public:
         RenderBackground(dt);
         RenderSmoke(dt);
         RenderAsteroids(dt);
-        RenderStars(dt);
         RenderRocket(dt);
         RenderMenu(dt);
         RenderTransition(dt);
@@ -989,7 +896,6 @@ public:
     void DebugRender(f32 dt)
     {
         DebugRenderAsteroids(dt);
-        DebugRenderStars(dt);
         DebugRenderRocket(dt);
     }
 };
