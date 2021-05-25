@@ -581,7 +581,7 @@ static void UpdateRocket(f32 dt)
         {
             s32 oldScore = s_rocket.score;
             s_rocket.score += 2;
-            if(oldScore != 0 && oldScore <= s_highScore && s_rocket.score > s_highScore)
+            if(s_highScore != 0 && oldScore <= s_highScore && s_rocket.score > s_highScore)
                 sfx::PlaySound("highscore");
         }
     }
@@ -615,13 +615,14 @@ static void RenderRocket(f32 dt)
     // Draw the score.
     if(s_gameState == GameState_Game)
     {
-        BitmapFont* font = (s_rocket.score > s_highScore) ? &s_font1 : &s_font0;
+        bool beatHighScore = ((s_rocket.score > s_highScore) && (s_highScore != 0));
+        BitmapFont* font = (beatHighScore) ? &s_font1 : &s_font0;
         std::string scoreStr = std::to_string(s_rocket.score);
         f32 textWidth = GetTextLineWidth(*font, scoreStr);
-        if((s_rocket.score > s_highScore)) scoreStr += "!";
+        if(beatHighScore) scoreStr += "!";
         f32 screenWidth = gfx::GetScreenWidth();
         f32 screenHeight = gfx::GetScreenHeight();
-        DrawBitmapFont(*font, (screenWidth-textWidth)*0.5f,0.0f, scoreStr);
+        DrawBitmapFont(*font, (screenWidth-textWidth)*0.5f,4.0f, scoreStr);
     }
 }
 
@@ -775,25 +776,21 @@ static void RenderMenu(f32 dt)
     static f32 s_targetScaleX = 0.0f;
     static f32 s_targetScaleY = 10.0f;
 
-    static f32 s_scaleX0 = 1.0f;
-    static f32 s_scaleY0 = 1.0f;
-    static f32 s_scaleX1 = 1.0f;
-    static f32 s_scaleY1 = 1.0f;
-    static f32 s_angle   = 0.0f;
-    static f32 s_timer   = 0.0f;
+    static f32 s_scaleX = 1.0f;
+    static f32 s_scaleY = 1.0f;
+    static f32 s_angle  = 0.0f;
+    static f32 s_timer  = 0.0f;
 
     s_timer += dt;
     s_angle = SinRange(-10.0f, 10.0f, s_timer*2.5f);
 
     if(s_gameState == GameState_Menu)
     {
-        s_scaleX0 = SinRange(0.8f, 1.0f, s_timer*1.5f);
-        s_scaleY0 = SinRange(0.8f, 1.0f, s_timer*2.0f);
+        s_scaleX = SinRange(0.8f, 1.0f, s_timer*1.5f);
+        s_scaleY = SinRange(0.8f, 1.0f, s_timer*2.0f);
 
-        Rect menuClip = { 0,0,96,120 };
-
-        imm::DrawTexture("title", gfx::GetScreenWidth()*0.5f,48.0f, s_scaleX0,s_scaleY0, csm::ToRad(s_angle), imm::Flip_None);
-        imm::DrawTexture("menu", gfx::GetScreenWidth()*0.5f,(gfx::GetScreenHeight()*0.5f)+48.0f, s_scaleX1,s_scaleY1, 0.0f, imm::Flip_None, &menuClip);
+        Rect titleClip = { 0,0,192,64 };
+        imm::DrawTexture("menu", gfx::GetScreenWidth()*0.5f,48.0f, s_scaleX,s_scaleY, csm::ToRad(s_angle), imm::Flip_None, &titleClip);
     }
 }
 
