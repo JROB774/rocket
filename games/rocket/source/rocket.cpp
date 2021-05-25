@@ -105,7 +105,8 @@ struct BitmapFont
     f32 charHeight;
 };
 
-static BitmapFont s_font;
+static BitmapFont s_font0;
+static BitmapFont s_font1;
 
 static void LoadBitmapFont(BitmapFont& font, f32 cw, f32 ch, std::string texture)
 {
@@ -614,17 +615,13 @@ static void RenderRocket(f32 dt)
     // Draw the score.
     if(s_gameState == GameState_Game)
     {
-        Vec4 color = Vec4(1,1,1,0.5f);
+        BitmapFont* font = (s_rocket.score > s_highScore) ? &s_font1 : &s_font0;
         std::string scoreStr = std::to_string(s_rocket.score);
-        f32 textWidth = GetTextLineWidth(s_font, scoreStr);
-        if(s_rocket.score > s_highScore)
-        {
-            scoreStr += "!";
-            color.a = 1.0f;
-        }
+        f32 textWidth = GetTextLineWidth(*font, scoreStr);
+        if((s_rocket.score > s_highScore)) scoreStr += "!";
         f32 screenWidth = gfx::GetScreenWidth();
         f32 screenHeight = gfx::GetScreenHeight();
-        DrawBitmapFont(s_font, (screenWidth-textWidth)*0.5f,0.0f, scoreStr, color);
+        DrawBitmapFont(*font, (screenWidth-textWidth)*0.5f,0.0f, scoreStr);
     }
 }
 
@@ -833,7 +830,8 @@ public:
         CreateRocket();
         CreateSmoke();
 
-        LoadBitmapFont(s_font, 14,24, "font");
+        LoadBitmapFont(s_font0, 14,24, "font0");
+        LoadBitmapFont(s_font1, 14,24, "font1");
 
         sfx::PlayMusic("music", -1);
 
