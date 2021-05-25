@@ -848,18 +848,22 @@ public:
 
     void Update(f32 dt)
     {
-        // Handle locking/unlocking the mouse with debug mode.
+        // Handle locking/unlocking and showing/hiding the mouse with debug mode.
         static bool s_lockMouse = true;
+        static bool s_showMouse = false;
         if(IsDebugMode())
         {
             if(IsKeyPressed(KeyCode_Space))
                 s_lockMouse = !s_lockMouse;
+            s_showMouse = true;
         }
         else
         {
             s_lockMouse = (!s_gamePaused && (s_gameState != GameState_Menu));
+            s_showMouse = false;
         }
         LockMouse(s_lockMouse);
+        ShowCursor(s_showMouse);
 
         if((s_gameState == GameState_Game) && !s_gameResetting && !s_rocket.dead)
         {
