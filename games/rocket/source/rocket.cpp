@@ -743,6 +743,21 @@ static void RenderBackground(f32 dt)
 }
 
 //
+// Cursor
+//
+
+static void RenderCursor(f32 dt)
+{
+    if(s_gameState == GameState_Menu || s_gamePaused)
+    {
+        Vec2 pos = GetScreenMousePos();
+        f32 x = csm::Clamp(roundf(pos.x), 0.0f,gfx::GetScreenWidth());
+        f32 y = csm::Clamp(roundf(pos.y), 0.0f,gfx::GetScreenHeight());
+        imm::DrawTexture("cursor", x,y);
+    }
+}
+
+//
 // Menu
 //
 
@@ -812,6 +827,8 @@ public:
             gfx::SetTextureWrap(*texture, gfx::Wrap_Clamp);
         }
 
+        ShowCursor(false);
+
         CreateBackground();
         CreateRocket();
         CreateSmoke();
@@ -840,7 +857,7 @@ public:
         }
         else
         {
-            s_lockMouse = !s_gamePaused;
+            s_lockMouse = (!s_gamePaused && (s_gameState != GameState_Menu));
         }
         LockMouse(s_lockMouse);
 
@@ -890,6 +907,7 @@ public:
         RenderAsteroids(dt);
         RenderRocket(dt);
         RenderMenu(dt);
+        RenderCursor(dt);
         RenderTransition(dt);
     }
 
