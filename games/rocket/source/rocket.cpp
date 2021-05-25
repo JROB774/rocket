@@ -749,8 +749,8 @@ static void RenderCursor(f32 dt)
     if(s_gameState == GameState_Menu || s_gamePaused)
     {
         Vec2 pos = GetScreenMousePos();
-        f32 x = csm::Clamp(roundf(pos.x), 0.0f,gfx::GetScreenWidth());
-        f32 y = csm::Clamp(roundf(pos.y), 0.0f,gfx::GetScreenHeight());
+        f32 x = roundf(pos.x);
+        f32 y = roundf(pos.y);
         imm::DrawTexture("cursor", x,y);
     }
 }
@@ -773,6 +773,10 @@ static void UpdateMenu(f32 dt)
 
 static void RenderMenu(f32 dt)
 {
+    static Rect s_titleClip  = { 0,  0,256,64 };
+    static Rect s_pauseClip  = { 0,160,256,32 };
+    static Rect s_authorClip = { 0,864,256,24 };
+
     static f32 s_targetScaleX = 0.0f;
     static f32 s_targetScaleY = 10.0f;
 
@@ -780,6 +784,11 @@ static void RenderMenu(f32 dt)
     static f32 s_scaleY = 1.0f;
     static f32 s_angle  = 0.0f;
     static f32 s_timer  = 0.0f;
+
+    f32 screenW = gfx::GetScreenWidth();
+    f32 screenH = gfx::GetScreenHeight();
+    f32 halfW   = screenW * 0.5f;
+    f32 halfH   = screenH * 0.5f;
 
     s_timer += dt;
     s_angle = SinRange(-10.0f, 10.0f, s_timer*2.5f);
@@ -789,8 +798,21 @@ static void RenderMenu(f32 dt)
         s_scaleX = SinRange(0.8f, 1.0f, s_timer*1.5f);
         s_scaleY = SinRange(0.8f, 1.0f, s_timer*2.0f);
 
-        Rect titleClip = { 0,0,256,64 };
-        imm::DrawTexture("menu", gfx::GetScreenWidth()*0.5f,48.0f, s_scaleX,s_scaleY, csm::ToRad(s_angle), imm::Flip_None, &titleClip);
+        imm::DrawTexture("menu", halfW,48.0f, s_scaleX,s_scaleY, csm::ToRad(s_angle), imm::Flip_None, &s_titleClip);
+        imm::DrawTexture("menu", halfW,screenH-12.0f, &s_authorClip);
+    }
+    else if(s_gameState == GameState_Game)
+    {
+        if(s_gamePaused)
+        {
+            static f32 s_blinkTimer = 0.0f;
+            s_blinkTimer += dt;
+            imm::DrawRectFilled(0,0,screenW,screenH, Vec4(0,0,0,0.5f));
+            if(s_blinkTimer <= 0.5f)
+                imm::DrawTexture("menu", halfW,halfH, &s_pauseClip);
+            else if(s_blinkTimer >= 1.0f)
+                s_blinkTimer -= 1.0f;
+        }
     }
 }
 
