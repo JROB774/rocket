@@ -759,6 +759,8 @@ static void RenderCursor(f32 dt)
 // Menu
 //
 
+static f32 s_blinkTimer;
+
 static void UpdateMenu(f32 dt)
 {
     if(s_gameState == GameState_Menu)
@@ -805,7 +807,6 @@ static void RenderMenu(f32 dt)
     {
         if(s_gamePaused)
         {
-            static f32 s_blinkTimer = 0.0f;
             s_blinkTimer += dt;
             imm::DrawRectFilled(0,0,screenW,screenH, Vec4(0,0,0,0.5f));
             if(s_blinkTimer <= 0.5f)
@@ -893,6 +894,7 @@ public:
                 {
                     sfx::PauseMusic();
                     StopThruster();
+                    s_blinkTimer = 0.0f;
                 }
                 else
                 {
