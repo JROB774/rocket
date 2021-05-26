@@ -106,6 +106,7 @@ struct Powerup
 {
     Vec2 pos;
     s32 frame;
+    bool dead;
     Collider collider;
     PowerupType type;
 };
@@ -214,16 +215,20 @@ static void SpawnPowerup()
     if(s_powerupCooldown > 0.0f) return;
     Powerup powerup = {};
     powerup.frame = 0.0f;
+    powerup.dead = false;
     powerup.collider = { Vec2(0), 14.0f };
     powerup.type = CS_CAST(PowerupType, RandomS32(0,PowerupType_TOTAL-1));
+    bool found = false;
     for(s32 i=0; i<10; ++i) // Try ten times to find a spot that doesn't collide with an asteroid.
     {
         powerup.pos = Vec2(RandomF32(12.0f, gfx::GetScreenWidth()-12.0f), -24.0f);
         for(auto& asteroid: s_asteroids)
             if(CheckCollision(powerup.pos, powerup.collider, asteroid.pos, asteroid.collider))
                 continue;
+        found = true;
         break;
     }
+    if(!found) return;
     s_powerups.push_back(powerup);
     s_powerupCooldown = k_powerupCooldownTime;
 }
@@ -235,14 +240,21 @@ static void UpdatePowerups(f32 dt)
 
     for(auto& powerup: s_powerups)
     {
-        powerup.pos.y += k_fallSpeed * dt;
-        powerup.frame++;
+        if(!powerup.dead)
+        {
+            // If we're in the rocket's collection range then move towards the rocket.
+            if(CheckCollision(s_rocket.pos, s_rocket.collector, powerup.pos, powerup.collider))
+                powerup.pos = csm::Lerp(powerup.pos, s_rocket.pos, Vec2(0.1f));
+            else
+                powerup.pos.y += k_fallSpeed * dt;
+            powerup.frame++;
+        }
     }
 
     s_powerups.erase(std::remove_if(s_powerups.begin(), s_powerups.end(),
     [](const Powerup& powerup)
     {
-        return (powerup.pos.y >= (gfx::GetScreenHeight()+24.0f));
+        return (powerup.dead || (powerup.pos.y >= (gfx::GetScreenHeight()+24.0f)));
     }),
     s_powerups.end());
 }
@@ -251,8 +263,11 @@ static void RenderPowerups(f32 dt)
 {
     for(auto& powerup: s_powerups)
     {
-        Rect clip = { 24*CS_CAST(f32,(powerup.frame % 2)),24*CS_CAST(f32, powerup.type), 24, 24 };
-        imm::DrawTexture("power", powerup.pos.x, powerup.pos.y, &clip);
+        if(!powerup.dead)
+        {
+            Rect clip = { 24*CS_CAST(f32,(powerup.frame % 2)),24*CS_CAST(f32, powerup.type), 24, 24 };
+            imm::DrawTexture("power", powerup.pos.x, powerup.pos.y, &clip);
+        }
     }
 }
 
@@ -547,6 +562,21 @@ static void CreateRocket()
     s_rocket.thruster = sfx::k_invalidSoundRef;
 }
 
+static void PowerupRocket(PowerupType type)
+{
+    switch(type)
+    {
+        case(PowerupType_Boost):
+        {
+            // @INCOMPLETE: ...
+        } break;
+        case(PowerupType_Shield):
+        {
+            // @INCOMPLETE: ...
+        } break;
+    }
+}
+
 static void HitRocket()
 {
     SpawnSmoke(SmokeType_Explosion, s_rocket.pos.x, s_rocket.pos.y, RandomS32(20,40));
@@ -676,9 +706,22 @@ static void UpdateRocket(f32 dt)
         // Handle collision checks.
         if(s_gameState == GameState_Game)
         {
+            // Asteroids.
             for(auto& asteroid: s_asteroids)
                 if(CheckCollision(s_rocket.pos, s_rocket.collider, asteroid.pos, asteroid.collider))
                     HitRocket();
+            // Powerups.
+            for(auto& powerup: s_powerups)
+            {
+                if(!powerup.dead)
+                {
+                    if(CheckCollision(s_rocket.pos, s_rocket.collider, powerup.pos, powerup.collider))
+                    {
+                        PowerupRocket(powerup.type);
+                        powerup.dead = true;
+                    }
+                }
+            }
         }
 
         // Increment the score.
