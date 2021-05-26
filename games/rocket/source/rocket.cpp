@@ -93,8 +93,10 @@ struct Rocket
     f32 angle;
     f32 shake;
     f32 timer;
+    f32 boost;
     s32 score;
     s32 frame;
+    bool shield;
     bool dead;
     Collider collider;
     Collider collector;
@@ -114,12 +116,15 @@ struct Powerup
 struct Asteroid
 {
     Vec2 pos;
+    bool dead;
     imm::Flip flip;
     Collider collider;
     AsteroidType type;
 };
 
 static constexpr f32 k_fallSpeed = 400.0f;
+static constexpr f32 k_boostMultiplier = 2.0f;
+static constexpr f32 k_boostTime = 5.0f;
 
 static GameState s_gameState;
 static bool s_gamePaused;
@@ -207,7 +212,7 @@ static void DrawBitmapFont(BitmapFont& font, f32 x, f32 y, std::string text, Vec
 // Powerups
 //
 
-static const f32 k_powerupCooldownTime = 10.0f;
+static constexpr f32 k_powerupCooldownTime = 10.0f;
 static f32 s_powerupCooldown;
 
 static void SpawnPowerup()
@@ -244,9 +249,9 @@ static void UpdatePowerups(f32 dt)
         {
             // If we're in the rocket's collection range then move towards the rocket.
             if(CheckCollision(s_rocket.pos, s_rocket.collector, powerup.pos, powerup.collider))
-                powerup.pos = csm::Lerp(powerup.pos, s_rocket.pos, Vec2(0.1f));
+                powerup.pos = csm::Lerp(powerup.pos, s_rocket.pos+s_rocket.collider.offset, Vec2(0.1f));
             else
-                powerup.pos.y += k_fallSpeed * dt;
+                powerup.pos.y += (k_fallSpeed * ((s_rocket.boost > 0.0f) ? k_boostMultiplier : 1.0f)) * dt;
             powerup.frame++;
         }
     }
@@ -292,6 +297,7 @@ static void SpawnAsteroid()
 {
     Asteroid asteroid = {};
     asteroid.pos = Vec2(RandomF32(0, gfx::GetScreenWidth()), -48.0f);
+    asteroid.dead = false;
     asteroid.flip = (RandomS32() % 2 == 0) ? imm::Flip_None : imm::Flip_Horizontal;
     asteroid.type = CS_CAST(AsteroidType, RandomS32(0,AsteroidType_TOTAL-1));
     asteroid.collider.offset = Vec2(0,-2);
@@ -311,12 +317,14 @@ static void SpawnAsteroid()
 static void UpdateAsteroids(f32 dt)
 {
     for(auto& asteroid: s_asteroids)
-        asteroid.pos.y += k_fallSpeed * dt;
+    {
+        asteroid.pos.y += (k_fallSpeed * ((s_rocket.boost > 0.0f) ? k_boostMultiplier: 1.0f)) * dt;
+    }
 
     s_asteroids.erase(std::remove_if(s_asteroids.begin(), s_asteroids.end(),
     [](const Asteroid& asteroid)
     {
-        return (asteroid.pos.y >= (gfx::GetScreenHeight()+48.0f));
+        return (asteroid.dead || (asteroid.pos.y >= (gfx::GetScreenHeight()+48.0f)));
     }),
     s_asteroids.end());
 }
@@ -350,9 +358,9 @@ enum EntityType
     EntityType_TOTAL
 };
 
-static const f32 k_entitySpawnCooldownTime = 1.0f;
-static const f32 k_difficultyIncreaseInterval = 5.0f;
-static const s32 k_maxDifficulty = 75;
+static constexpr f32 k_entitySpawnCooldownTime = 1.0f;
+static constexpr f32 k_difficultyIncreaseInterval = 5.0f;
+static constexpr s32 k_maxDifficulty = 75;
 
 static f32 s_entitySpawnCooldown;
 static f32 s_difficultyTimer;
@@ -377,7 +385,7 @@ static void MaybeSpawnEntity(f32 dt)
             }
         }
 
-        if(RandomS32(0,1000) <= s_difficulty)
+        if(RandomS32(0,1000) <= (s_difficulty * ((s_rocket.boost > 0.0f) ? k_boostMultiplier : 1.0f)))
             SpawnAsteroid();
         if(RandomS32(0,1000) <= 2)
             SpawnPowerup();
@@ -406,6 +414,7 @@ struct Smoke
     s32 frame;
     f32 angle;
     f32 spin;
+    f32 scale;
     f32 timer;
     f32 frameTime;
     bool spawner;
@@ -431,6 +440,8 @@ static void SpawnSmoke(SmokeType type, f32 x, f32 y, s32 count)
         s.vel = RotateVec2(Vec2(RandomF32(80,140),0), csm::ToRad(s.angle));
         if(type == SmokeType_Blood) s.vel = RotateVec2(Vec2(180.0f,0), csm::ToRad(RandomF32(45.0f,135.0f)));
         s.spin = RandomF32(400,600);
+        s.scale = (s.type == SmokeType_Small || s.type == SmokeType_SmallStationary) ? 0.5f : 1.0f;
+        if(s.type == SmokeType_Thruster || s.type == SmokeType_Blood) s.scale *= ((s_rocket.boost > 0.0f) ? 1.5f : 1.0f);
         s.timer = 0.0f;
         s.frameTime = RandomF32(0.05f, 0.15f);
         if(type == SmokeType_Explosion) s.spawner = RandomS32(1,100) <= 10;
@@ -511,8 +522,7 @@ static void RenderSmoke(f32 dt)
     for(auto& s: s_smoke)
     {
         Rect clip = { CS_CAST(f32, 16*s.frame), 16*CS_CAST(f32, s_rocket.costume), 16, 16 };
-        f32 scale = (s.type == SmokeType_Small || s.type == SmokeType_SmallStationary) ? 0.5f : 1.0f;
-        imm::DrawTexture("smoke", s.pos.x, s.pos.y, scale,scale, csm::ToRad(s.angle), imm::Flip_None, &clip);
+        imm::DrawTexture("smoke", s.pos.x, s.pos.y, s.scale,s.scale, csm::ToRad(s.angle), imm::Flip_None, &clip);
     }
 }
 
@@ -553,8 +563,10 @@ static void CreateRocket()
     s_rocket.angle = 0.0f;
     s_rocket.shake = 0.0f;
     s_rocket.timer = 1000.0f; // Stop the explosion on start.
+    s_rocket.boost = 0.0f;
     s_rocket.score = 0;
     s_rocket.frame = 0;
+    s_rocket.shield = false;
     s_rocket.dead  = true;
     s_rocket.collider = { Vec2(0,-8), 8.0f };
     s_rocket.collector = { Vec2(0,-8), 40.0f };
@@ -566,32 +578,35 @@ static void PowerupRocket(PowerupType type)
 {
     switch(type)
     {
-        case(PowerupType_Boost):
-        {
-            // @INCOMPLETE: ...
-        } break;
-        case(PowerupType_Shield):
-        {
-            // @INCOMPLETE: ...
-        } break;
+        case(PowerupType_Boost): s_rocket.boost += k_boostTime; break;
+        case(PowerupType_Shield): s_rocket.shield = true; break;
     }
 }
 
 static void HitRocket()
 {
-    SpawnSmoke(SmokeType_Explosion, s_rocket.pos.x, s_rocket.pos.y, RandomS32(20,40));
-    StopThruster();
-    std::string explosion = "explosion";
-    switch(s_rocket.costume)
+    if(s_rocket.shield)
     {
-        case(Costume_Meat): explosion = "splat"; break;
-        case(Costume_Doodle): explosion = "mouth2"; break;
-        case(Costume_Rainbow): explosion = "ignite"; break;
-        case(Costume_Glitch): explosion = "glitch"; break;
+        // @INCOMPLETE: ...
+        s_rocket.shield = false;
     }
-    sfx::PlaySound(explosion);
-    s_rocket.dead = true;
-    s_rocket.timer = 0.0f;
+    else
+    {
+        SpawnSmoke(SmokeType_Explosion, s_rocket.pos.x, s_rocket.pos.y, RandomS32(20,40));
+        StopThruster();
+        std::string explosion = "explosion";
+        switch(s_rocket.costume)
+        {
+            case(Costume_Meat): explosion = "splat"; break;
+            case(Costume_Doodle): explosion = "mouth2"; break;
+            case(Costume_Rainbow): explosion = "ignite"; break;
+            case(Costume_Glitch): explosion = "glitch"; break;
+        }
+        sfx::PlaySound(explosion);
+        s_rocket.timer = 0.0f;
+        s_rocket.boost = 0.0f;
+        s_rocket.dead = true;
+    }
 }
 
 static void UpdateRocket(f32 dt)
@@ -639,6 +654,9 @@ static void UpdateRocket(f32 dt)
 
     if(!s_rocket.dead)
     {
+        if(s_rocket.boost > 0.0f)
+            s_rocket.boost -= dt;
+
         if(IsMouseLocked() && (s_gameState == GameState_Game))
         {
             static f32 s_prevMouseX = 0.0f;
@@ -699,7 +717,7 @@ static void UpdateRocket(f32 dt)
             s32 smokeCount = 1;
             if(s_rocket.costume == Costume_Meat) smokeCount = 2;
             if(s_rocket.costume == Costume_Rainbow) smokeCount = 2;
-            SpawnSmoke(smokeType, s_rocket.pos.x+RandomF32(-3.0f,3.0f), s_rocket.pos.y+20.0f, smokeCount);
+            SpawnSmoke(smokeType, s_rocket.pos.x+RandomF32(-3.0f,3.0f), s_rocket.pos.y+20.0f, (smokeCount * ((s_rocket.boost > 0.0f) ? k_boostMultiplier : 1.0f)));
             s_rocket.timer -= 0.05f;
         }
 
@@ -708,8 +726,21 @@ static void UpdateRocket(f32 dt)
         {
             // Asteroids.
             for(auto& asteroid: s_asteroids)
+            {
                 if(CheckCollision(s_rocket.pos, s_rocket.collider, asteroid.pos, asteroid.collider))
-                    HitRocket();
+                {
+                    if(s_rocket.boost <= 0.0f)
+                    {
+                        HitRocket();
+                    }
+                    else
+                    {
+                        // If we're boosting then destroy the asteroid instead.
+                        asteroid.dead = true;
+                        // @INCOMPLETE: ...
+                    }
+                }
+            }
             // Powerups.
             for(auto& powerup: s_powerups)
             {
@@ -728,7 +759,7 @@ static void UpdateRocket(f32 dt)
         if((s_gameState == GameState_Game) && !s_gameResetting)
         {
             s32 oldScore = s_rocket.score;
-            s_rocket.score += 2;
+            s_rocket.score += (2 * ((s_rocket.boost > 0.0f) ? k_boostMultiplier : 1.0f));
             if(s_highScore != 0 && oldScore <= s_highScore && s_rocket.score > s_highScore)
                 sfx::PlaySound("highscore");
         }
@@ -758,6 +789,14 @@ static void RenderRocket(f32 dt)
         Rect clip = { 96+(48*CS_CAST(f32,s_rocket.frame)), 96*CS_CAST(f32,s_rocket.costume), 48, 96 };
         f32 angle = csm::ToRad(s_rocket.angle + s_rocket.shake);
         imm::DrawTexture("rocket", s_rocket.pos.x, s_rocket.pos.y, 1.0f, 1.0f, angle, imm::Flip_None, &clip);
+        // Draw the shield.
+        if(s_rocket.shield)
+        {
+            Vec2 pos = s_rocket.pos + s_rocket.collider.offset;
+            imm::DrawCircleFilled(pos.x,pos.y, 32.0f, Vec4(1,1,1,0.25f));
+            imm::DrawCircleOutline(pos.x,pos.y, 32.0f, Vec4(1,1,1,0.50f));
+            imm::DrawCircleFilled(pos.x-16.0f,pos.y-16.0f, 5.0f, Vec4(1,1,1,1));
+        }
     }
 
     // Draw the score.
@@ -821,9 +860,11 @@ static void RenderTransition(f32 dt)
                 s_highScore = s_rocket.score;
             s_rocket.pos = Vec2(screenW*0.5f, screenH-32.0f);
             s_rocket.vel = Vec2(0);
-            s_rocket.dead = false;
             s_rocket.score = 0;
             s_rocket.timer = 0.0f;
+            s_rocket.boost = 0.0f;
+            s_rocket.shield = false;
+            s_rocket.dead = false;
             s_powerupCooldown = k_powerupCooldownTime;
             s_entitySpawnCooldown = k_entitySpawnCooldownTime;
             s_difficultyTimer = 0.0f;
@@ -872,7 +913,7 @@ static void UpdateBackground(f32 dt)
     f32 screenHeight = gfx::GetScreenHeight();
     for(s32 i=0; i<k_backCount; ++i)
     {
-        s_backOffset[i] += s_backSpeed[i] * dt;
+        s_backOffset[i] += (s_backSpeed[i] * ((s_rocket.boost > 0.0f) ? k_boostMultiplier : 1.0f)) * dt;
         if(s_backOffset[i] >= screenHeight * 1.5f)
             s_backOffset[i] -= screenHeight;
     }
@@ -995,6 +1036,8 @@ static void GameStateDebugUiCallback(bool& open)
     ImGui::Text("Timer: %f", s_rocket.timer);
     ImGui::Text("Score: %d", s_rocket.score);
     ImGui::Text("Frame: %d", s_rocket.frame);
+    ImGui::Text("Boost: %f", s_rocket.boost);
+    ImGui::Text("Shield: %s", (s_rocket.shield) ? "True" : "False");
     ImGui::Text("Dead: %s", (s_rocket.dead) ? "True" : "False");
     ImGui::Separator();
     ImGui::Text("Difficulty: %d", s_difficulty);
