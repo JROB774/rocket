@@ -647,9 +647,20 @@ static void UpdateRocket(f32 dt)
     {
         s_rocket.frame++;
     }
-    if(s_rocket.frame >= 5)
+    // Make sure the frame stays in-bounds of the animation.
+    if(s_rocket.boost > 0.0f)
     {
-        s_rocket.frame = 0;
+        if(s_rocket.frame >= 3)
+        {
+            s_rocket.frame = 0;
+        }
+    }
+    else
+    {
+        if(s_rocket.frame >= 5)
+        {
+            s_rocket.frame = 0;
+        }
     }
 
     if(!s_rocket.dead)
@@ -787,6 +798,7 @@ static void RenderRocket(f32 dt)
     {
         // Draw the rocket.
         Rect clip = { 96+(48*CS_CAST(f32,s_rocket.frame)), 96*CS_CAST(f32,s_rocket.costume), 48, 96 };
+        if(s_rocket.boost > 0.0f) clip.x += 48*5;
         f32 angle = csm::ToRad(s_rocket.angle + s_rocket.shake);
         imm::DrawTexture("rocket", s_rocket.pos.x, s_rocket.pos.y, 1.0f, 1.0f, angle, imm::Flip_None, &clip);
         // Draw the shield.
@@ -1144,9 +1156,9 @@ public:
     {
         RenderBackground(dt);
         RenderSmoke(dt);
-        RenderPowerups(dt);
         RenderAsteroids(dt);
         RenderRocket(dt);
+        RenderPowerups(dt);
         RenderMenu(dt);
         RenderCursor(dt);
         RenderTransition(dt);
