@@ -71,6 +71,21 @@ enum Costume
     Costume_TOTAL
 };
 
+enum PowerupType
+{
+    PowerupType_Boost,
+    PowerupType_Shield,
+    PowerupType_TOTAL
+};
+
+enum AsteroidType
+{
+    AsteroidType_Large,
+    AsteroidType_Medium,
+    AsteroidType_Small,
+    AsteroidType_TOTAL
+};
+
 struct Rocket
 {
     Vec2 pos;
@@ -82,9 +97,28 @@ struct Rocket
     s32 frame;
     bool dead;
     Collider collider;
+    Collider collector;
     sfx::SoundRef thruster;
     Costume costume;
 };
+
+struct Powerup
+{
+    Vec2 pos;
+    s32 frame;
+    Collider collider;
+    PowerupType type;
+};
+
+struct Asteroid
+{
+    Vec2 pos;
+    imm::Flip flip;
+    Collider collider;
+    AsteroidType type;
+};
+
+static constexpr f32 k_fallSpeed = 400.0f;
 
 static GameState s_gameState;
 static bool s_gamePaused;
@@ -92,6 +126,8 @@ static bool s_gameResetting;
 static s32 s_highScore;
 static u32 s_gameFrame;
 static Rocket s_rocket;
+static std::vector<Powerup> s_powerups;
+static std::vector<Asteroid> s_asteroids;
 
 //
 // Bitmap Font
@@ -167,30 +203,75 @@ static void DrawBitmapFont(BitmapFont& font, f32 x, f32 y, std::string text, Vec
 }
 
 //
+// Powerups
+//
+
+static const f32 k_powerupCooldownTime = 10.0f;
+static f32 s_powerupCooldown;
+
+static void SpawnPowerup()
+{
+    if(s_powerupCooldown > 0.0f) return;
+    Powerup powerup = {};
+    powerup.frame = 0.0f;
+    powerup.collider = { Vec2(0), 14.0f };
+    powerup.type = CS_CAST(PowerupType, RandomS32(0,PowerupType_TOTAL-1));
+    for(s32 i=0; i<10; ++i) // Try ten times to find a spot that doesn't collide with an asteroid.
+    {
+        powerup.pos = Vec2(RandomF32(12.0f, gfx::GetScreenWidth()-12.0f), -24.0f);
+        for(auto& asteroid: s_asteroids)
+            if(CheckCollision(powerup.pos, powerup.collider, asteroid.pos, asteroid.collider))
+                continue;
+        break;
+    }
+    s_powerups.push_back(powerup);
+    s_powerupCooldown = k_powerupCooldownTime;
+}
+
+static void UpdatePowerups(f32 dt)
+{
+    if(s_powerupCooldown > 0.0f)
+        s_powerupCooldown -= dt;
+
+    for(auto& powerup: s_powerups)
+    {
+        powerup.pos.y += k_fallSpeed * dt;
+        powerup.frame++;
+    }
+
+    s_powerups.erase(std::remove_if(s_powerups.begin(), s_powerups.end(),
+    [](const Powerup& powerup)
+    {
+        return (powerup.pos.y >= (gfx::GetScreenHeight()+24.0f));
+    }),
+    s_powerups.end());
+}
+
+static void RenderPowerups(f32 dt)
+{
+    for(auto& powerup: s_powerups)
+    {
+        Rect clip = { 24*CS_CAST(f32,(powerup.frame % 2)),24*CS_CAST(f32, powerup.type), 24, 24 };
+        imm::DrawTexture("power", powerup.pos.x, powerup.pos.y, &clip);
+    }
+}
+
+static void DebugRenderPowerups(f32 dt)
+{
+    for(auto& powerup: s_powerups)
+    {
+        Vec2 pos(powerup.pos + powerup.collider.offset);
+        imm::DrawCircleFilled(pos.x, pos.y, powerup.collider.radius, Vec4(0,0,1,0.25f));
+        imm::DrawCircleOutline(pos.x, pos.y, powerup.collider.radius, Vec4(0,0,1,1.00f));
+    }
+}
+
+//
 // Asteroid
 //
 
-enum AsteroidType
-{
-    AsteroidType_Large,
-    AsteroidType_Medium,
-    AsteroidType_Small,
-    AsteroidType_TOTAL
-};
-
-struct Asteroid
-{
-    Vec2 pos;
-    imm::Flip flip;
-    Collider collider;
-    AsteroidType type;
-};
-
-static constexpr f32 k_asteroidFallSpeed = 400.0f;
 static constexpr f32 k_asteroidMinSpinSpeed = 240.0f;
 static constexpr f32 k_asteroidMaxSpinSpeed = 420.0f;
-
-static std::vector<Asteroid> s_asteroids;
 
 static void SpawnAsteroid()
 {
@@ -205,13 +286,17 @@ static void SpawnAsteroid()
         case(AsteroidType_Medium): asteroid.collider.radius = 8.0f; break;
         case(AsteroidType_Small): asteroid.collider.radius = 4.0f; break;
     }
+    // If we collide with a powerup then do not bother spawning.
+    for(auto& powerup: s_powerups)
+        if(CheckCollision(powerup.pos, powerup.collider, asteroid.pos, asteroid.collider))
+            return;
     s_asteroids.push_back(asteroid);
 }
 
 static void UpdateAsteroids(f32 dt)
 {
     for(auto& asteroid: s_asteroids)
-        asteroid.pos.y += k_asteroidFallSpeed * dt;
+        asteroid.pos.y += k_fallSpeed * dt;
 
     s_asteroids.erase(std::remove_if(s_asteroids.begin(), s_asteroids.end(),
     [](const Asteroid& asteroid)
@@ -250,6 +335,7 @@ enum EntityType
     EntityType_TOTAL
 };
 
+static const f32 k_entitySpawnCooldownTime = 1.0f;
 static const f32 k_difficultyIncreaseInterval = 5.0f;
 static const s32 k_maxDifficulty = 75;
 
@@ -278,6 +364,8 @@ static void MaybeSpawnEntity(f32 dt)
 
         if(RandomS32(0,1000) <= s_difficulty)
             SpawnAsteroid();
+        if(RandomS32(0,1000) <= 2)
+            SpawnPowerup();
     }
 }
 
@@ -444,8 +532,8 @@ static void StopThruster()
 
 static void CreateRocket()
 {
-    s_rocket.pos.x = (gfx::GetScreenWidth()*0.5f);
-    s_rocket.pos.y = gfx::GetScreenHeight() - 32.0f;
+    s_rocket.pos.x = (gfx::GetScreenWidth()  *  0.5f);
+    s_rocket.pos.y = (gfx::GetScreenHeight() - 32.0f);
     s_rocket.vel   = Vec2(0);
     s_rocket.angle = 0.0f;
     s_rocket.shake = 0.0f;
@@ -454,6 +542,7 @@ static void CreateRocket()
     s_rocket.frame = 0;
     s_rocket.dead  = true;
     s_rocket.collider = { Vec2(0,-8), 8.0f };
+    s_rocket.collector = { Vec2(0,-8), 40.0f };
     s_rocket.costume = Costume_Red;
     s_rocket.thruster = sfx::k_invalidSoundRef;
 }
@@ -644,11 +733,13 @@ static void RenderRocket(f32 dt)
 
 static void DebugRenderRocket(f32 dt)
 {
-    Vec4 fill(0,1,0,0.25f);
-    Vec4 outline(0,1,0,1.00f);
-    Vec2 pos(s_rocket.pos + s_rocket.collider.offset);
-    imm::DrawCircleFilled(pos.x, pos.y, s_rocket.collider.radius, fill);
-    imm::DrawCircleOutline(pos.x, pos.y, s_rocket.collider.radius, outline);
+    Vec2 posA(s_rocket.pos + s_rocket.collector.offset);
+    Vec2 posB(s_rocket.pos + s_rocket.collider.offset);
+
+    imm::DrawCircleFilled(posA.x, posA.y, s_rocket.collector.radius, Vec4(0,0,1,0.25f));
+    imm::DrawCircleOutline(posA.x, posA.y, s_rocket.collector.radius, Vec4(0,0,1,1.00f));
+    imm::DrawCircleFilled(posB.x, posB.y, s_rocket.collider.radius, Vec4(0,1,0,0.25f));
+    imm::DrawCircleOutline(posB.x, posB.y, s_rocket.collider.radius, Vec4(0,1,0,1.00f));
 }
 
 //
@@ -685,12 +776,13 @@ static void RenderTransition(f32 dt)
             s_gameState = GameState_Game;
             if(s_rocket.score > s_highScore)
                 s_highScore = s_rocket.score;
-            s_rocket.pos.x = (screenW*0.5f);
-            s_rocket.pos.y = screenH - 32.0f;
+            s_rocket.pos = Vec2(screenW*0.5f, screenH-32.0f);
+            s_rocket.vel = Vec2(0);
             s_rocket.dead = false;
             s_rocket.score = 0;
             s_rocket.timer = 0.0f;
-            s_entitySpawnCooldown = 1.0f;
+            s_powerupCooldown = k_powerupCooldownTime;
+            s_entitySpawnCooldown = k_entitySpawnCooldownTime;
             s_difficultyTimer = 0.0f;
             s_difficulty = 50;
             s_asteroids.clear();
@@ -785,7 +877,7 @@ static void UpdateMenu(f32 dt)
     {
         if(IsMouseButtonPressed(MouseButton_Left))
         {
-            s_entitySpawnCooldown = 1.0f;
+            s_entitySpawnCooldown = k_entitySpawnCooldownTime;
             ResetGame();
         }
     }
@@ -848,6 +940,7 @@ static void GameStateDebugUiCallback(bool& open)
     ImGui::Text("Show Mouse: %s", (s_showMouse) ? "True" : "False");
     ImGui::Separator();
     ImGui::Text("Particle Count: %d", s_smoke.size());
+    ImGui::Text("Powerup Count: %d", s_powerups.size());
     ImGui::Text("Asteroid Count: %d", s_asteroids.size());
     ImGui::Separator();
     ImGui::Text("Rocket");
@@ -875,8 +968,8 @@ public:
         gfx::SetScreenScaleMode(gfx::ScaleMode_Pixel);
         gfx::SetScreenFilter(gfx::Filter_Nearest);
 
-        sfx::SetSoundVolume(0.4f);
-        sfx::SetMusicVolume(0.4f);
+        sfx::SetSoundVolume(0.0f);
+        sfx::SetMusicVolume(0.0f);
 
         LoadAllAssetsOfType<gfx::Texture>();
         LoadAllAssetsOfType<gfx::Shader>();
@@ -951,6 +1044,7 @@ public:
             if((s_gameState == GameState_Game) && !s_gameResetting)
                 MaybeSpawnEntity(dt);
             UpdateBackground(dt);
+            UpdatePowerups(dt);
             UpdateAsteroids(dt);
             UpdateSmoke(dt);
             UpdateRocket(dt);
@@ -964,6 +1058,7 @@ public:
     {
         RenderBackground(dt);
         RenderSmoke(dt);
+        RenderPowerups(dt);
         RenderAsteroids(dt);
         RenderRocket(dt);
         RenderMenu(dt);
@@ -973,6 +1068,7 @@ public:
 
     void DebugRender(f32 dt)
     {
+        DebugRenderPowerups(dt);
         DebugRenderAsteroids(dt);
         DebugRenderRocket(dt);
     }
