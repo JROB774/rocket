@@ -634,6 +634,9 @@ static void UpdateRocket(f32 dt)
                 StartThruster();
             }
         }
+        // Instant kill.
+        if(IsKeyPressed(KeyCode_R))
+            HitRocket();
     }
 
     s_rocket.timer += dt;
@@ -881,6 +884,7 @@ static void RenderTransition(f32 dt)
             s_entitySpawnCooldown = k_entitySpawnCooldownTime;
             s_difficultyTimer = 0.0f;
             s_difficulty = 50;
+            s_powerups.clear();
             s_asteroids.clear();
             s_smoke.clear();
             s_fadeOut = false;
