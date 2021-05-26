@@ -250,7 +250,11 @@ enum EntityType
     EntityType_TOTAL
 };
 
+static const s32 k_maxDifficulty = 75;
+
 static f32 s_entitySpawnCooldown;
+static f32 s_difficultyTimer;
+static s32 s_difficulty;
 
 static void MaybeSpawnEntity(f32 dt)
 {
@@ -260,7 +264,18 @@ static void MaybeSpawnEntity(f32 dt)
     }
     else
     {
-        if(RandomS32(0,1000) <= 75)
+        // Slowly increase the difficulty as the game goes on.
+        if(s_difficulty <= k_maxDifficulty)
+        {
+            s_difficultyTimer += dt;
+            if(s_difficultyTimer >= 10.0f)
+            {
+                s_difficultyTimer = 0.0f;
+                s_difficulty++;
+            }
+        }
+
+        if(RandomS32(0,1000) <= s_difficulty)
             SpawnAsteroid();
     }
 }
@@ -675,6 +690,8 @@ static void RenderTransition(f32 dt)
             s_rocket.score = 0;
             s_rocket.timer = 0.0f;
             s_entitySpawnCooldown = 1.0f;
+            s_difficultyTimer = 0.0f;
+            s_difficulty = 50;
             s_asteroids.clear();
             s_smoke.clear();
             s_fadeOut = false;
