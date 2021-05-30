@@ -68,6 +68,7 @@ enum Costume
     Costume_Doodle,
     Costume_Rainbow,
     Costume_Glitch,
+    Costume_Random,
     Costume_TOTAL
 };
 
