@@ -129,6 +129,7 @@ static constexpr f32 k_boostTime = 5.0f;
 static GameState s_gameState;
 static bool s_gamePaused;
 static bool s_gameResetting;
+static f32 s_boostMultiplier;
 static s32 s_highScore;
 static u32 s_gameFrame;
 static Rocket s_rocket;
@@ -251,7 +252,7 @@ static void UpdatePowerups(f32 dt)
             if(CheckCollision(s_rocket.pos, s_rocket.collector, powerup.pos, powerup.collider))
                 powerup.pos = csm::Lerp(powerup.pos, s_rocket.pos+s_rocket.collider.offset, Vec2(0.1f));
             else
-                powerup.pos.y += (k_fallSpeed * ((s_rocket.boost > 0.0f) ? k_boostMultiplier : 1.0f)) * dt;
+                powerup.pos.y += (k_fallSpeed * s_boostMultiplier) * dt;
             powerup.frame++;
         }
     }
@@ -318,7 +319,7 @@ static void UpdateAsteroids(f32 dt)
 {
     for(auto& asteroid: s_asteroids)
     {
-        asteroid.pos.y += (k_fallSpeed * ((s_rocket.boost > 0.0f) ? k_boostMultiplier: 1.0f)) * dt;
+        asteroid.pos.y += (k_fallSpeed * s_boostMultiplier) * dt;
     }
 
     s_asteroids.erase(std::remove_if(s_asteroids.begin(), s_asteroids.end(),
@@ -385,7 +386,7 @@ static void MaybeSpawnEntity(f32 dt)
             }
         }
 
-        if(RandomS32(0,1000) <= (s_difficulty * ((s_rocket.boost > 0.0f) ? k_boostMultiplier : 1.0f)))
+        if(RandomS32(0,1000) <= (s_difficulty * s_boostMultiplier))
             SpawnAsteroid();
         if(RandomS32(0,1000) <= 2)
             SpawnPowerup();
@@ -666,6 +667,10 @@ static void UpdateRocket(f32 dt)
         }
     }
 
+    // Handle smoothly lerping the boost multiplier.
+    f32 boostTarget = (s_rocket.boost > 0.0f) ? k_boostMultiplier : 1.0f;
+    s_boostMultiplier = csm::Lerp(s_boostMultiplier, boostTarget, 0.05f);
+
     if(!s_rocket.dead)
     {
         if(s_rocket.boost > 0.0f)
@@ -731,7 +736,7 @@ static void UpdateRocket(f32 dt)
             s32 smokeCount = 1;
             if(s_rocket.costume == Costume_Meat) smokeCount = 2;
             if(s_rocket.costume == Costume_Rainbow) smokeCount = 2;
-            SpawnSmoke(smokeType, s_rocket.pos.x+RandomF32(-3.0f,3.0f), s_rocket.pos.y+20.0f, (smokeCount * ((s_rocket.boost > 0.0f) ? k_boostMultiplier : 1.0f)));
+            SpawnSmoke(smokeType, s_rocket.pos.x+RandomF32(-3.0f,3.0f), s_rocket.pos.y+20.0f, (smokeCount * s_boostMultiplier));
             s_rocket.timer -= 0.05f;
         }
 
@@ -773,7 +778,7 @@ static void UpdateRocket(f32 dt)
         if((s_gameState == GameState_Game) && !s_gameResetting)
         {
             s32 oldScore = s_rocket.score;
-            s_rocket.score += (2 * ((s_rocket.boost > 0.0f) ? k_boostMultiplier : 1.0f));
+            s_rocket.score += (2 * s_boostMultiplier);
             if(s_highScore != 0 && oldScore <= s_highScore && s_rocket.score > s_highScore)
                 sfx::PlaySound("highscore");
         }
@@ -882,6 +887,7 @@ static void RenderTransition(f32 dt)
             s_rocket.dead = false;
             s_powerupCooldown = k_powerupCooldownTime;
             s_entitySpawnCooldown = k_entitySpawnCooldownTime;
+            s_boostMultiplier = 1.0f;
             s_difficultyTimer = 0.0f;
             s_difficulty = 50;
             s_powerups.clear();
@@ -929,7 +935,7 @@ static void UpdateBackground(f32 dt)
     f32 screenHeight = gfx::GetScreenHeight();
     for(s32 i=0; i<k_backCount; ++i)
     {
-        s_backOffset[i] += (s_backSpeed[i] * ((s_rocket.boost > 0.0f) ? k_boostMultiplier : 1.0f)) * dt;
+        s_backOffset[i] += (s_backSpeed[i] * s_boostMultiplier) * dt;
         if(s_backOffset[i] >= screenHeight * 1.5f)
             s_backOffset[i] -= screenHeight;
     }
@@ -1071,7 +1077,7 @@ public:
         gfx::SetScreenFilter(gfx::Filter_Nearest);
 
         sfx::SetSoundVolume(0.4f);
-        sfx::SetMusicVolume(0.4f);
+        sfx::SetMusicVolume(0.0f);
 
         LoadAllAssetsOfType<gfx::Texture>();
         LoadAllAssetsOfType<gfx::Shader>();
@@ -1096,6 +1102,7 @@ public:
 
         sfx::PlayMusic("music", -1);
 
+        s_boostMultiplier = 1.0f;
         s_gameState = GameState_Menu;
         s_gamePaused = false;
     }
