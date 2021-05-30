@@ -539,13 +539,28 @@ static constexpr f32 k_rocketMaxShake = 2.0f;
 static void StartThruster()
 {
     if(s_rocket.thruster != sfx::k_invalidSoundRef) return;
-    std::string thruster = "thruster";
-    switch(s_rocket.costume)
+    std::string thruster;
+    if(s_rocket.boost <= 0.0f)
     {
-        case(Costume_Meat): thruster = "squirt"; break;
-        case(Costume_Doodle): thruster = "mouth0"; break;
-        case(Costume_Rainbow): thruster = "sparkle"; break;
-        case(Costume_Glitch): thruster = "static"; break;
+        thruster = "thruster";
+        switch(s_rocket.costume)
+        {
+            case(Costume_Meat): thruster = "squirt"; break;
+            case(Costume_Doodle): thruster = "mouth0"; break;
+            case(Costume_Rainbow): thruster = "sparkle"; break;
+            case(Costume_Glitch): thruster = "static"; break;
+        }
+    }
+    else
+    {
+        thruster = "boost0";
+        switch(s_rocket.costume)
+        {
+            case(Costume_Meat): thruster = "boost1"; break;
+            case(Costume_Doodle): thruster = "boost2"; break;
+            case(Costume_Rainbow): thruster = "boost3"; break;
+            case(Costume_Glitch): thruster = "boost4"; break;
+        }
     }
     s_rocket.thruster = sfx::PlaySound(thruster, -1);
 }
@@ -579,8 +594,16 @@ static void PowerupRocket(PowerupType type)
 {
     switch(type)
     {
-        case(PowerupType_Boost): s_rocket.boost += k_boostTime; break;
-        case(PowerupType_Shield): s_rocket.shield = true; break;
+        case(PowerupType_Boost):
+        {
+            s_rocket.boost += k_boostTime;
+            StopThruster();
+            StartThruster();
+        } break;
+        case(PowerupType_Shield):
+        {
+            s_rocket.shield = true;
+        } break;
     }
 }
 
@@ -674,7 +697,14 @@ static void UpdateRocket(f32 dt)
     if(!s_rocket.dead)
     {
         if(s_rocket.boost > 0.0f)
+        {
             s_rocket.boost -= dt;
+            if(s_rocket.boost <= 0.0f)
+            {
+                StopThruster();
+                StartThruster();
+            }
+        }
 
         if(IsMouseLocked() && (s_gameState == GameState_Game))
         {
