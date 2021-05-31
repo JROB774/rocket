@@ -221,7 +221,7 @@ static void SpawnPowerup()
 {
     if(s_powerupCooldown > 0.0f) return;
     Powerup powerup = {};
-    powerup.frame = 0.0f;
+    powerup.frame = 0;
     powerup.dead = false;
     powerup.collider = { Vec2(0), 14.0f };
     powerup.type = CS_CAST(PowerupType, RandomS32(0,PowerupType_TOTAL-1));
@@ -769,7 +769,7 @@ static void UpdateRocket(f32 dt)
             s32 smokeCount = 1;
             if(s_rocket.costume == Costume_Meat) smokeCount = 2;
             if(s_rocket.costume == Costume_Rainbow) smokeCount = 2;
-            SpawnSmoke(smokeType, s_rocket.pos.x+RandomF32(-3.0f,3.0f), s_rocket.pos.y+20.0f, (smokeCount * s_boostMultiplier));
+            SpawnSmoke(smokeType, s_rocket.pos.x+RandomF32(-3.0f,3.0f), s_rocket.pos.y+20.0f, CS_CAST(s32,(smokeCount * s_boostMultiplier)));
             s_rocket.timer -= 0.05f;
         }
 
@@ -811,7 +811,7 @@ static void UpdateRocket(f32 dt)
         if((s_gameState == GameState_Game) && !s_gameResetting)
         {
             s32 oldScore = s_rocket.score;
-            s_rocket.score += (2 * s_boostMultiplier);
+            s_rocket.score += CS_CAST(s32, (2.0f * s_boostMultiplier));
             if(s_highScore != 0 && oldScore <= s_highScore && s_rocket.score > s_highScore)
                 sfx::PlaySound("highscore");
         }

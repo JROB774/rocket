@@ -16,7 +16,7 @@ config["output"] = "binary/rocket.exe"
 config["cpp"] = "c++17"
 config["debug"] = True
 config["unity"] = True
-config["compiler_params"] = "-EHsc -MT"
+config["compiler_params"] = "-EHsc -MT -W3"
 config["linker_params"] =  "-ignore:4099"
 
 config["include_dirs"] = [
@@ -64,6 +64,7 @@ config["libraries"] = [
     "setargv.obj"
 ]
 config["defines"] = [
+    "_CRT_SECURE_NO_WARNINGS=1",
     "CS_PLATFORM_SDL2=1",
     "CS_COMPILER_MSVC=1",
     "CS_DEBUG=1",
