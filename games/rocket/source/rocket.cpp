@@ -1024,9 +1024,9 @@ static void UpdateMenu(f32 dt)
 
 static void RenderMenu(f32 dt)
 {
-    static Rect s_titleClip  = { 0,  0,256,64 };
-    static Rect s_pauseClip  = { 0,160,256,32 };
-    static Rect s_authorClip = { 0,864,256,24 };
+    static Rect s_titleClip  = { 0,   0,256,64 };
+    static Rect s_pauseClip  = { 0, 160,256,32 };
+    static Rect s_authorClip = { 0,1032,256,24 };
 
     static f32 s_targetScaleX = 0.0f;
     static f32 s_targetScaleY = 10.0f;
