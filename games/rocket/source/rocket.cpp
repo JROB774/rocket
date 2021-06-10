@@ -1005,12 +1005,10 @@ static void RenderCursor(f32 dt)
 }
 
 //
-// Menu
+// Main Menu
 //
 
-static f32 s_blinkTimer;
-
-static void UpdateMenu(f32 dt)
+static void UpdateMainMenu(f32 dt)
 {
     if(s_gameState == GameState_Menu)
     {
@@ -1022,10 +1020,11 @@ static void UpdateMenu(f32 dt)
     }
 }
 
-static void RenderMenu(f32 dt)
+static void RenderMainMenu(f32 dt)
 {
+    if(s_gameState != GameState_Menu) return;
+
     static Rect s_titleClip  = { 0,   0,256,64 };
-    static Rect s_pauseClip  = { 0, 160,256,32 };
     static Rect s_authorClip = { 0,1032,256,24 };
 
     static f32 s_targetScaleX = 0.0f;
@@ -1044,25 +1043,64 @@ static void RenderMenu(f32 dt)
     s_timer += dt;
     s_angle = SinRange(-10.0f, 10.0f, s_timer*2.5f);
 
-    if(s_gameState == GameState_Menu)
-    {
-        s_scaleX = SinRange(0.8f, 1.0f, s_timer*1.5f);
-        s_scaleY = SinRange(0.8f, 1.0f, s_timer*2.0f);
+    s_scaleX = SinRange(0.8f, 1.0f, s_timer*1.5f);
+    s_scaleY = SinRange(0.8f, 1.0f, s_timer*2.0f);
 
-        imm::DrawTexture("menu", halfW,48.0f, s_scaleX,s_scaleY, csm::ToRad(s_angle), imm::Flip_None, &s_titleClip);
-        imm::DrawTexture("menu", halfW,screenH-12.0f, &s_authorClip);
-    }
-    else if(s_gameState == GameState_Game)
+    imm::DrawTexture("menu", halfW,48.0f, s_scaleX,s_scaleY, csm::ToRad(s_angle), imm::Flip_None, &s_titleClip);
+    imm::DrawTexture("menu", halfW,screenH-12.0f, &s_authorClip);
+}
+
+//
+// Pause Menu
+//
+
+static f32 s_blinkTimer;
+
+static void UpdatePauseMenu(f32 dt)
+{
+    if(s_gameState != GameState_Game) return;
+
+    if(!s_gameResetting && !s_rocket.dead)
     {
-        if(s_gamePaused)
+        if(IsKeyPressed(KeyCode_Escape))
         {
-            s_blinkTimer += dt;
-            imm::DrawRectFilled(0,0,screenW,screenH, Vec4(0,0,0,0.5f));
-            if(s_blinkTimer <= 0.5f)
-                imm::DrawTexture("menu", halfW,halfH, &s_pauseClip);
-            else if(s_blinkTimer >= 1.0f)
-                s_blinkTimer -= 1.0f;
+            s_gamePaused = !s_gamePaused;
+            sfx::PlaySound("pause");
+
+            if(s_gamePaused)
+            {
+                sfx::PauseMusic();
+                StopThruster();
+                s_blinkTimer = 0.0f;
+            }
+            else
+            {
+                sfx::ResumeMusic();
+                StartThruster();
+            }
         }
+    }
+}
+
+static void RenderPauseMenu(f32 dt)
+{
+    if(s_gameState != GameState_Game) return;
+
+    static Rect s_pauseClip = { 0,160,256,32 };
+
+    f32 screenW = gfx::GetScreenWidth();
+    f32 screenH = gfx::GetScreenHeight();
+    f32 halfW   = screenW * 0.5f;
+    f32 halfH   = screenH * 0.5f;
+
+    if(s_gamePaused)
+    {
+        s_blinkTimer += dt;
+        imm::DrawRectFilled(0,0,screenW,screenH, Vec4(0,0,0,0.5f));
+        if(s_blinkTimer <= 0.5f)
+            imm::DrawTexture("menu", halfW,halfH, &s_pauseClip);
+        else if(s_blinkTimer >= 1.0f)
+            s_blinkTimer -= 1.0f;
     }
 }
 
@@ -1155,26 +1193,8 @@ public:
         LockMouse(s_lockMouse);
         ShowCursor(s_showMouse);
 
-        if((s_gameState == GameState_Game) && !s_gameResetting && !s_rocket.dead)
-        {
-            if(IsKeyPressed(KeyCode_Escape))
-            {
-                s_gamePaused = !s_gamePaused;
-                sfx::PlaySound("pause");
-
-                if(s_gamePaused)
-                {
-                    sfx::PauseMusic();
-                    StopThruster();
-                    s_blinkTimer = 0.0f;
-                }
-                else
-                {
-                    sfx::ResumeMusic();
-                    StartThruster();
-                }
-            }
-        }
+        UpdateMainMenu(dt);
+        UpdatePauseMenu(dt);
 
         if(!s_gamePaused)
         {
@@ -1190,7 +1210,6 @@ public:
             UpdateAsteroids(dt);
             UpdateSmoke(dt);
             UpdateRocket(dt);
-            UpdateMenu(dt);
         }
 
         s_gameFrame++;
@@ -1203,7 +1222,8 @@ public:
         RenderAsteroids(dt);
         RenderRocket(dt);
         RenderPowerups(dt);
-        RenderMenu(dt);
+        RenderMainMenu(dt);
+        RenderPauseMenu(dt);
         RenderCursor(dt);
         RenderTransition(dt);
     }
