@@ -1060,9 +1060,14 @@ static void UpdateMainMenu(f32 dt)
     Vec2 mouse = GetScreenMousePos();
     for(s32 i=0; i<MainMenuOptionID_TOTAL; ++i)
     {
+        bool oldSelected = s_mainMenuOptions[i].selected;
         s_mainMenuOptions[i].selected = PointInRect(mouse, s_mainMenuOptions[i].bounds);
         s_mainMenuOptions[i].targetScale = (s_mainMenuOptions[i].selected) ? 1.33f : 1.0f;
         s_mainMenuOptions[i].scale = csm::Lerp(s_mainMenuOptions[i].scale, s_mainMenuOptions[i].targetScale, 0.5f);
+
+        // If the option went from non-selected to selected then play a sound.
+        if(s_mainMenuOptions[i].selected && (oldSelected != s_mainMenuOptions[i].selected))
+            sfx::PlaySound("click");
     }
 
     if(IsMouseButtonPressed(MouseButton_Left))
@@ -1071,6 +1076,7 @@ static void UpdateMainMenu(f32 dt)
         {
             if(s_mainMenuOptions[i].selected)
             {
+                sfx::PlaySound("select");
                 switch(i)
                 {
                     case(MainMenuOptionID_Start): StartGame(); break;
