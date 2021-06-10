@@ -1032,18 +1032,26 @@ struct MainMenuOption
     Rect bounds;
     Rect clip;
     bool selected;
+    f32  scale;
+    f32  targetScale;
 };
 
 static constexpr f32 k_mainMenuOptionsStartY = 140.0f;
 
 static MainMenuOption s_mainMenuOptions[MainMenuOptionID_TOTAL]
 {
-{ { 0.0f,k_mainMenuOptionsStartY-12.0f,      180.0f,24.0f }, { 0, 192,128,24 }, false },
-{ { 0.0f,k_mainMenuOptionsStartY-12.0f+24.0f,180.0f,24.0f }, { 0, 216,128,24 }, false },
-{ { 0.0f,k_mainMenuOptionsStartY-12.0f+48.0f,180.0f,24.0f }, { 0, 240,128,24 }, false },
-{ { 0.0f,k_mainMenuOptionsStartY-12.0f+72.0f,180.0f,24.0f }, { 0, 264,128,24 }, false },
-{ { 0.0f,k_mainMenuOptionsStartY-12.0f+96.0f,180.0f,24.0f }, { 0, 288,128,24 }, false }
+{ { 0.0f,k_mainMenuOptionsStartY-12.0f,      180.0f,24.0f }, { 0, 192,128,24 }, false, 1.0f, 1.0f },
+{ { 0.0f,k_mainMenuOptionsStartY-12.0f+24.0f,180.0f,24.0f }, { 0, 216,128,24 }, false, 1.0f, 1.0f },
+{ { 0.0f,k_mainMenuOptionsStartY-12.0f+48.0f,180.0f,24.0f }, { 0, 240,128,24 }, false, 1.0f, 1.0f },
+{ { 0.0f,k_mainMenuOptionsStartY-12.0f+72.0f,180.0f,24.0f }, { 0, 264,128,24 }, false, 1.0f, 1.0f },
+{ { 0.0f,k_mainMenuOptionsStartY-12.0f+96.0f,180.0f,24.0f }, { 0, 288,128,24 }, false, 1.0f, 1.0f }
 };
+
+static void StartGame()
+{
+    s_entitySpawnCooldown = k_entitySpawnCooldownTime;
+    ResetGame();
+}
 
 static void UpdateMainMenu(f32 dt)
 {
@@ -1051,7 +1059,11 @@ static void UpdateMainMenu(f32 dt)
 
     Vec2 mouse = GetScreenMousePos();
     for(s32 i=0; i<MainMenuOptionID_TOTAL; ++i)
+    {
         s_mainMenuOptions[i].selected = PointInRect(mouse, s_mainMenuOptions[i].bounds);
+        s_mainMenuOptions[i].targetScale = (s_mainMenuOptions[i].selected) ? 1.33f : 1.0f;
+        s_mainMenuOptions[i].scale = csm::Lerp(s_mainMenuOptions[i].scale, s_mainMenuOptions[i].targetScale, 0.5f);
+    }
 
     if(IsMouseButtonPressed(MouseButton_Left))
     {
@@ -1061,27 +1073,11 @@ static void UpdateMainMenu(f32 dt)
             {
                 switch(i)
                 {
-                    case(MainMenuOptionID_Start):
-                    {
-                        s_entitySpawnCooldown = k_entitySpawnCooldownTime;
-                        ResetGame();
-                    } break;
-                    case(MainMenuOptionID_Scores):
-                    {
-                        s_gameState = GameState_ScoresMenu;
-                    } break;
-                    case(MainMenuOptionID_Costumes):
-                    {
-                        s_gameState = GameState_CostumesMenu;
-                    } break;
-                    case(MainMenuOptionID_Settings):
-                    {
-                        s_gameState = GameState_SettingsMenu;
-                    } break;
-                    case(MainMenuOptionID_Exit):
-                    {
-                        GetAppConfig().app->m_running = false;
-                    } break;
+                    case(MainMenuOptionID_Start): StartGame(); break;
+                    case(MainMenuOptionID_Scores): s_gameState = GameState_ScoresMenu;
+                    case(MainMenuOptionID_Costumes): s_gameState = GameState_CostumesMenu;
+                    case(MainMenuOptionID_Settings): s_gameState = GameState_SettingsMenu;
+                    case(MainMenuOptionID_Exit): GetAppConfig().app->m_running = false;
                 }
             }
         }
@@ -1092,11 +1088,8 @@ static void RenderMainMenu(f32 dt)
 {
     if(s_gameState != GameState_MainMenu) return;
 
-    Rect titleClip    = { 0,   0,256,64 };
-    Rect authorClip   = { 0,1032,256,24 };
-
-    static f32 s_targetScaleX = 0.0f;
-    static f32 s_targetScaleY = 10.0f;
+    Rect titleClip  = { 0,   0,256,64 };
+    Rect authorClip = { 0,1032,256,24 };
 
     static f32 s_scaleX = 1.0f;
     static f32 s_scaleY = 1.0f;
@@ -1122,9 +1115,14 @@ static void RenderMainMenu(f32 dt)
     for(s32 i=0; i<MainMenuOptionID_TOTAL; ++i)
     {
         Rect clip = s_mainMenuOptions[i].clip;
+        f32 scale = s_mainMenuOptions[i].scale;
+        f32 angle = 0.0f;
         if(s_mainMenuOptions[i].selected)
+        {
             clip.x += 128.0f;
-        imm::DrawTexture("menu", halfW,k_mainMenuOptionsStartY+(24.0f*CS_CAST(f32,i)), &clip);
+            angle = -s_angle;
+        }
+        imm::DrawTexture("menu", halfW,k_mainMenuOptionsStartY+(24.0f*CS_CAST(f32,i)), scale,scale, csm::ToRad(angle), imm::Flip_None, &clip);
     }
 }
 
