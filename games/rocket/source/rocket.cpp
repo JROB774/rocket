@@ -46,13 +46,18 @@ static bool CheckCollision(Vec2 aPos, const Collider& a, Vec2 bPos, const Collid
     return (((x*x)+(y*y)) <= (radius*radius));
 }
 
+static bool PointInRect(Vec2 p, Rect r)
+{
+    return ((p.x >= r.x) && (p.y >= r.y) && (p.x < r.x+r.w) && (p.y < r.y+r.h));
+}
+
 //
 // Game
 //
 
 enum GameState
 {
-    GameState_Menu,
+    GameState_MainMenu,
     GameState_Game
 };
 
@@ -995,7 +1000,7 @@ static void RenderBackground(f32 dt)
 
 static void RenderCursor(f32 dt)
 {
-    if(s_gameState == GameState_Menu || s_gamePaused)
+    if(s_gameState != GameState_Game || s_gamePaused)
     {
         Vec2 pos = GetScreenMousePos();
         f32 x = roundf(pos.x);
@@ -1008,24 +1013,83 @@ static void RenderCursor(f32 dt)
 // Main Menu
 //
 
+enum MainMenuOptionID
+{
+    MainMenuOptionID_Start,
+    MainMenuOptionID_Scores,
+    MainMenuOptionID_Costumes,
+    MainMenuOptionID_Settings,
+    MainMenuOptionID_Exit,
+    MainMenuOptionID_TOTAL
+};
+
+struct MainMenuOption
+{
+    Rect bounds;
+    Rect clip;
+    bool selected;
+};
+
+static constexpr f32 k_mainMenuOptionsStartY = 140.0f;
+
+static MainMenuOption s_mainMenuOptions[MainMenuOptionID_TOTAL]
+{
+{ { 0.0f,k_mainMenuOptionsStartY-12.0f,      180.0f,24.0f }, { 0, 192,128,24 }, false },
+{ { 0.0f,k_mainMenuOptionsStartY-12.0f+24.0f,180.0f,24.0f }, { 0, 216,128,24 }, false },
+{ { 0.0f,k_mainMenuOptionsStartY-12.0f+48.0f,180.0f,24.0f }, { 0, 240,128,24 }, false },
+{ { 0.0f,k_mainMenuOptionsStartY-12.0f+72.0f,180.0f,24.0f }, { 0, 264,128,24 }, false },
+{ { 0.0f,k_mainMenuOptionsStartY-12.0f+96.0f,180.0f,24.0f }, { 0, 288,128,24 }, false }
+};
+
 static void UpdateMainMenu(f32 dt)
 {
-    if(s_gameState == GameState_Menu)
+    if(s_gameState != GameState_MainMenu) return;
+
+    Vec2 mouse = GetScreenMousePos();
+    for(s32 i=0; i<MainMenuOptionID_TOTAL; ++i)
+        s_mainMenuOptions[i].selected = PointInRect(mouse, s_mainMenuOptions[i].bounds);
+
+    if(IsMouseButtonPressed(MouseButton_Left))
     {
-        if(IsMouseButtonPressed(MouseButton_Left))
+        for(s32 i=0; i<MainMenuOptionID_TOTAL; ++i)
         {
-            s_entitySpawnCooldown = k_entitySpawnCooldownTime;
-            ResetGame();
+            if(s_mainMenuOptions[i].selected)
+            {
+                switch(i)
+                {
+                    case(MainMenuOptionID_Start):
+                    {
+                        s_entitySpawnCooldown = k_entitySpawnCooldownTime;
+                        ResetGame();
+                    } break;
+                    case(MainMenuOptionID_Scores):
+                    {
+                        // @INCOMPLETE: ...
+                    } break;
+                    case(MainMenuOptionID_Costumes):
+                    {
+                        // @INCOMPLETE: ...
+                    } break;
+                    case(MainMenuOptionID_Settings):
+                    {
+                        // @INCOMPLETE: ...
+                    } break;
+                    case(MainMenuOptionID_Exit):
+                    {
+                        GetAppConfig().app->m_running = false;
+                    } break;
+                }
+            }
         }
     }
 }
 
 static void RenderMainMenu(f32 dt)
 {
-    if(s_gameState != GameState_Menu) return;
+    if(s_gameState != GameState_MainMenu) return;
 
-    static Rect s_titleClip  = { 0,   0,256,64 };
-    static Rect s_authorClip = { 0,1032,256,24 };
+    Rect titleClip    = { 0,   0,256,64 };
+    Rect authorClip   = { 0,1032,256,24 };
 
     static f32 s_targetScaleX = 0.0f;
     static f32 s_targetScaleY = 10.0f;
@@ -1046,8 +1110,60 @@ static void RenderMainMenu(f32 dt)
     s_scaleX = SinRange(0.8f, 1.0f, s_timer*1.5f);
     s_scaleY = SinRange(0.8f, 1.0f, s_timer*2.0f);
 
-    imm::DrawTexture("menu", halfW,48.0f, s_scaleX,s_scaleY, csm::ToRad(s_angle), imm::Flip_None, &s_titleClip);
-    imm::DrawTexture("menu", halfW,screenH-12.0f, &s_authorClip);
+    // Draw title and author.
+    imm::DrawTexture("menu", halfW,48.0f, s_scaleX,s_scaleY, csm::ToRad(s_angle), imm::Flip_None, &titleClip);
+    imm::DrawTexture("menu", halfW,screenH-12.0f, &authorClip);
+
+    // Draw the menu options.
+    for(s32 i=0; i<MainMenuOptionID_TOTAL; ++i)
+    {
+        Rect clip = s_mainMenuOptions[i].clip;
+        if(s_mainMenuOptions[i].selected)
+            clip.x += 128.0f;
+        imm::DrawTexture("menu", halfW,k_mainMenuOptionsStartY+(24.0f*CS_CAST(f32,i)), &clip);
+    }
+}
+
+//
+// Scores Menu
+//
+
+static void UpdateScoresMenu(f32 dt)
+{
+    // @INCOMPLETE: ...
+}
+
+static void RenderScoresMenu(f32 dt)
+{
+    // @INCOMPLETE: ...
+}
+
+//
+// Costumes Menu
+//
+
+static void UpdateCostumesMenu(f32 dt)
+{
+    // @INCOMPLETE: ...
+}
+
+static void RenderCostumesMenu(f32 dt)
+{
+    // @INCOMPLETE: ...
+}
+
+//
+// Settings Menu
+//
+
+static void UpdateSettingsMenu(f32 dt)
+{
+    // @INCOMPLETE: ...
+}
+
+static void RenderSettingsMenu(f32 dt)
+{
+    // @INCOMPLETE: ...
 }
 
 //
@@ -1174,7 +1290,7 @@ public:
         sfx::PlayMusic("music", -1);
 
         s_boostMultiplier = 1.0f;
-        s_gameState = GameState_Menu;
+        s_gameState = GameState_MainMenu;
         s_gamePaused = false;
     }
 
@@ -1186,7 +1302,7 @@ public:
     void Update(f32 dt)
     {
         // Handle locking/unlocking and showing/hiding the mouse with debug mode.
-        s_lockMouse = (!s_gamePaused && (s_gameState != GameState_Menu));
+        s_lockMouse = (!s_gamePaused && (s_gameState == GameState_Game));
         s_showMouse = (IsDebugMode());
         if(IsDebugMode() && IsKeyDown(KeyCode_LeftAlt))
             s_lockMouse = false;
