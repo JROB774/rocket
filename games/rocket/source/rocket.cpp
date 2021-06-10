@@ -58,7 +58,11 @@ static bool PointInRect(Vec2 p, Rect r)
 enum GameState
 {
     GameState_MainMenu,
-    GameState_Game
+    GameState_ScoresMenu,
+    GameState_CostumesMenu,
+    GameState_SettingsMenu,
+    GameState_Game,
+    GameState_TOTAL
 };
 
 enum Costume
@@ -1064,15 +1068,15 @@ static void UpdateMainMenu(f32 dt)
                     } break;
                     case(MainMenuOptionID_Scores):
                     {
-                        // @INCOMPLETE: ...
+                        s_gameState = GameState_ScoresMenu;
                     } break;
                     case(MainMenuOptionID_Costumes):
                     {
-                        // @INCOMPLETE: ...
+                        s_gameState = GameState_CostumesMenu;
                     } break;
                     case(MainMenuOptionID_Settings):
                     {
-                        // @INCOMPLETE: ...
+                        s_gameState = GameState_SettingsMenu;
                     } break;
                     case(MainMenuOptionID_Exit):
                     {
@@ -1310,6 +1314,9 @@ public:
         ShowCursor(s_showMouse);
 
         UpdateMainMenu(dt);
+        UpdateScoresMenu(dt);
+        UpdateCostumesMenu(dt);
+        UpdateSettingsMenu(dt);
         UpdatePauseMenu(dt);
 
         if(!s_gamePaused)
@@ -1339,6 +1346,9 @@ public:
         RenderRocket(dt);
         RenderPowerups(dt);
         RenderMainMenu(dt);
+        RenderScoresMenu(dt);
+        RenderCostumesMenu(dt);
+        RenderSettingsMenu(dt);
         RenderPauseMenu(dt);
         RenderCursor(dt);
         RenderTransition(dt);
