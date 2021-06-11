@@ -138,6 +138,7 @@ static constexpr f32 k_boostTime = 5.0f;
 
 static GameState s_gameState;
 static bool s_gamePaused;
+static bool s_gameOver;
 static bool s_gameResetting;
 static f32 s_boostMultiplier;
 static s32 s_highScore;
@@ -647,6 +648,8 @@ static void HitRocket()
 
 static void UpdateRocket(f32 dt)
 {
+    if(s_gameState != GameState_Game) return;
+
     // Change costume.
     if(CS_DEBUG)
     {
@@ -829,6 +832,8 @@ static void UpdateRocket(f32 dt)
 
 static void RenderRocket(f32 dt)
 {
+    if(s_gameState != GameState_Game) return;
+
     if(s_rocket.dead)
     {
         // Draw the explosion.
@@ -862,17 +867,14 @@ static void RenderRocket(f32 dt)
     }
 
     // Draw the score.
-    if(s_gameState == GameState_Game)
-    {
-        bool beatHighScore = ((s_rocket.score > s_highScore) && (s_highScore != 0));
-        BitmapFont* font = (beatHighScore) ? &s_font1 : &s_font0;
-        std::string scoreStr = std::to_string(s_rocket.score);
-        f32 textWidth = GetTextLineWidth(*font, scoreStr);
-        if(beatHighScore) scoreStr += "!";
-        f32 screenWidth = gfx::GetScreenWidth();
-        f32 screenHeight = gfx::GetScreenHeight();
-        DrawBitmapFont(*font, (screenWidth-textWidth)*0.5f,4.0f, scoreStr);
-    }
+    bool beatHighScore = ((s_rocket.score > s_highScore) && (s_highScore != 0));
+    BitmapFont* font = (beatHighScore) ? &s_font1 : &s_font0;
+    std::string scoreStr = std::to_string(s_rocket.score);
+    f32 textWidth = GetTextLineWidth(*font, scoreStr);
+    if(beatHighScore) scoreStr += "!";
+    f32 screenWidth = gfx::GetScreenWidth();
+    f32 screenHeight = gfx::GetScreenHeight();
+    DrawBitmapFont(*font, (screenWidth-textWidth)*0.5f,4.0f, scoreStr);
 }
 
 static void DebugRenderRocket(f32 dt)
@@ -890,11 +892,13 @@ static void DebugRenderRocket(f32 dt)
 // Transition
 //
 
+static GameState s_resetTarget = GameState_Game;
 static f32 s_fadeHeight = 0.0f;
 static bool s_fadeOut = false;
 
-static void ResetGame()
+static void ResetGame(GameState target)
 {
+    s_resetTarget = target;
     s_gameResetting = true;
     s_fadeOut = true;
     s_fadeHeight = 0.0f;
@@ -917,7 +921,7 @@ static void RenderTransition(f32 dt)
 
         if(s_fadeHeight >= gfx::GetScreenHeight())
         {
-            s_gameState = GameState_Game;
+            s_gameState = s_resetTarget;
             if(s_rocket.score > s_highScore)
                 s_highScore = s_rocket.score;
             s_rocket.pos = Vec2(screenW*0.5f, screenH-32.0f);
@@ -935,8 +939,10 @@ static void RenderTransition(f32 dt)
             s_powerups.clear();
             s_asteroids.clear();
             s_smoke.clear();
+            s_gamePaused = false;
             s_fadeOut = false;
-            StartThruster();
+            if(s_gameState == GameState_Game)
+                StartThruster();
         }
     }
     else
@@ -1101,7 +1107,7 @@ static void ResetMenuOptions(MenuOption* options, size_t count)
 static void MainMenuActionStart()
 {
     s_entitySpawnCooldown = k_entitySpawnCooldownTime;
-    ResetGame();
+    ResetGame(GameState_Game);
 }
 
 static void MainMenuActionScores()
@@ -1154,6 +1160,7 @@ static void UpdateMainMenu(f32 dt)
 static void RenderMainMenu(f32 dt)
 {
     if(s_gameState != GameState_MainMenu) return;
+    RenderMenuOptions(s_mainMenuOptions, MainMenuOption_TOTAL, dt);
 
     Rect titleClip  = { 0,   0,256,64 };
     Rect authorClip = { 0,1032,256,24 };
@@ -1174,11 +1181,8 @@ static void RenderMainMenu(f32 dt)
     s_scaleX = SinRange(0.8f, 1.0f, s_timer*1.5f);
     s_scaleY = SinRange(0.8f, 1.0f, s_timer*2.0f);
 
-    // Draw title and author.
     imm::DrawTexture("menu", halfW,48.0f, s_scaleX,s_scaleY, csm::ToRad(s_angle), imm::Flip_None, &titleClip);
     imm::DrawTexture("menu", halfW,screenH-12.0f, &authorClip);
-    // Draw the menu options.
-    RenderMenuOptions(s_mainMenuOptions, MainMenuOption_TOTAL, dt);
 }
 
 //
@@ -1232,7 +1236,7 @@ enum CostumesMenuOption
 
 static MenuOption s_costumesMenuOptions[CostumesMenuOption_TOTAL]
 {
-{ CostumesMenuActionBack, { 0.0f,288.0f,180.0f,24.0f }, { 0,576,128,24 }, false, 1.0f, 1.0f }
+{ CostumesMenuActionBack, { 0.0f,288.0f,180.0f, 24.0f }, { 0,576,128,24 }, false, 1.0f, 1.0f }
 };
 
 static void UpdateCostumesMenu(f32 dt)
@@ -1241,12 +1245,18 @@ static void UpdateCostumesMenu(f32 dt)
     UpdateMenuOptions(s_costumesMenuOptions, CostumesMenuOption_TOTAL, dt);
     if(IsKeyPressed(KeyCode_Escape))
         CostumesMenuActionBack();
+
+    // Handle switching costumes left and right.
+    // @INCOMPLETE: ...
 }
 
 static void RenderCostumesMenu(f32 dt)
 {
     if(s_gameState != GameState_CostumesMenu) return;
     RenderMenuOptions(s_costumesMenuOptions, CostumesMenuOption_TOTAL, dt);
+
+    // Draw the costume UI.#
+    // @INCOMPLETE: ...
 }
 
 //
@@ -1258,14 +1268,24 @@ static void SettingsMenuActionBack()
     s_gameState = GameState_MainMenu;
 }
 
-enum SettingsenuOption
+enum SettingsMenuOption
 {
+    SettingsMenuOption_Sound,
+    SettingsMenuOption_Music,
+    SettingsMenuOption_Fullscreen,
+    SettingsMenuOption_VSync,
+    SettingsMenuOption_ResetSave,
     SettingsMenuOption_Back,
     SettingsMenuOption_TOTAL
 };
 
 static MenuOption s_settingsMenuOptions[SettingsMenuOption_TOTAL]
 {
+{ /* @INCOMPLETE: ... */ },
+{ /* @INCOMPLETE: ... */ },
+{ /* @INCOMPLETE: ... */ },
+{ /* @INCOMPLETE: ... */ },
+{ /* @INCOMPLETE: ... */ },
 { SettingsMenuActionBack, { 0.0f,288.0f,180.0f,24.0f }, { 0,576,128,24 }, false, 1.0f, 1.0f }
 };
 
@@ -1284,40 +1304,81 @@ static void RenderSettingsMenu(f32 dt)
 }
 
 //
+// Game Over Menu
+//
+
+static void UpdateGameOverMenu(f32 dt)
+{
+    // @INCOMPLETE: ...
+}
+
+static void RenderGameOverMenu(f32 dt)
+{
+    // @INCOMPLETE: ...
+}
+
+//
 // Pause Menu
 //
 
-static f32 s_blinkTimer;
+static void PauseMenuActionPause()
+{
+    s_gamePaused = true;
+    sfx::PlaySound("pause");
+    sfx::PauseMusic();
+    StopThruster();
+}
+
+static void PauseMenuActionResume()
+{
+    s_gamePaused = false;
+    sfx::PlaySound("pause");
+    sfx::ResumeMusic();
+    StartThruster();
+}
+
+static void PauseMenuActionMenu()
+{
+    ResetGame(GameState_MainMenu);
+}
+
+enum PauseMenuOption
+{
+    PauseMenuOption_Resume,
+    PauseMenuOption_Menu,
+    PauseMenuOption_TOTAL
+};
+
+static MenuOption s_pauseMenuOptions[PauseMenuOption_TOTAL]
+{
+{ PauseMenuActionResume, { 0.0f,200.0f,180.0f,24.0f }, { 0,312,128,24 }, false, 1.0f, 1.0f },
+{ PauseMenuActionMenu,   { 0.0f,224.0f,180.0f,24.0f }, { 0,336,128,24 }, false, 1.0f, 1.0f }
+};
 
 static void UpdatePauseMenu(f32 dt)
 {
     if(s_gameState != GameState_Game) return;
+    if(s_gameResetting || s_rocket.dead) return;
 
-    if(!s_gameResetting && !s_rocket.dead)
+    // Toggle pause menu.
+    if(IsKeyPressed(KeyCode_Escape))
     {
-        if(IsKeyPressed(KeyCode_Escape))
-        {
-            s_gamePaused = !s_gamePaused;
-            sfx::PlaySound("pause");
+        s_gamePaused = !s_gamePaused;
+        if(s_gamePaused) PauseMenuActionPause();
+        else PauseMenuActionResume();
+    }
 
-            if(s_gamePaused)
-            {
-                sfx::PauseMusic();
-                StopThruster();
-                s_blinkTimer = 0.0f;
-            }
-            else
-            {
-                sfx::ResumeMusic();
-                StartThruster();
-            }
-        }
+    // Do pause menu.
+    if(s_gamePaused)
+    {
+        UpdateMenuOptions(s_pauseMenuOptions, PauseMenuOption_TOTAL, dt);
     }
 }
 
 static void RenderPauseMenu(f32 dt)
 {
     if(s_gameState != GameState_Game) return;
+    if(!s_gamePaused) return;
 
     static Rect s_pauseClip = { 0,160,256,32 };
 
@@ -1326,15 +1387,9 @@ static void RenderPauseMenu(f32 dt)
     f32 halfW   = screenW * 0.5f;
     f32 halfH   = screenH * 0.5f;
 
-    if(s_gamePaused)
-    {
-        s_blinkTimer += dt;
-        imm::DrawRectFilled(0,0,screenW,screenH, Vec4(0,0,0,0.5f));
-        if(s_blinkTimer <= 0.5f)
-            imm::DrawTexture("menu", halfW,halfH, &s_pauseClip);
-        else if(s_blinkTimer >= 1.0f)
-            s_blinkTimer -= 1.0f;
-    }
+    imm::DrawRectFilled(0,0,screenW,screenH, Vec4(0,0,0,0.5f));
+    imm::DrawTexture("menu", halfW,halfH-40, &s_pauseClip);
+    RenderMenuOptions(s_pauseMenuOptions, PauseMenuOption_TOTAL, dt);
 }
 
 //
@@ -1430,6 +1485,7 @@ public:
         UpdateScoresMenu(dt);
         UpdateCostumesMenu(dt);
         UpdateSettingsMenu(dt);
+        UpdateGameOverMenu(dt);
         UpdatePauseMenu(dt);
 
         if(!s_gamePaused)
@@ -1437,7 +1493,7 @@ public:
             // If the rocket is dead then pressing R resets the game.
             if(s_gameState == GameState_Game && s_rocket.dead && !s_gameResetting)
                 if(IsMouseButtonPressed(MouseButton_Left))
-                    ResetGame();
+                    ResetGame(GameState_Game);
 
             if((s_gameState == GameState_Game) && !s_gameResetting)
                 MaybeSpawnEntity(dt);
@@ -1462,6 +1518,7 @@ public:
         RenderScoresMenu(dt);
         RenderCostumesMenu(dt);
         RenderSettingsMenu(dt);
+        RenderGameOverMenu(dt);
         RenderPauseMenu(dt);
         RenderCursor(dt);
         RenderTransition(dt);
