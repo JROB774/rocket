@@ -1147,6 +1147,8 @@ static void UpdateMainMenu(f32 dt)
 {
     if(s_gameState != GameState_MainMenu) return;
     UpdateMenuOptions(s_mainMenuOptions, MainMenuOption_TOTAL, dt);
+    if(IsKeyPressed(KeyCode_Escape))
+        MainMenuActionExit();
 }
 
 static void RenderMainMenu(f32 dt)
@@ -1203,6 +1205,8 @@ static void UpdateScoresMenu(f32 dt)
 {
     if(s_gameState != GameState_ScoresMenu) return;
     UpdateMenuOptions(s_scoresMenuOptions, ScoresMenuOption_TOTAL, dt);
+    if(IsKeyPressed(KeyCode_Escape))
+        ScoresMenuActionBack();
 }
 
 static void RenderScoresMenu(f32 dt)
@@ -1235,6 +1239,8 @@ static void UpdateCostumesMenu(f32 dt)
 {
     if(s_gameState != GameState_CostumesMenu) return;
     UpdateMenuOptions(s_costumesMenuOptions, CostumesMenuOption_TOTAL, dt);
+    if(IsKeyPressed(KeyCode_Escape))
+        CostumesMenuActionBack();
 }
 
 static void RenderCostumesMenu(f32 dt)
@@ -1267,6 +1273,8 @@ static void UpdateSettingsMenu(f32 dt)
 {
     if(s_gameState != GameState_SettingsMenu) return;
     UpdateMenuOptions(s_settingsMenuOptions, SettingsMenuOption_TOTAL, dt);
+    if(IsKeyPressed(KeyCode_Escape))
+        SettingsMenuActionBack();
 }
 
 static void RenderSettingsMenu(f32 dt)
