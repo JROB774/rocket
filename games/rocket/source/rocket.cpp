@@ -1014,21 +1014,14 @@ static void RenderCursor(f32 dt)
 }
 
 //
-// Main Menu
+// Menu System
 //
 
-enum MainMenuOptionID
-{
-    MainMenuOptionID_Start,
-    MainMenuOptionID_Scores,
-    MainMenuOptionID_Costumes,
-    MainMenuOptionID_Settings,
-    MainMenuOptionID_Exit,
-    MainMenuOptionID_TOTAL
-};
+typedef void(*MenuOptionAction)(void);
 
-struct MainMenuOption
+struct MenuOption
 {
+    MenuOptionAction action;
     Rect bounds;
     Rect clip;
     bool selected;
@@ -1036,58 +1029,124 @@ struct MainMenuOption
     f32  targetScale;
 };
 
-static constexpr f32 k_mainMenuOptionsStartY = 140.0f;
-
-static MainMenuOption s_mainMenuOptions[MainMenuOptionID_TOTAL]
+static void UpdateMenuOptions(MenuOption* options, size_t count, f32 dt)
 {
-{ { 0.0f,k_mainMenuOptionsStartY-12.0f,      180.0f,24.0f }, { 0, 192,128,24 }, false, 1.0f, 1.0f },
-{ { 0.0f,k_mainMenuOptionsStartY-12.0f+24.0f,180.0f,24.0f }, { 0, 216,128,24 }, false, 1.0f, 1.0f },
-{ { 0.0f,k_mainMenuOptionsStartY-12.0f+48.0f,180.0f,24.0f }, { 0, 240,128,24 }, false, 1.0f, 1.0f },
-{ { 0.0f,k_mainMenuOptionsStartY-12.0f+72.0f,180.0f,24.0f }, { 0, 264,128,24 }, false, 1.0f, 1.0f },
-{ { 0.0f,k_mainMenuOptionsStartY-12.0f+96.0f,180.0f,24.0f }, { 0, 288,128,24 }, false, 1.0f, 1.0f }
-};
-
-static void StartGame()
-{
-    s_entitySpawnCooldown = k_entitySpawnCooldownTime;
-    ResetGame();
-}
-
-static void UpdateMainMenu(f32 dt)
-{
-    if(s_gameState != GameState_MainMenu) return;
-
     Vec2 mouse = GetScreenMousePos();
-    for(s32 i=0; i<MainMenuOptionID_TOTAL; ++i)
+    for(size_t i=0; i<count; ++i)
     {
-        bool oldSelected = s_mainMenuOptions[i].selected;
-        s_mainMenuOptions[i].selected = PointInRect(mouse, s_mainMenuOptions[i].bounds);
-        s_mainMenuOptions[i].targetScale = (s_mainMenuOptions[i].selected) ? 1.33f : 1.0f;
-        s_mainMenuOptions[i].scale = csm::Lerp(s_mainMenuOptions[i].scale, s_mainMenuOptions[i].targetScale, 0.5f);
+        bool oldSelected = options[i].selected;
+        options[i].selected = PointInRect(mouse, options[i].bounds);
+        options[i].targetScale = (options[i].selected) ? 1.33f : 1.0f;
+        options[i].scale = csm::Lerp(options[i].scale, options[i].targetScale, 0.5f);
 
         // If the option went from non-selected to selected then play a sound.
-        if(s_mainMenuOptions[i].selected && (oldSelected != s_mainMenuOptions[i].selected))
+        if(options[i].selected && (oldSelected != options[i].selected))
             sfx::PlaySound("click");
     }
 
     if(IsMouseButtonPressed(MouseButton_Left))
     {
-        for(s32 i=0; i<MainMenuOptionID_TOTAL; ++i)
+        for(size_t i=0; i<count; ++i)
         {
-            if(s_mainMenuOptions[i].selected)
+            if(options[i].selected)
             {
                 sfx::PlaySound("select");
-                switch(i)
-                {
-                    case(MainMenuOptionID_Start): StartGame(); break;
-                    case(MainMenuOptionID_Scores): s_gameState = GameState_ScoresMenu;
-                    case(MainMenuOptionID_Costumes): s_gameState = GameState_CostumesMenu;
-                    case(MainMenuOptionID_Settings): s_gameState = GameState_SettingsMenu;
-                    case(MainMenuOptionID_Exit): GetAppConfig().app->m_running = false;
-                }
+                if(options[i].action)
+                    options[i].action();
             }
         }
     }
+}
+
+static void RenderMenuOptions(MenuOption* options, size_t count, f32 dt)
+{
+    static f32 s_angle = 0.0f;
+    static f32 s_timer = 0.0f;
+
+    f32 halfW = gfx::GetScreenWidth() * 0.5f;
+
+    s_timer += dt;
+    s_angle = SinRange(-10.0f, 10.0f, s_timer*2.5f);
+
+    for(size_t i=0; i<count; ++i)
+    {
+        f32 xPos = options[i].bounds.x + (options[i].bounds.w * 0.5f);
+        f32 yPos = options[i].bounds.y + (options[i].bounds.h * 0.5f);
+        Rect clip = options[i].clip;
+        f32 scale = options[i].scale;
+        f32 angle = 0.0f;
+        if(options[i].selected)
+        {
+            clip.x += 128.0f;
+            angle = -s_angle;
+        }
+        imm::DrawTexture("menu", xPos,yPos, scale,scale, csm::ToRad(angle), imm::Flip_None, &clip);
+    }
+}
+
+static void ResetMenuOptions(MenuOption* options, size_t count)
+{
+    for(size_t i=0; i<count; ++i)
+    {
+        options[i].selected = false;
+        options[i].targetScale = 1.0f;
+        options[i].scale = 1.0f;
+    }
+}
+
+//
+// Main Menu
+//
+
+static void MainMenuActionStart()
+{
+    s_entitySpawnCooldown = k_entitySpawnCooldownTime;
+    ResetGame();
+}
+
+static void MainMenuActionScores()
+{
+    s_gameState = GameState_ScoresMenu;
+}
+
+static void MainMenuActionCostumes()
+{
+    s_gameState = GameState_CostumesMenu;
+}
+
+static void MainMenuActionSettings()
+{
+    s_gameState = GameState_SettingsMenu;
+}
+
+static void MainMenuActionExit()
+{
+    GetAppConfig().app->m_running = false;
+}
+
+enum MainMenuOptionID
+{
+    MainMenuOption_Start,
+    MainMenuOption_Scores,
+    MainMenuOption_Costumes,
+    MainMenuOption_Settings,
+    MainMenuOption_Exit,
+    MainMenuOption_TOTAL
+};
+
+static MenuOption s_mainMenuOptions[MainMenuOption_TOTAL]
+{
+{ MainMenuActionStart,    { 0.0f,128.0f,      180.0f,24.0f }, { 0, 192,128,24 }, false, 1.0f, 1.0f },
+{ MainMenuActionScores,   { 0.0f,128.0f+24.0f,180.0f,24.0f }, { 0, 216,128,24 }, false, 1.0f, 1.0f },
+{ MainMenuActionCostumes, { 0.0f,128.0f+48.0f,180.0f,24.0f }, { 0, 240,128,24 }, false, 1.0f, 1.0f },
+{ MainMenuActionSettings, { 0.0f,128.0f+72.0f,180.0f,24.0f }, { 0, 264,128,24 }, false, 1.0f, 1.0f },
+{ MainMenuActionExit,     { 0.0f,128.0f+96.0f,180.0f,24.0f }, { 0, 288,128,24 }, false, 1.0f, 1.0f }
+};
+
+static void UpdateMainMenu(f32 dt)
+{
+    if(s_gameState != GameState_MainMenu) return;
+    UpdateMenuOptions(s_mainMenuOptions, MainMenuOption_TOTAL, dt);
 }
 
 static void RenderMainMenu(f32 dt)
@@ -1116,62 +1175,104 @@ static void RenderMainMenu(f32 dt)
     // Draw title and author.
     imm::DrawTexture("menu", halfW,48.0f, s_scaleX,s_scaleY, csm::ToRad(s_angle), imm::Flip_None, &titleClip);
     imm::DrawTexture("menu", halfW,screenH-12.0f, &authorClip);
-
     // Draw the menu options.
-    for(s32 i=0; i<MainMenuOptionID_TOTAL; ++i)
-    {
-        Rect clip = s_mainMenuOptions[i].clip;
-        f32 scale = s_mainMenuOptions[i].scale;
-        f32 angle = 0.0f;
-        if(s_mainMenuOptions[i].selected)
-        {
-            clip.x += 128.0f;
-            angle = -s_angle;
-        }
-        imm::DrawTexture("menu", halfW,k_mainMenuOptionsStartY+(24.0f*CS_CAST(f32,i)), scale,scale, csm::ToRad(angle), imm::Flip_None, &clip);
-    }
+    RenderMenuOptions(s_mainMenuOptions, MainMenuOption_TOTAL, dt);
 }
 
 //
 // Scores Menu
 //
 
+static void ScoresMenuActionBack()
+{
+    s_gameState = GameState_MainMenu;
+}
+
+enum ScoresMenuOption
+{
+    ScoresMenuOption_Back,
+    ScoresMenuOption_TOTAL
+};
+
+static MenuOption s_scoresMenuOptions[ScoresMenuOption_TOTAL]
+{
+{ ScoresMenuActionBack, { 0.0f,288.0f,180.0f,24.0f }, { 0,576,128,24 }, false, 1.0f, 1.0f }
+};
+
 static void UpdateScoresMenu(f32 dt)
 {
-    // @INCOMPLETE: ...
+    if(s_gameState != GameState_ScoresMenu) return;
+    UpdateMenuOptions(s_scoresMenuOptions, ScoresMenuOption_TOTAL, dt);
 }
 
 static void RenderScoresMenu(f32 dt)
 {
-    // @INCOMPLETE: ...
+    if(s_gameState != GameState_ScoresMenu) return;
+    RenderMenuOptions(s_scoresMenuOptions, ScoresMenuOption_TOTAL, dt);
 }
 
 //
 // Costumes Menu
 //
 
+static void CostumesMenuActionBack()
+{
+    s_gameState = GameState_MainMenu;
+}
+
+enum CostumesMenuOption
+{
+    CostumesMenuOption_Back,
+    CostumesMenuOption_TOTAL
+};
+
+static MenuOption s_costumesMenuOptions[CostumesMenuOption_TOTAL]
+{
+{ CostumesMenuActionBack, { 0.0f,288.0f,180.0f,24.0f }, { 0,576,128,24 }, false, 1.0f, 1.0f }
+};
+
 static void UpdateCostumesMenu(f32 dt)
 {
-    // @INCOMPLETE: ...
+    if(s_gameState != GameState_CostumesMenu) return;
+    UpdateMenuOptions(s_costumesMenuOptions, CostumesMenuOption_TOTAL, dt);
 }
 
 static void RenderCostumesMenu(f32 dt)
 {
-    // @INCOMPLETE: ...
+    if(s_gameState != GameState_CostumesMenu) return;
+    RenderMenuOptions(s_costumesMenuOptions, CostumesMenuOption_TOTAL, dt);
 }
 
 //
 // Settings Menu
 //
 
+static void SettingsMenuActionBack()
+{
+    s_gameState = GameState_MainMenu;
+}
+
+enum SettingsenuOption
+{
+    SettingsMenuOption_Back,
+    SettingsMenuOption_TOTAL
+};
+
+static MenuOption s_settingsMenuOptions[SettingsMenuOption_TOTAL]
+{
+{ SettingsMenuActionBack, { 0.0f,288.0f,180.0f,24.0f }, { 0,576,128,24 }, false, 1.0f, 1.0f }
+};
+
 static void UpdateSettingsMenu(f32 dt)
 {
-    // @INCOMPLETE: ...
+    if(s_gameState != GameState_SettingsMenu) return;
+    UpdateMenuOptions(s_settingsMenuOptions, SettingsMenuOption_TOTAL, dt);
 }
 
 static void RenderSettingsMenu(f32 dt)
 {
-    // @INCOMPLETE: ...
+    if(s_gameState != GameState_SettingsMenu) return;
+    RenderMenuOptions(s_settingsMenuOptions, SettingsMenuOption_TOTAL, dt);
 }
 
 //
