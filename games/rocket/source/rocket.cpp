@@ -112,6 +112,7 @@ struct Rocket
     Collider collector;
     sfx::SoundRef thruster;
     Costume costume;
+    bool random;
     bool unlocks[Costume_TOTAL];
 };
 
@@ -603,6 +604,7 @@ static void CreateRocket()
     s_rocket.collector = { Vec2(0,-8), 40.0f };
     s_rocket.costume = Costume_Red;
     s_rocket.thruster = sfx::k_invalidSoundRef;
+    s_rocket.random = (s_rocket.costume == Costume_Random);
     // These rockets are always unlocked.
     s_rocket.unlocks[Costume_Red   ] = true;
     s_rocket.unlocks[Costume_Blue  ] = true;
@@ -950,6 +952,14 @@ static void RenderTransition(f32 dt)
             s_fadeOut = false;
             if(s_gameState == GameState_Game)
                 StartThruster();
+            // Pick a random costume.
+            if(s_rocket.random)
+            {
+                Costume costume = Costume_Random;
+                while((!s_rocket.unlocks[costume]) || (costume == Costume_Random) || (costume == s_rocket.costume))
+                    costume = CS_CAST(Costume, RandomS32(Costume_Red,Costume_Glitch));
+                s_rocket.costume = costume;
+            }
         }
     }
     else
@@ -1154,6 +1164,8 @@ static void MainMenuActionScores(MenuOption& option)
 static void MainMenuActionCostumes(MenuOption& option)
 {
     s_gameState = GameState_CostumesMenu;
+    if(s_rocket.random)
+        s_rocket.costume = Costume_Random;
     s_currentCostume = s_rocket.costume;
 }
 
@@ -1283,6 +1295,7 @@ static void CostumesMenuActionBack(MenuOption& option)
     s_gameState = GameState_MainMenu;
     if(!s_rocket.unlocks[s_rocket.costume]) // If the selected costume is locked reset to the last costume.
         s_rocket.costume = s_currentCostume;
+    s_rocket.random = (s_rocket.costume == Costume_Random);
 }
 
 enum CostumesMenuOption
