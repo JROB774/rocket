@@ -145,6 +145,7 @@ static f32 s_boostMultiplier;
 static s32 s_highScore;
 static u32 s_gameFrame;
 static Rocket s_rocket;
+static Costume s_currentCostume;
 static std::vector<Powerup> s_powerups;
 static std::vector<Asteroid> s_asteroids;
 
@@ -1153,6 +1154,7 @@ static void MainMenuActionScores(MenuOption& option)
 static void MainMenuActionCostumes(MenuOption& option)
 {
     s_gameState = GameState_CostumesMenu;
+    s_currentCostume = s_rocket.costume;
 }
 
 static void MainMenuActionSettings(MenuOption& option)
@@ -1279,6 +1281,8 @@ static void CostumesMenuActionRight(MenuOption& option)
 static void CostumesMenuActionBack(MenuOption& option)
 {
     s_gameState = GameState_MainMenu;
+    if(!s_rocket.unlocks[s_rocket.costume]) // If the selected costume is locked reset to the last costume.
+        s_rocket.costume = s_currentCostume;
 }
 
 enum CostumesMenuOption
