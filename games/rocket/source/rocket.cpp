@@ -1133,16 +1133,27 @@ static void RenderMenuOptions(MenuOption* options, size_t count, f32 dt)
 
     for(size_t i=0; i<count; ++i)
     {
-        f32 xPos = options[i].bounds.x + (options[i].bounds.w * 0.5f);
-        f32 yPos = options[i].bounds.y + (options[i].bounds.h * 0.5f);
-        Rect clip = options[i].clip;
-        f32 scale = options[i].scale;
+        MenuOption& option = options[i];
+
+        f32 xPos  = option.bounds.x + (option.bounds.w * 0.5f);
+        f32 yPos  = option.bounds.y + (option.bounds.h * 0.5f);
+        f32 scale = option.scale;
         f32 angle = 0.0f;
-        if(options[i].selected)
+        Rect clip = option.clip;
+
+        if(option.selected)
         {
             clip.x += 128.0f;
             angle = -s_angle;
         }
+        if(option.type == MenuOptionType_Toggle)
+        {
+            if(!option.toggle)
+            {
+                clip.y += 24.0f;
+            }
+        }
+
         imm::DrawTexture("menu", xPos,yPos, scale,scale, csm::ToRad(angle), imm::Flip_None, &clip);
     }
 }
