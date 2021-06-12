@@ -154,8 +154,8 @@ static void GoToMainMenu();
 static void GoToScoresMenu();
 static void GoToCostumesMenu();
 static void GoToSettingsMenu();
-static void GoToPauseMenu();
 static void GoToGameOverMenu();
+static void GoToPauseMenu();
 
 //
 // Bitmap Font
@@ -1295,6 +1295,7 @@ static void GoToScoresMenu()
 //
 
 static constexpr f32 k_costumeLockedTextOffset = 192.0f;
+static f32 s_costumeScale = 1.0f;
 
 static void CostumesMenuActionLeft(MenuOption& option)
 {
@@ -1302,6 +1303,7 @@ static void CostumesMenuActionLeft(MenuOption& option)
     if(costume > 0) costume--;
     else costume = Costume_TOTAL-1;
     s_rocket.costume = CS_CAST(Costume, costume);
+    s_costumeScale = 1.5f;
 }
 
 static void CostumesMenuActionRight(MenuOption& option)
@@ -1310,6 +1312,7 @@ static void CostumesMenuActionRight(MenuOption& option)
     if(costume < Costume_TOTAL-1) costume++;
     else costume = 0;
     s_rocket.costume = CS_CAST(Costume, costume);
+    s_costumeScale = 1.5f;
 }
 
 static void CostumesMenuActionBack(MenuOption& option)
@@ -1372,7 +1375,9 @@ static void RenderCostumesMenu(f32 dt)
         nameClip.y += k_costumeLockedTextOffset;
     }
 
-    imm::DrawTexture("costume", halfW,halfH, &costumeClip);
+    s_costumeScale = csm::Lerp(s_costumeScale, 1.0f, 0.5f);
+
+    imm::DrawTexture("costume", halfW,halfH, s_costumeScale,s_costumeScale, 0.0f, imm::Flip_None, &costumeClip);
     imm::DrawTexture("menu", halfW,halfH+48, &nameClip);
 }
 
@@ -1383,6 +1388,7 @@ static void GoToCostumesMenu()
     if(s_rocket.random)
         s_rocket.costume = Costume_Random;
     s_currentCostume = s_rocket.costume;
+    s_costumeScale = 1.0f;
 }
 
 //
@@ -1472,6 +1478,11 @@ static void UpdateGameOverMenu(f32 dt)
 }
 
 static void RenderGameOverMenu(f32 dt)
+{
+    // @INCOMPLETE: ...
+}
+
+static void GoToGameOverMenu()
 {
     // @INCOMPLETE: ...
 }
