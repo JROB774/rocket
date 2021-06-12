@@ -1418,7 +1418,7 @@ static void SettingsMenuActionMusic(MenuOption& option)
 
 static void SettingsMenuActionFullscreen(MenuOption& option)
 {
-    // @INCOMPLETE: ...
+    FullscreenWindow(option.toggle);
 }
 
 static void SettingsMenuActionVSync(MenuOption& option)
@@ -1460,6 +1460,7 @@ static MenuOption s_settingsMenuOptions[SettingsMenuOption_TOTAL]
 static void UpdateSettingsMenu(f32 dt)
 {
     if(s_gameState != GameState_SettingsMenu) return;
+    s_settingsMenuOptions[SettingsMenuOption_Fullscreen].toggle = IsFullscreen();
     UpdateMenuOptions(s_settingsMenuOptions, SettingsMenuOption_TOTAL, dt);
     if(IsKeyPressed(KeyCode_Escape))
         SettingsMenuActionBack(s_settingsMenuOptions[SettingsMenuOption_Back]);
