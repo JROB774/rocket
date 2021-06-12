@@ -1252,6 +1252,8 @@ static void RenderScoresMenu(f32 dt)
 // Costumes Menu
 //
 
+static constexpr f32 k_costumeLockedTextOffset = 192.0f;
+
 static void SelectLeftCostume()
 {
     s32 costume = CS_CAST(s32, s_rocket.costume);
@@ -1337,6 +1339,13 @@ static void RenderCostumesMenu(f32 dt)
 
     Rect costumeClip = { 64+costumeOffset,0,64,64 };
     Rect nameClip = { 0,624+nameOffset,256,24 };
+
+    bool locked = false; // @INCOMPLETE: Check if locked...
+    if(locked)
+    {
+        costumeClip.x = 0.0f;
+        nameClip.y += k_costumeLockedTextOffset;
+    }
 
     imm::DrawTexture("costume", halfW,halfH, &costumeClip);
     imm::DrawTexture("menu", halfW,halfH+48, &nameClip);
