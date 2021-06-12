@@ -157,6 +157,11 @@ static void GoToSettingsMenu();
 static void GoToGameOverMenu();
 static void GoToPauseMenu();
 
+static void ResetSave()
+{
+    // @INCOMPLETE: ...
+}
+
 //
 // Bitmap Font
 //
@@ -1406,6 +1411,8 @@ static void GoToCostumesMenu()
 // Settings Menu
 //
 
+static s32 s_resetSaveCounter;
+
 static void SettingsMenuActionSound(MenuOption& option)
 {
     // @INCOMPLETE: ...
@@ -1428,7 +1435,13 @@ static void SettingsMenuActionVSync(MenuOption& option)
 
 static void SettingsMenuActionResetSave(MenuOption& option)
 {
-    // @INCOMPLETE: ...
+    s_resetSaveCounter++;
+    if(s_resetSaveCounter >= 3)
+    {
+        s_resetSaveCounter = 0;
+        sfx::PlaySound("reset");
+        ResetSave();
+    }
 }
 
 static void SettingsMenuActionBack(MenuOption& option)
@@ -1461,6 +1474,7 @@ static void UpdateSettingsMenu(f32 dt)
 {
     if(s_gameState != GameState_SettingsMenu) return;
     s_settingsMenuOptions[SettingsMenuOption_Fullscreen].toggle = IsFullscreen();
+    s_settingsMenuOptions[SettingsMenuOption_ResetSave].clip.y = 504+(CS_CAST(f32,s_resetSaveCounter)*24.0f);
     UpdateMenuOptions(s_settingsMenuOptions, SettingsMenuOption_TOTAL, dt);
     if(IsKeyPressed(KeyCode_Escape))
         SettingsMenuActionBack(s_settingsMenuOptions[SettingsMenuOption_Back]);
@@ -1478,6 +1492,7 @@ static void GoToSettingsMenu()
 {
     s_gameState = GameState_SettingsMenu;
     ResetMenuOptions(s_settingsMenuOptions, SettingsMenuOption_TOTAL);
+    s_resetSaveCounter = 0;
 }
 
 //
