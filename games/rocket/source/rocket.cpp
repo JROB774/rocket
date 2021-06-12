@@ -1266,6 +1266,8 @@ static void RenderScoresMenu(f32 dt)
 {
     if(s_gameState != GameState_ScoresMenu) return;
     RenderMenuOptions(s_scoresMenuOptions, ScoresMenuOption_TOTAL, dt);
+    Rect titleClip = { 0,64,256,32 };
+    imm::DrawTexture("menu", gfx::GetScreenWidth()*0.5f,24.0f, &titleClip);
 }
 
 //
@@ -1401,12 +1403,12 @@ enum SettingsMenuOption
 
 static MenuOption s_settingsMenuOptions[SettingsMenuOption_TOTAL]
 {
-{ SettingsMenuActionSound,      MenuOptionType_Slider, {}, {} },
-{ SettingsMenuActionMusic,      MenuOptionType_Slider, {}, {} },
-{ SettingsMenuActionFullscreen, MenuOptionType_Toggle, {}, {} },
-{ SettingsMenuActionVSync,      MenuOptionType_Toggle, {}, {} },
-{ SettingsMenuActionResetSave,  MenuOptionType_Button, {}, {} },
-{ SettingsMenuActionBack,       MenuOptionType_Button, { 0.0f,288.0f,180.0f,24.0f }, { 0,576,128,24 } }
+{ SettingsMenuActionSound,      MenuOptionType_Slider, { 0.0f,128.0f,      180.0f,24.0f }, { 0,360,128,24 } },
+{ SettingsMenuActionMusic,      MenuOptionType_Slider, { 0.0f,128.0f+24.0f,180.0f,24.0f }, { 0,384,128,24 } },
+{ SettingsMenuActionFullscreen, MenuOptionType_Toggle, { 0.0f,128.0f+48.0f,180.0f,24.0f }, { 0,408,128,24 } },
+{ SettingsMenuActionVSync,      MenuOptionType_Toggle, { 0.0f,128.0f+72.0f,180.0f,24.0f }, { 0,456,128,24 } },
+{ SettingsMenuActionResetSave,  MenuOptionType_Button, { 0.0f,128.0f+96.0f,180.0f,24.0f }, { 0,504,128,24 } },
+{ SettingsMenuActionBack,       MenuOptionType_Button, { 0.0f,288.0f,      180.0f,24.0f }, { 0,576,128,24 } }
 };
 
 static void UpdateSettingsMenu(f32 dt)
@@ -1421,6 +1423,8 @@ static void RenderSettingsMenu(f32 dt)
 {
     if(s_gameState != GameState_SettingsMenu) return;
     RenderMenuOptions(s_settingsMenuOptions, SettingsMenuOption_TOTAL, dt);
+    Rect titleClip = { 0,128,256,32 };
+    imm::DrawTexture("menu", gfx::GetScreenWidth()*0.5f,24.0f, &titleClip);
 }
 
 //
