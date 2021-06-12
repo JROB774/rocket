@@ -112,6 +112,7 @@ struct Rocket
     Collider collector;
     sfx::SoundRef thruster;
     Costume costume;
+    bool unlocks[Costume_TOTAL];
 };
 
 struct Powerup
@@ -601,6 +602,11 @@ static void CreateRocket()
     s_rocket.collector = { Vec2(0,-8), 40.0f };
     s_rocket.costume = Costume_Red;
     s_rocket.thruster = sfx::k_invalidSoundRef;
+    // These rockets are always unlocked.
+    s_rocket.unlocks[Costume_Red   ] = true;
+    s_rocket.unlocks[Costume_Blue  ] = true;
+    s_rocket.unlocks[Costume_Yellow] = true;
+    s_rocket.unlocks[Costume_Random] = true;
 }
 
 static void PowerupRocket(PowerupType type)
@@ -1192,7 +1198,7 @@ static void RenderMainMenu(f32 dt)
     RenderMenuOptions(s_mainMenuOptions, MainMenuOption_TOTAL, dt);
 
     Rect titleClip  = { 0,   0,256,64 };
-    Rect authorClip = { 0,1032,256,24 };
+    Rect authorClip = { 0,1056,256,24 };
 
     static f32 s_scaleX = 1.0f;
     static f32 s_scaleY = 1.0f;
@@ -1340,8 +1346,7 @@ static void RenderCostumesMenu(f32 dt)
     Rect costumeClip = { 64+costumeOffset,0,64,64 };
     Rect nameClip = { 0,624+nameOffset,256,24 };
 
-    bool locked = false; // @INCOMPLETE: Check if locked...
-    if(locked)
+    if(!s_rocket.unlocks[s_rocket.costume])
     {
         costumeClip.x = 0.0f;
         nameClip.y += k_costumeLockedTextOffset;
