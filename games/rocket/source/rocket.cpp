@@ -1260,7 +1260,7 @@ static void RenderScoresMenu(f32 dt)
 
 static constexpr f32 k_costumeLockedTextOffset = 192.0f;
 
-static void SelectLeftCostume()
+static void CostumesMenuActionLeft(MenuOption& option)
 {
     s32 costume = CS_CAST(s32, s_rocket.costume);
     if(costume > 0) costume--;
@@ -1268,7 +1268,7 @@ static void SelectLeftCostume()
     s_rocket.costume = CS_CAST(Costume, costume);
 }
 
-static void SelectRightCostume()
+static void CostumesMenuActionRight(MenuOption& option)
 {
     s32 costume = CS_CAST(s32, s_rocket.costume);
     if(costume < Costume_TOTAL-1) costume++;
@@ -1283,13 +1283,17 @@ static void CostumesMenuActionBack(MenuOption& option)
 
 enum CostumesMenuOption
 {
+    CostumesMenuOption_Left,
+    CostumesMenuOption_Right,
     CostumesMenuOption_Back,
     CostumesMenuOption_TOTAL
 };
 
 static MenuOption s_costumesMenuOptions[CostumesMenuOption_TOTAL]
 {
-{ CostumesMenuActionBack, MenuOptionType_Button, { 0.0f,288.0f,180.0f, 24.0f }, { 0,576,128,24 } }
+{ CostumesMenuActionLeft,  MenuOptionType_Button, {   8.0f,136.0f, 48.0f,48.0f }, { 0,1080,128,24 } },
+{ CostumesMenuActionRight, MenuOptionType_Button, { 124.0f,136.0f, 48.0f,48.0f }, { 0,1104,128,24 } },
+{ CostumesMenuActionBack,  MenuOptionType_Button, {   0.0f,288.0f,180.0f,24.0f }, { 0, 576,128,24 } }
 };
 
 static void UpdateCostumesMenu(f32 dt)
@@ -1298,19 +1302,6 @@ static void UpdateCostumesMenu(f32 dt)
     UpdateMenuOptions(s_costumesMenuOptions, CostumesMenuOption_TOTAL, dt);
     if(IsKeyPressed(KeyCode_Escape))
         CostumesMenuActionBack(s_costumesMenuOptions[CostumesMenuOption_Back]);
-
-    // Handle switching costumes left and right.
-    if(IsMouseButtonPressed(MouseButton_Left))
-    {
-        f32 halfW = gfx::GetScreenWidth() * 0.5f;
-        Vec2 mouse = GetScreenMousePos();
-        if(!s_costumesMenuOptions[CostumesMenuOption_Back].selected)
-        {
-            sfx::PlaySound("select");
-            if(mouse.x <= halfW) SelectLeftCostume();
-            else SelectRightCostume();
-        }
-    }
 }
 
 static void RenderCostumesMenu(f32 dt)
@@ -1328,16 +1319,6 @@ static void RenderCostumesMenu(f32 dt)
     // Draw the title.
     Rect titleClip = { 0,96,256,32 };
     imm::DrawTexture("menu", halfW,24.0f, &titleClip);
-
-    // Draw the arrows.
-    Rect leftClip = { 0,48,24,24 };
-    Rect rightClip = { 0,72,24,24 };
-
-    if(mouse.x <= halfW) leftClip.x += 24.0f;
-    else rightClip.x += 24.0f;
-
-    imm::DrawTexture("ui", 32.0f,halfH, &leftClip);
-    imm::DrawTexture("ui", screenW-32.0f,halfH, &rightClip);
 
     // Draw the costume.
     f32 costumeOffset = 64 * CS_CAST(f32, s_rocket.costume);
