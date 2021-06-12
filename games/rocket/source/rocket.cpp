@@ -150,6 +150,13 @@ static Costume s_currentCostume;
 static std::vector<Powerup> s_powerups;
 static std::vector<Asteroid> s_asteroids;
 
+static void GoToMainMenu();
+static void GoToScoresMenu();
+static void GoToCostumesMenu();
+static void GoToSettingsMenu();
+static void GoToPauseMenu();
+static void GoToGameOverMenu();
+
 //
 // Bitmap Font
 //
@@ -952,6 +959,8 @@ static void RenderTransition(f32 dt)
             s_fadeOut = false;
             if(s_gameState == GameState_Game)
                 StartThruster();
+            if(s_gameState == GameState_MainMenu)
+                GoToMainMenu();
             // Pick a random costume.
             if(s_rocket.random)
             {
@@ -1069,13 +1078,14 @@ static void UpdateMenuOptions(MenuOption* options, size_t count, f32 dt)
     Vec2 mouse = GetScreenMousePos();
     for(size_t i=0; i<count; ++i)
     {
-        bool oldSelected = options[i].selected;
-        options[i].selected = PointInRect(mouse, options[i].bounds);
-        options[i].targetScale = (options[i].selected) ? 1.33f : 1.0f;
-        options[i].scale = csm::Lerp(options[i].scale, options[i].targetScale, 0.5f);
+        MenuOption& option = options[i];
+        bool oldSelected = option.selected;
+        option.selected = PointInRect(mouse, option.bounds);
+        option.targetScale = (option.selected) ? 1.33f : 1.0f;
+        option.scale = csm::Lerp(option.scale, option.targetScale, 0.5f);
 
         // If the option went from non-selected to selected then play a sound.
-        if(options[i].selected && (oldSelected != options[i].selected))
+        if(option.selected && (oldSelected != option.selected))
             sfx::PlaySound("click");
     }
 
@@ -1089,6 +1099,7 @@ static void UpdateMenuOptions(MenuOption* options, size_t count, f32 dt)
             if(option.selected)
             {
                 sfx::PlaySound("select");
+                option.scale = 2.0f;
                 switch(option.type)
                 {
                     case(MenuOptionType_Toggle):
@@ -1158,20 +1169,17 @@ static void MainMenuActionStart(MenuOption& option)
 
 static void MainMenuActionScores(MenuOption& option)
 {
-    s_gameState = GameState_ScoresMenu;
+    GoToScoresMenu();
 }
 
 static void MainMenuActionCostumes(MenuOption& option)
 {
-    s_gameState = GameState_CostumesMenu;
-    if(s_rocket.random)
-        s_rocket.costume = Costume_Random;
-    s_currentCostume = s_rocket.costume;
+    GoToCostumesMenu();
 }
 
 static void MainMenuActionSettings(MenuOption& option)
 {
-    s_gameState = GameState_SettingsMenu;
+    GoToSettingsMenu();
 }
 
 static void MainMenuActionExit(MenuOption& option)
@@ -1234,13 +1242,19 @@ static void RenderMainMenu(f32 dt)
     imm::DrawTexture("menu", halfW,screenH-12.0f, &authorClip);
 }
 
+static void GoToMainMenu()
+{
+    s_gameState = GameState_MainMenu;
+    ResetMenuOptions(s_mainMenuOptions, MainMenuOption_TOTAL);
+}
+
 //
 // Scores Menu
 //
 
 static void ScoresMenuActionBack(MenuOption& option)
 {
-    s_gameState = GameState_MainMenu;
+    GoToMainMenu();
 }
 
 enum ScoresMenuOption
@@ -1270,6 +1284,12 @@ static void RenderScoresMenu(f32 dt)
     imm::DrawTexture("menu", gfx::GetScreenWidth()*0.5f,24.0f, &titleClip);
 }
 
+static void GoToScoresMenu()
+{
+    s_gameState = GameState_ScoresMenu;
+    ResetMenuOptions(s_scoresMenuOptions, ScoresMenuOption_TOTAL);
+}
+
 //
 // Costumes Menu
 //
@@ -1294,10 +1314,10 @@ static void CostumesMenuActionRight(MenuOption& option)
 
 static void CostumesMenuActionBack(MenuOption& option)
 {
-    s_gameState = GameState_MainMenu;
     if(!s_rocket.unlocks[s_rocket.costume]) // If the selected costume is locked reset to the last costume.
         s_rocket.costume = s_currentCostume;
     s_rocket.random = (s_rocket.costume == Costume_Random);
+    GoToMainMenu();
 }
 
 enum CostumesMenuOption
@@ -1356,6 +1376,15 @@ static void RenderCostumesMenu(f32 dt)
     imm::DrawTexture("menu", halfW,halfH+48, &nameClip);
 }
 
+static void GoToCostumesMenu()
+{
+    s_gameState = GameState_CostumesMenu;
+    ResetMenuOptions(s_costumesMenuOptions, CostumesMenuOption_TOTAL);
+    if(s_rocket.random)
+        s_rocket.costume = Costume_Random;
+    s_currentCostume = s_rocket.costume;
+}
+
 //
 // Settings Menu
 //
@@ -1387,7 +1416,7 @@ static void SettingsMenuActionResetSave(MenuOption& option)
 
 static void SettingsMenuActionBack(MenuOption& option)
 {
-    s_gameState = GameState_MainMenu;
+    GoToMainMenu();
 }
 
 enum SettingsMenuOption
@@ -1427,6 +1456,12 @@ static void RenderSettingsMenu(f32 dt)
     imm::DrawTexture("menu", gfx::GetScreenWidth()*0.5f,24.0f, &titleClip);
 }
 
+static void GoToSettingsMenu()
+{
+    s_gameState = GameState_SettingsMenu;
+    ResetMenuOptions(s_settingsMenuOptions, SettingsMenuOption_TOTAL);
+}
+
 //
 // Game Over Menu
 //
@@ -1451,6 +1486,7 @@ static void PauseGame()
     sfx::PlaySound("pause");
     sfx::PauseMusic();
     StopThruster();
+    GoToPauseMenu();
 }
 
 static void PauseMenuActionResume(MenuOption& option)
@@ -1514,6 +1550,11 @@ static void RenderPauseMenu(f32 dt)
     imm::DrawRectFilled(0,0,screenW,screenH, Vec4(0,0,0,0.5f));
     imm::DrawTexture("menu", halfW,halfH-40, &s_pauseClip);
     RenderMenuOptions(s_pauseMenuOptions, PauseMenuOption_TOTAL, dt);
+}
+
+static void GoToPauseMenu()
+{
+    ResetMenuOptions(s_pauseMenuOptions, PauseMenuOption_TOTAL);
 }
 
 //
