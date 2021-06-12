@@ -852,7 +852,7 @@ static void RenderRocket(f32 dt)
     else
     {
         // Draw the rocket.
-        Rect clip = { 96+(48*CS_CAST(f32,s_rocket.frame)), 96*CS_CAST(f32,s_rocket.costume), 48, 96 };
+        Rect clip = { 48*CS_CAST(f32,s_rocket.frame), 96*CS_CAST(f32,s_rocket.costume), 48, 96 };
         if(s_rocket.boost > 0.0f) clip.x += 48*5;
         f32 angle = csm::ToRad(s_rocket.angle + s_rocket.shake);
         imm::DrawTexture("rocket", s_rocket.pos.x, s_rocket.pos.y, 1.0f, 1.0f, angle, imm::Flip_None, &clip);
@@ -1252,6 +1252,22 @@ static void RenderScoresMenu(f32 dt)
 // Costumes Menu
 //
 
+static void SelectLeftCostume()
+{
+    s32 costume = CS_CAST(s32, s_rocket.costume);
+    if(costume > 0) costume--;
+    else costume = Costume_TOTAL-1;
+    s_rocket.costume = CS_CAST(Costume, costume);
+}
+
+static void SelectRightCostume()
+{
+    s32 costume = CS_CAST(s32, s_rocket.costume);
+    if(costume < Costume_TOTAL-1) costume++;
+    else costume = 0;
+    s_rocket.costume = CS_CAST(Costume, costume);
+}
+
 static void CostumesMenuActionBack(MenuOption& option)
 {
     s_gameState = GameState_MainMenu;
@@ -1276,7 +1292,17 @@ static void UpdateCostumesMenu(f32 dt)
         CostumesMenuActionBack(s_costumesMenuOptions[CostumesMenuOption_Back]);
 
     // Handle switching costumes left and right.
-    // @INCOMPLETE: ...
+    if(IsMouseButtonPressed(MouseButton_Left))
+    {
+        f32 halfW = gfx::GetScreenWidth() * 0.5f;
+        Vec2 mouse = GetScreenMousePos();
+        if(!s_costumesMenuOptions[CostumesMenuOption_Back].selected)
+        {
+            sfx::PlaySound("select");
+            if(mouse.x <= halfW) SelectLeftCostume();
+            else SelectRightCostume();
+        }
+    }
 }
 
 static void RenderCostumesMenu(f32 dt)
@@ -1284,8 +1310,36 @@ static void RenderCostumesMenu(f32 dt)
     if(s_gameState != GameState_CostumesMenu) return;
     RenderMenuOptions(s_costumesMenuOptions, CostumesMenuOption_TOTAL, dt);
 
-    // Draw the costume UI.#
-    // @INCOMPLETE: ...
+    f32 screenW = gfx::GetScreenWidth();
+    f32 screenH = gfx::GetScreenHeight();
+    f32 halfW   = screenW * 0.5f;
+    f32 halfH   = screenH * 0.5f;
+
+    Vec2 mouse = GetScreenMousePos();
+
+    // Draw the title.
+    Rect titleClip = { 0,96,256,32 };
+    imm::DrawTexture("menu", halfW,24.0f, &titleClip);
+
+    // Draw the arrows.
+    Rect leftClip = { 0,48,24,24 };
+    Rect rightClip = { 0,72,24,24 };
+
+    if(mouse.x <= halfW) leftClip.x += 24.0f;
+    else rightClip.x += 24.0f;
+
+    imm::DrawTexture("ui", 32.0f,halfH, &leftClip);
+    imm::DrawTexture("ui", screenW-32.0f,halfH, &rightClip);
+
+    // Draw the costume.
+    f32 costumeOffset = 64 * CS_CAST(f32, s_rocket.costume);
+    f32 nameOffset = 24 * CS_CAST(f32, s_rocket.costume);
+
+    Rect costumeClip = { 64+costumeOffset,0,64,64 };
+    Rect nameClip = { 0,624+nameOffset,256,24 };
+
+    imm::DrawTexture("costume", halfW,halfH, &costumeClip);
+    imm::DrawTexture("menu", halfW,halfH+48, &nameClip);
 }
 
 //
@@ -1476,7 +1530,6 @@ static void GameStateDebugUiCallback(bool& open)
     ImGui::Text("Dead: %s", (s_rocket.dead) ? "True" : "False");
     ImGui::Separator();
     ImGui::Text("Difficulty: %d", s_difficulty);
-
 }
 
 class RocketApp: public Application
@@ -1535,10 +1588,14 @@ public:
         LockMouse(s_lockMouse);
         ShowCursor(s_showMouse);
 
-        UpdateMainMenu(dt);
-        UpdateScoresMenu(dt);
-        UpdateCostumesMenu(dt);
-        UpdateSettingsMenu(dt);
+        switch(s_gameState)
+        {
+            case(GameState_MainMenu): UpdateMainMenu(dt); break;
+            case(GameState_ScoresMenu): UpdateScoresMenu(dt); break;
+            case(GameState_CostumesMenu): UpdateCostumesMenu(dt); break;
+            case(GameState_SettingsMenu): UpdateSettingsMenu(dt); break;
+        }
+
         UpdateGameOverMenu(dt);
         UpdatePauseMenu(dt);
 
