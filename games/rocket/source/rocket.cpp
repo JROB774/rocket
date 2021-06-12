@@ -1023,16 +1023,28 @@ static void RenderCursor(f32 dt)
 // Menu System
 //
 
-typedef void(*MenuOptionAction)(void);
+struct MenuOption;
+
+typedef void(*MenuOptionAction)(MenuOption& option);
+
+enum MenuOptionType
+{
+    MenuOptionType_Button,
+    MenuOptionType_Toggle,
+    MenuOptionType_Slider
+};
 
 struct MenuOption
 {
-    MenuOptionAction action;
-    Rect bounds;
-    Rect clip;
-    bool selected;
-    f32  scale;
-    f32  targetScale;
+    MenuOptionAction action = NULL;
+    MenuOptionType type = MenuOptionType_Button;
+    Rect bounds = {};
+    Rect clip = {};
+    bool selected = false;
+    f32 scale = 1.0f;
+    f32 targetScale = 1.0f;
+    bool toggle = false;
+    f32 slider = 1.0f;
 };
 
 static void UpdateMenuOptions(MenuOption* options, size_t count, f32 dt)
@@ -1050,15 +1062,32 @@ static void UpdateMenuOptions(MenuOption* options, size_t count, f32 dt)
             sfx::PlaySound("click");
     }
 
-    if(IsMouseButtonPressed(MouseButton_Left))
+    // Handle the interaction logic based on what type of option it is.
+    bool pressed = IsMouseButtonPressed(MouseButton_Left);
+    if(pressed)
     {
         for(size_t i=0; i<count; ++i)
         {
-            if(options[i].selected)
+            MenuOption& option = options[i];
+            if(option.selected)
             {
                 sfx::PlaySound("select");
-                if(options[i].action)
-                    options[i].action();
+                switch(option.type)
+                {
+                    case(MenuOptionType_Toggle):
+                    {
+                        option.toggle = !option.toggle;
+                    } break;
+                    case(MenuOptionType_Slider):
+                    {
+                        // @INCOMPLETE: ...
+                    } break;
+                }
+                // Call the user-defined action on interaction.
+                if(option.action)
+                {
+                    option.action(option);
+                }
             }
         }
     }
@@ -1104,28 +1133,28 @@ static void ResetMenuOptions(MenuOption* options, size_t count)
 // Main Menu
 //
 
-static void MainMenuActionStart()
+static void MainMenuActionStart(MenuOption& option)
 {
     s_entitySpawnCooldown = k_entitySpawnCooldownTime;
     ResetGame(GameState_Game);
 }
 
-static void MainMenuActionScores()
+static void MainMenuActionScores(MenuOption& option)
 {
     s_gameState = GameState_ScoresMenu;
 }
 
-static void MainMenuActionCostumes()
+static void MainMenuActionCostumes(MenuOption& option)
 {
     s_gameState = GameState_CostumesMenu;
 }
 
-static void MainMenuActionSettings()
+static void MainMenuActionSettings(MenuOption& option)
 {
     s_gameState = GameState_SettingsMenu;
 }
 
-static void MainMenuActionExit()
+static void MainMenuActionExit(MenuOption& option)
 {
     GetAppConfig().app->m_running = false;
 }
@@ -1142,11 +1171,11 @@ enum MainMenuOptionID
 
 static MenuOption s_mainMenuOptions[MainMenuOption_TOTAL]
 {
-{ MainMenuActionStart,    { 0.0f,128.0f,      180.0f,24.0f }, { 0, 192,128,24 }, false, 1.0f, 1.0f },
-{ MainMenuActionScores,   { 0.0f,128.0f+24.0f,180.0f,24.0f }, { 0, 216,128,24 }, false, 1.0f, 1.0f },
-{ MainMenuActionCostumes, { 0.0f,128.0f+48.0f,180.0f,24.0f }, { 0, 240,128,24 }, false, 1.0f, 1.0f },
-{ MainMenuActionSettings, { 0.0f,128.0f+72.0f,180.0f,24.0f }, { 0, 264,128,24 }, false, 1.0f, 1.0f },
-{ MainMenuActionExit,     { 0.0f,128.0f+96.0f,180.0f,24.0f }, { 0, 288,128,24 }, false, 1.0f, 1.0f }
+{ MainMenuActionStart,    MenuOptionType_Button, { 0.0f,128.0f,      180.0f,24.0f }, { 0, 192,128,24 } },
+{ MainMenuActionScores,   MenuOptionType_Button, { 0.0f,128.0f+24.0f,180.0f,24.0f }, { 0, 216,128,24 } },
+{ MainMenuActionCostumes, MenuOptionType_Button, { 0.0f,128.0f+48.0f,180.0f,24.0f }, { 0, 240,128,24 } },
+{ MainMenuActionSettings, MenuOptionType_Button, { 0.0f,128.0f+72.0f,180.0f,24.0f }, { 0, 264,128,24 } },
+{ MainMenuActionExit,     MenuOptionType_Button, { 0.0f,128.0f+96.0f,180.0f,24.0f }, { 0, 288,128,24 } }
 };
 
 static void UpdateMainMenu(f32 dt)
@@ -1154,7 +1183,7 @@ static void UpdateMainMenu(f32 dt)
     if(s_gameState != GameState_MainMenu) return;
     UpdateMenuOptions(s_mainMenuOptions, MainMenuOption_TOTAL, dt);
     if(IsKeyPressed(KeyCode_Escape))
-        MainMenuActionExit();
+        MainMenuActionExit(s_mainMenuOptions[MainMenuOption_Exit]);
 }
 
 static void RenderMainMenu(f32 dt)
@@ -1189,7 +1218,7 @@ static void RenderMainMenu(f32 dt)
 // Scores Menu
 //
 
-static void ScoresMenuActionBack()
+static void ScoresMenuActionBack(MenuOption& option)
 {
     s_gameState = GameState_MainMenu;
 }
@@ -1202,7 +1231,7 @@ enum ScoresMenuOption
 
 static MenuOption s_scoresMenuOptions[ScoresMenuOption_TOTAL]
 {
-{ ScoresMenuActionBack, { 0.0f,288.0f,180.0f,24.0f }, { 0,576,128,24 }, false, 1.0f, 1.0f }
+{ ScoresMenuActionBack, MenuOptionType_Button, { 0.0f,288.0f,180.0f,24.0f }, { 0,576,128,24 } }
 };
 
 static void UpdateScoresMenu(f32 dt)
@@ -1210,7 +1239,7 @@ static void UpdateScoresMenu(f32 dt)
     if(s_gameState != GameState_ScoresMenu) return;
     UpdateMenuOptions(s_scoresMenuOptions, ScoresMenuOption_TOTAL, dt);
     if(IsKeyPressed(KeyCode_Escape))
-        ScoresMenuActionBack();
+        ScoresMenuActionBack(s_scoresMenuOptions[ScoresMenuOption_Back]);
 }
 
 static void RenderScoresMenu(f32 dt)
@@ -1223,7 +1252,7 @@ static void RenderScoresMenu(f32 dt)
 // Costumes Menu
 //
 
-static void CostumesMenuActionBack()
+static void CostumesMenuActionBack(MenuOption& option)
 {
     s_gameState = GameState_MainMenu;
 }
@@ -1236,7 +1265,7 @@ enum CostumesMenuOption
 
 static MenuOption s_costumesMenuOptions[CostumesMenuOption_TOTAL]
 {
-{ CostumesMenuActionBack, { 0.0f,288.0f,180.0f, 24.0f }, { 0,576,128,24 }, false, 1.0f, 1.0f }
+{ CostumesMenuActionBack, MenuOptionType_Button, { 0.0f,288.0f,180.0f, 24.0f }, { 0,576,128,24 } }
 };
 
 static void UpdateCostumesMenu(f32 dt)
@@ -1244,7 +1273,7 @@ static void UpdateCostumesMenu(f32 dt)
     if(s_gameState != GameState_CostumesMenu) return;
     UpdateMenuOptions(s_costumesMenuOptions, CostumesMenuOption_TOTAL, dt);
     if(IsKeyPressed(KeyCode_Escape))
-        CostumesMenuActionBack();
+        CostumesMenuActionBack(s_costumesMenuOptions[CostumesMenuOption_Back]);
 
     // Handle switching costumes left and right.
     // @INCOMPLETE: ...
@@ -1263,7 +1292,32 @@ static void RenderCostumesMenu(f32 dt)
 // Settings Menu
 //
 
-static void SettingsMenuActionBack()
+static void SettingsMenuActionSound(MenuOption& option)
+{
+    // @INCOMPLETE: ...
+}
+
+static void SettingsMenuActionMusic(MenuOption& option)
+{
+    // @INCOMPLETE: ...
+}
+
+static void SettingsMenuActionFullscreen(MenuOption& option)
+{
+    // @INCOMPLETE: ...
+}
+
+static void SettingsMenuActionVSync(MenuOption& option)
+{
+    // @INCOMPLETE: ...
+}
+
+static void SettingsMenuActionResetSave(MenuOption& option)
+{
+    // @INCOMPLETE: ...
+}
+
+static void SettingsMenuActionBack(MenuOption& option)
 {
     s_gameState = GameState_MainMenu;
 }
@@ -1281,12 +1335,12 @@ enum SettingsMenuOption
 
 static MenuOption s_settingsMenuOptions[SettingsMenuOption_TOTAL]
 {
-{ /* @INCOMPLETE: ... */ },
-{ /* @INCOMPLETE: ... */ },
-{ /* @INCOMPLETE: ... */ },
-{ /* @INCOMPLETE: ... */ },
-{ /* @INCOMPLETE: ... */ },
-{ SettingsMenuActionBack, { 0.0f,288.0f,180.0f,24.0f }, { 0,576,128,24 }, false, 1.0f, 1.0f }
+{ SettingsMenuActionSound,      MenuOptionType_Slider, {}, {} },
+{ SettingsMenuActionMusic,      MenuOptionType_Slider, {}, {} },
+{ SettingsMenuActionFullscreen, MenuOptionType_Toggle, {}, {} },
+{ SettingsMenuActionVSync,      MenuOptionType_Toggle, {}, {} },
+{ SettingsMenuActionResetSave,  MenuOptionType_Button, {}, {} },
+{ SettingsMenuActionBack,       MenuOptionType_Button, { 0.0f,288.0f,180.0f,24.0f }, { 0,576,128,24 } }
 };
 
 static void UpdateSettingsMenu(f32 dt)
@@ -1294,7 +1348,7 @@ static void UpdateSettingsMenu(f32 dt)
     if(s_gameState != GameState_SettingsMenu) return;
     UpdateMenuOptions(s_settingsMenuOptions, SettingsMenuOption_TOTAL, dt);
     if(IsKeyPressed(KeyCode_Escape))
-        SettingsMenuActionBack();
+        SettingsMenuActionBack(s_settingsMenuOptions[SettingsMenuOption_Back]);
 }
 
 static void RenderSettingsMenu(f32 dt)
@@ -1321,7 +1375,7 @@ static void RenderGameOverMenu(f32 dt)
 // Pause Menu
 //
 
-static void PauseMenuActionPause()
+static void PauseGame()
 {
     s_gamePaused = true;
     sfx::PlaySound("pause");
@@ -1329,7 +1383,7 @@ static void PauseMenuActionPause()
     StopThruster();
 }
 
-static void PauseMenuActionResume()
+static void PauseMenuActionResume(MenuOption& option)
 {
     s_gamePaused = false;
     sfx::PlaySound("pause");
@@ -1337,7 +1391,7 @@ static void PauseMenuActionResume()
     StartThruster();
 }
 
-static void PauseMenuActionMenu()
+static void PauseMenuActionMenu(MenuOption& option)
 {
     ResetGame(GameState_MainMenu);
 }
@@ -1351,8 +1405,8 @@ enum PauseMenuOption
 
 static MenuOption s_pauseMenuOptions[PauseMenuOption_TOTAL]
 {
-{ PauseMenuActionResume, { 0.0f,200.0f,180.0f,24.0f }, { 0,312,128,24 }, false, 1.0f, 1.0f },
-{ PauseMenuActionMenu,   { 0.0f,224.0f,180.0f,24.0f }, { 0,336,128,24 }, false, 1.0f, 1.0f }
+{ PauseMenuActionResume, MenuOptionType_Button, { 0.0f,200.0f,180.0f,24.0f }, { 0,312,128,24 } },
+{ PauseMenuActionMenu,   MenuOptionType_Button, { 0.0f,224.0f,180.0f,24.0f }, { 0,336,128,24 } }
 };
 
 static void UpdatePauseMenu(f32 dt)
@@ -1364,8 +1418,8 @@ static void UpdatePauseMenu(f32 dt)
     if(IsKeyPressed(KeyCode_Escape))
     {
         s_gamePaused = !s_gamePaused;
-        if(s_gamePaused) PauseMenuActionPause();
-        else PauseMenuActionResume();
+        if(!s_gamePaused) PauseMenuActionResume(s_pauseMenuOptions[PauseMenuOption_Resume]);
+        else PauseGame();
     }
 
     // Do pause menu.
