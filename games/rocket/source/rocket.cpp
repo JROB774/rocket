@@ -118,9 +118,26 @@ struct Asteroid
     AsteroidType type;
 };
 
+struct Unlock
+{
+    Costume costume;
+    u32 score;
+};
+
 static constexpr f32 k_fallSpeed = 400.0f;
 static constexpr f32 k_boostMultiplier = 2.0f;
 static constexpr f32 k_boostTime = 5.0f;
+
+static constexpr Unlock k_unlocks[]
+{
+{ Costume_Happy,    1000 },
+{ Costume_Sad,      2000 },
+{ Costume_Sick,     3000 },
+{ Costume_Meat,     5000 },
+{ Costume_Doodle,  10000 },
+{ Costume_Rainbow, 15000 },
+{ Costume_Glitch,  25000 }
+};
 
 static GameState s_gameState;
 static bool s_gamePaused;
@@ -637,6 +654,15 @@ static void HitRocket()
 
     s_rocket.timer = 0.0f;
     s_rocket.dead = true;
+
+    // Check to see if any new costumes were unlocked.
+    for(s32 i=0; i<CS_ARRAY_SIZE(k_unlocks); ++i)
+    {
+        const Unlock& unlock = k_unlocks[i];
+        if(s_rocket.score >= unlock.score)
+            if(!s_rocket.unlocks[unlock.costume]) // Not already unlocked.
+                s_rocket.unlocks[unlock.costume] = true;
+    }
 
     // Determine if the new score is a highscore and then save.
     if (s_rocket.score > s_rocket.highscores[9])
