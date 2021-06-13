@@ -182,6 +182,24 @@ static void LoadBitmapFont(BitmapFont& font, f32 cw, f32 ch, std::string texture
             font.bounds[iy*32+ix] = { CS_CAST(f32,ix)*cw, CS_CAST(f32,iy)*ch, cw, ch };
 }
 
+static f32 GetCharWidth(BitmapFont& font, char c)
+{
+    switch(c)
+    {
+        case('0'): return 13;
+        case('1'): return 10;
+        case('2'): return 13;
+        case('3'): return 13;
+        case('4'): return 13;
+        case('5'): return 13;
+        case('6'): return 13;
+        case('7'): return 13;
+        case('8'): return 13;
+        case('9'): return 13;
+    }
+    return font.charWidth;
+}
+
 static f32 GetTextLineWidth(BitmapFont& font, std::string text, s32 line = 0)
 {
     f32 lineWidth = 0;
@@ -195,7 +213,7 @@ static f32 GetTextLineWidth(BitmapFont& font, std::string text, s32 line = 0)
         }
         else
         {
-            lineWidth += font.charWidth;
+            lineWidth += GetCharWidth(font, text[i]);
         }
     }
     return lineWidth;
@@ -210,21 +228,21 @@ static void DrawBitmapFont(BitmapFont& font, f32 x, f32 y, std::string text, Vec
 
     s32 line = 0;
 
+    Vec2 anchor(0.0f);
+
     for(size_t i=0; i<text.length(); ++i)
     {
         if(text[i] == '\n')
         {
-            ix = x + (GetTextLineWidth(font, text, 0)*0.5f) - (GetTextLineWidth(font, text, line+1)*0.5f);
+            ix = roundf(x + (GetTextLineWidth(font, text, 0)*0.5f) - (GetTextLineWidth(font, text, line+1)*0.5f));
             iy += font.charHeight;
             line++;
         }
         else
         {
-            f32 dx = ix + (font.charWidth*0.5f);
-            f32 dy = iy + (font.charHeight*0.5f);
             Rect bounds = font.bounds[CS_CAST(u8,text.at(i))];
-            imm::DrawTexture(font.texture, dx,dy, &bounds, color);
-            ix += font.charWidth;
+            imm::DrawTexture(font.texture, ix,iy, 1.0f,1.0f, 0.0f, imm::Flip_None, &anchor, &bounds, color);
+            ix += roundf(GetCharWidth(font, text[i]));
         }
     }
 }
@@ -844,7 +862,7 @@ static void RenderRocket(f32 dt)
         if(beatHighscore) scoreStr += "!";
         f32 screenWidth = gfx::GetScreenWidth();
         f32 screenHeight = gfx::GetScreenHeight();
-        DrawBitmapFont(*font, (screenWidth-textWidth)*0.5f,4.0f, scoreStr);
+        DrawBitmapFont(*font, roundf((screenWidth-textWidth)*0.5f),4.0f, scoreStr);
     }
 }
 
@@ -1270,7 +1288,7 @@ static void RenderScoresMenu(f32 dt)
         u32 score = s_rocket.highscores[i];
         std::string scoreStr = std::to_string(score);
         f32 textWidth = GetTextLineWidth(*font, scoreStr);
-        DrawBitmapFont(*font, (screenWidth-textWidth)*0.5f,yPos, scoreStr);
+        DrawBitmapFont(*font, roundf((screenWidth-textWidth)*0.5f),yPos, scoreStr);
         yPos += 24.0f;
     }
 }
