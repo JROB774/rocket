@@ -96,15 +96,17 @@ struct Rocket
     f32 angle;
     f32 shake;
     f32 timer;
-    s32 score;
+    u32 score;
     s32 frame;
     bool dead;
     Collider collider;
     Collider collector;
     sfx::SoundRef thruster;
-    Costume costume;
     bool random;
+    // Save data.
+    Costume costume;
     bool unlocks[Costume_TOTAL];
+    u32 highscores[10];
 };
 
 struct Asteroid
@@ -125,7 +127,6 @@ static bool s_gamePaused;
 static bool s_gameOver;
 static bool s_gameResetting;
 static f32 s_boostMultiplier;
-static s32 s_highScore;
 static u32 s_gameFrame;
 static Rocket s_rocket;
 static Costume s_currentCostume;
@@ -215,19 +216,114 @@ static void DrawBitmapFont(BitmapFont& font, f32 x, f32 y, std::string text, Vec
 // Save Game
 //
 
+// The save file format is as follows:
+//
+// u16     - Version Number
+// u8      - Current Costume
+// u8      - Costume Unlocks as Bitflags
+// u32[10] - Highscores
+
+static constexpr const char* k_saveFileName = "save.dat";
+static constexpr u16 k_saveVersion = 0;
+
+enum UnlocksFlags : u8
+{
+    UnlockFlags_None    = 0,
+    UnlockFlags_Happy   = 1 << 0,
+    UnlockFlags_Sad     = 1 << 1,
+    UnlockFlags_Sick    = 1 << 2,
+    UnlockFlags_Meat    = 1 << 3,
+    UnlockFlags_Doodle  = 1 << 4,
+    UnlockFlags_Rainbow = 1 << 5,
+    UnlockFlags_Glitch  = 1 << 6
+};
+
 static void SaveGame()
 {
-    // @INCOMPLETE: ...
+    std::string fileName = GetDataPath() + k_saveFileName;
+    FILE* file = fopen(fileName.c_str(), "wb");
+    if(!file)
+        CS_DEBUG_LOG("Failed to save game data!");
+    else
+    {
+        CS_DEFER { fclose(file); };
+
+        u8 currentCostume = CS_CAST(u8, s_rocket.costume);
+        u8 unlockFlags = UnlockFlags_None;
+
+        if(s_rocket.unlocks[Costume_Happy  ]) CS_SET_FLAGS(unlockFlags, UnlockFlags_Happy);
+        if(s_rocket.unlocks[Costume_Sad    ]) CS_SET_FLAGS(unlockFlags, UnlockFlags_Sad);
+        if(s_rocket.unlocks[Costume_Sick   ]) CS_SET_FLAGS(unlockFlags, UnlockFlags_Sick);
+        if(s_rocket.unlocks[Costume_Meat   ]) CS_SET_FLAGS(unlockFlags, UnlockFlags_Meat);
+        if(s_rocket.unlocks[Costume_Doodle ]) CS_SET_FLAGS(unlockFlags, UnlockFlags_Doodle);
+        if(s_rocket.unlocks[Costume_Rainbow]) CS_SET_FLAGS(unlockFlags, UnlockFlags_Rainbow);
+        if(s_rocket.unlocks[Costume_Glitch ]) CS_SET_FLAGS(unlockFlags, UnlockFlags_Glitch);
+
+        fwrite(&k_saveVersion, sizeof(k_saveVersion), 1, file);
+        fwrite(&currentCostume, sizeof(currentCostume), 1, file);
+        fwrite(&unlockFlags, sizeof(unlockFlags), 1, file);
+        for(s32 i=0; i<10; ++i)
+            fwrite(&s_rocket.highscores[i], sizeof(s_rocket.highscores[i]), 1, file);
+    }
 }
 
 static void LoadGame()
 {
-    // @INCOMPLETE: ...
+    // These rockets are always unlocked.
+    s_rocket.unlocks[Costume_Red   ] = true;
+    s_rocket.unlocks[Costume_Blue  ] = true;
+    s_rocket.unlocks[Costume_Yellow] = true;
+    s_rocket.unlocks[Costume_Random] = true;
+
+    // Load data if available.
+    std::string fileName = GetDataPath() + k_saveFileName;
+    if(DoesFileExist(fileName))
+    {
+        FILE* file = fopen(fileName.c_str(), "rb");
+        if(!file)
+            CS_DEBUG_LOG("Failed to load game data!");
+        else
+        {
+            CS_DEFER { fclose(file); };
+
+            u16 version;
+            u8 currentCostume;
+            u8 unlockFlags;
+
+            fread(&version, sizeof(version), 1, file);
+            if(version == 0)
+            {
+                fread(&currentCostume, sizeof(currentCostume), 1, file);
+                fread(&unlockFlags, sizeof(unlockFlags), 1, file);
+                for(s32 i=0; i<10; ++i)
+                    fread(&s_rocket.highscores[i], sizeof(s_rocket.highscores[i]), 1, file);
+
+                s_rocket.costume = CS_CAST(Costume, currentCostume);
+
+                s_rocket.unlocks[Costume_Happy  ] = CS_CHECK_FLAGS(unlockFlags, UnlockFlags_Happy);
+                s_rocket.unlocks[Costume_Sad    ] = CS_CHECK_FLAGS(unlockFlags, UnlockFlags_Sad);
+                s_rocket.unlocks[Costume_Sick   ] = CS_CHECK_FLAGS(unlockFlags, UnlockFlags_Sick);
+                s_rocket.unlocks[Costume_Meat   ] = CS_CHECK_FLAGS(unlockFlags, UnlockFlags_Meat);
+                s_rocket.unlocks[Costume_Doodle ] = CS_CHECK_FLAGS(unlockFlags, UnlockFlags_Doodle);
+                s_rocket.unlocks[Costume_Rainbow] = CS_CHECK_FLAGS(unlockFlags, UnlockFlags_Rainbow);
+                s_rocket.unlocks[Costume_Glitch ] = CS_CHECK_FLAGS(unlockFlags, UnlockFlags_Glitch);
+            }
+        }
+    }
 }
 
 static void ResetSave()
 {
-    // @INCOMPLETE: ...
+    s_rocket.unlocks[Costume_Happy  ] = false;
+    s_rocket.unlocks[Costume_Sad    ] = false;
+    s_rocket.unlocks[Costume_Sick   ] = false;
+    s_rocket.unlocks[Costume_Meat   ] = false;
+    s_rocket.unlocks[Costume_Doodle ] = false;
+    s_rocket.unlocks[Costume_Rainbow] = false;
+    s_rocket.unlocks[Costume_Glitch ] = false;
+    for(s32 i=0; i<10; ++i)
+        s_rocket.highscores[i] = 0;
+    s_rocket.costume = Costume_Red;
 }
 
 //
@@ -510,17 +606,24 @@ static void CreateRocket()
     s_rocket.costume = Costume_Red;
     s_rocket.thruster = sfx::k_invalidSoundRef;
     s_rocket.random = (s_rocket.costume == Costume_Random);
-    // These rockets are always unlocked.
-    s_rocket.unlocks[Costume_Red   ] = true;
-    s_rocket.unlocks[Costume_Blue  ] = true;
-    s_rocket.unlocks[Costume_Yellow] = true;
-    s_rocket.unlocks[Costume_Random] = true;
+    LoadGame();
+}
+
+static s32 ScoreCompare (const void* a, const void* b)
+{
+    u32* aa = CS_CAST(u32*,a);
+    u32* bb = CS_CAST(u32*,b);
+    if(*aa > *bb) return -1;
+    if(*aa < *bb) return  1;
+    return 0;
 }
 
 static void HitRocket()
 {
-    SpawnSmoke(SmokeType_Explosion, s_rocket.pos.x, s_rocket.pos.y, RandomS32(20,40));
     StopThruster();
+
+    SpawnSmoke(SmokeType_Explosion, s_rocket.pos.x, s_rocket.pos.y, RandomS32(20,40));
+
     std::string explosion = "explosion";
     switch(s_rocket.costume)
     {
@@ -530,8 +633,17 @@ static void HitRocket()
         case(Costume_Glitch): explosion = "glitch"; break;
     }
     sfx::PlaySound(explosion);
+
     s_rocket.timer = 0.0f;
     s_rocket.dead = true;
+
+    // Determine if the new score is a highscore and then save.
+    if (s_rocket.score > s_rocket.highscores[9])
+    {
+        s_rocket.highscores[9] = s_rocket.score;
+        qsort(s_rocket.highscores,CS_ARRAY_SIZE(s_rocket.highscores),sizeof(s_rocket.highscores[0]),ScoreCompare);
+    }
+    SaveGame();
 }
 
 static void UpdateRocket(f32 dt)
@@ -561,9 +673,6 @@ static void UpdateRocket(f32 dt)
                 StartThruster();
             }
         }
-        // Instant kill.
-        if(IsKeyPressed(KeyCode_R))
-            HitRocket();
     }
 
     s_rocket.timer += dt;
@@ -657,6 +766,7 @@ static void UpdateRocket(f32 dt)
                 if(CheckCollision(s_rocket.pos, s_rocket.collider, asteroid.pos, asteroid.collider))
                 {
                     HitRocket();
+                    return;
                 }
             }
         }
@@ -664,9 +774,9 @@ static void UpdateRocket(f32 dt)
         // Increment the score.
         if((s_gameState == GameState_Game) && !s_gameResetting)
         {
-            s32 oldScore = s_rocket.score;
+            u32 oldScore = s_rocket.score;
             s_rocket.score += CS_CAST(s32, (2.0f * s_boostMultiplier));
-            if(s_highScore != 0 && oldScore <= s_highScore && s_rocket.score > s_highScore)
+            if(s_rocket.highscores[0] != 0 && oldScore <= s_rocket.highscores[0] && s_rocket.score > s_rocket.highscores[0])
                 sfx::PlaySound("highscore");
         }
     }
@@ -700,11 +810,11 @@ static void RenderRocket(f32 dt)
         }
 
         // Draw the score.
-        bool beatHighScore = ((s_rocket.score > s_highScore) && (s_highScore != 0));
-        BitmapFont* font = (beatHighScore) ? &s_font1 : &s_font0;
+        bool beatHighscore = ((s_rocket.score > s_rocket.highscores[0]) && (s_rocket.highscores[0] != 0));
+        BitmapFont* font = (beatHighscore) ? &s_font1 : &s_font0;
         std::string scoreStr = std::to_string(s_rocket.score);
         f32 textWidth = GetTextLineWidth(*font, scoreStr);
-        if(beatHighScore) scoreStr += "!";
+        if(beatHighscore) scoreStr += "!";
         f32 screenWidth = gfx::GetScreenWidth();
         f32 screenHeight = gfx::GetScreenHeight();
         DrawBitmapFont(*font, (screenWidth-textWidth)*0.5f,4.0f, scoreStr);
@@ -756,8 +866,6 @@ static void RenderTransition(f32 dt)
         if(s_fadeHeight >= gfx::GetScreenHeight())
         {
             s_gameState = s_resetTarget;
-            if(s_rocket.score > s_highScore)
-                s_highScore = s_rocket.score;
             s_rocket.pos = Vec2(screenW*0.5f, screenH-32.0f);
             s_rocket.vel = Vec2(0);
             s_rocket.score = 0;
@@ -1120,6 +1228,20 @@ static void RenderScoresMenu(f32 dt)
     RenderMenuOptions(s_scoresMenuOptions, ScoresMenuOption_TOTAL, dt);
     Rect titleClip = { 0,64,256,32 };
     imm::DrawTexture("menu", gfx::GetScreenWidth()*0.5f,24.0f, &titleClip);
+
+    // Draw the highscores.
+    f32 screenWidth = gfx::GetScreenWidth();
+    f32 screenHeight = gfx::GetScreenHeight();
+    f32 yPos = 42.0f;
+    for(s32 i=0; i<10; ++i)
+    {
+        BitmapFont* font = (i == 0) ? &s_font1 : &s_font0;
+        u32 score = s_rocket.highscores[i];
+        std::string scoreStr = std::to_string(score);
+        f32 textWidth = GetTextLineWidth(*font, scoreStr);
+        DrawBitmapFont(*font, (screenWidth-textWidth)*0.5f,yPos, scoreStr);
+        yPos += 24.0f;
+    }
 }
 
 static void GoToScoresMenu()
@@ -1503,7 +1625,7 @@ public:
 
     void Quit()
     {
-        // Nothing...
+        SaveGame();
     }
 
     void Update(f32 dt)
