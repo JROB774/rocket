@@ -853,49 +853,50 @@ static void UpdateRocket(f32 dt)
 
 static void RenderRocket(f32 dt)
 {
-    if(s_gameState != GameState_Game) return;
-
-    if(s_rocket.dead)
+    if(s_gameState == GameState_Game || s_gamePaused)
     {
-        // Draw the explosion.
-        f32 frame = floorf(s_rocket.timer / 0.04f);
-        if(frame < 13)
+        if(s_rocket.dead)
         {
-            Rect clip = { 96*frame, 96*CS_CAST(f32, s_rocket.costume), 96, 96 };
-            imm::DrawTexture("explosion", s_rocket.pos.x, s_rocket.pos.y, &clip);
-            if(s_rocket.costume != Costume_Doodle)
+            // Draw the explosion.
+            f32 frame = floorf(s_rocket.timer / 0.04f);
+            if(frame < 13)
             {
-                imm::DrawTexture("explosion", s_rocket.pos.x-20, s_rocket.pos.y-10, 0.5f,0.5f, 0.0f, imm::Flip_None, NULL, &clip);
-                imm::DrawTexture("explosion", s_rocket.pos.x+10, s_rocket.pos.y+30, 0.5f,0.5f, 0.0f, imm::Flip_None, NULL, &clip);
+                Rect clip = { 96*frame, 96*CS_CAST(f32, s_rocket.costume), 96, 96 };
+                imm::DrawTexture("explosion", s_rocket.pos.x, s_rocket.pos.y, &clip);
+                if(s_rocket.costume != Costume_Doodle)
+                {
+                    imm::DrawTexture("explosion", s_rocket.pos.x-20, s_rocket.pos.y-10, 0.5f,0.5f, 0.0f, imm::Flip_None, NULL, &clip);
+                    imm::DrawTexture("explosion", s_rocket.pos.x+10, s_rocket.pos.y+30, 0.5f,0.5f, 0.0f, imm::Flip_None, NULL, &clip);
+                }
             }
         }
-    }
-    else
-    {
-        // Draw the rocket.
-        Rect clip = { 48*CS_CAST(f32,s_rocket.frame), 96*CS_CAST(f32,s_rocket.costume), 48, 96 };
-        if(s_rocket.boost > 0.0f) clip.x += 48*5;
-        f32 angle = csm::ToRad(s_rocket.angle + s_rocket.shake);
-        imm::DrawTexture("rocket", s_rocket.pos.x, s_rocket.pos.y, 1.0f, 1.0f, angle, imm::Flip_None, NULL, &clip);
-        // Draw the shield.
-        if(s_rocket.shield)
+        else
         {
-            Vec2 pos = s_rocket.pos + s_rocket.collider.offset;
-            imm::DrawCircleFilled(pos.x,pos.y, 32.0f, Vec4(1,1,1,0.25f));
-            imm::DrawCircleOutline(pos.x,pos.y, 32.0f, Vec4(1,1,1,0.50f));
-            imm::DrawCircleFilled(pos.x-16.0f,pos.y-16.0f, 5.0f, Vec4(1,1,1,1));
+            // Draw the rocket.
+            Rect clip = { 48*CS_CAST(f32,s_rocket.frame), 96*CS_CAST(f32,s_rocket.costume), 48, 96 };
+            if(s_rocket.boost > 0.0f) clip.x += 48*5;
+            f32 angle = csm::ToRad(s_rocket.angle + s_rocket.shake);
+            imm::DrawTexture("rocket", s_rocket.pos.x, s_rocket.pos.y, 1.0f, 1.0f, angle, imm::Flip_None, NULL, &clip);
+            // Draw the shield.
+            if(s_rocket.shield)
+            {
+                Vec2 pos = s_rocket.pos + s_rocket.collider.offset;
+                imm::DrawCircleFilled(pos.x,pos.y, 32.0f, Vec4(1,1,1,0.25f));
+                imm::DrawCircleOutline(pos.x,pos.y, 32.0f, Vec4(1,1,1,0.50f));
+                imm::DrawCircleFilled(pos.x-16.0f,pos.y-16.0f, 5.0f, Vec4(1,1,1,1));
+            }
         }
-    }
 
-    // Draw the score.
-    bool beatHighScore = ((s_rocket.score > s_highScore) && (s_highScore != 0));
-    BitmapFont* font = (beatHighScore) ? &s_font1 : &s_font0;
-    std::string scoreStr = std::to_string(s_rocket.score);
-    f32 textWidth = GetTextLineWidth(*font, scoreStr);
-    if(beatHighScore) scoreStr += "!";
-    f32 screenWidth = gfx::GetScreenWidth();
-    f32 screenHeight = gfx::GetScreenHeight();
-    DrawBitmapFont(*font, (screenWidth-textWidth)*0.5f,4.0f, scoreStr);
+        // Draw the score.
+        bool beatHighScore = ((s_rocket.score > s_highScore) && (s_highScore != 0));
+        BitmapFont* font = (beatHighScore) ? &s_font1 : &s_font0;
+        std::string scoreStr = std::to_string(s_rocket.score);
+        f32 textWidth = GetTextLineWidth(*font, scoreStr);
+        if(beatHighScore) scoreStr += "!";
+        f32 screenWidth = gfx::GetScreenWidth();
+        f32 screenHeight = gfx::GetScreenHeight();
+        DrawBitmapFont(*font, (screenWidth-textWidth)*0.5f,4.0f, scoreStr);
+    }
 }
 
 static void DebugRenderRocket(f32 dt)
@@ -1459,7 +1460,8 @@ static void SettingsMenuActionResetSave(MenuOption& option)
 
 static void SettingsMenuActionBack(MenuOption& option)
 {
-    GoToMainMenu();
+    if(s_gamePaused) GoToPauseMenu();
+    else GoToMainMenu();
 }
 
 enum SettingsMenuOption
@@ -1550,6 +1552,11 @@ static void PauseMenuActionResume(MenuOption& option)
     StartThruster();
 }
 
+static void PauseMenuActionSettings(MenuOption& option)
+{
+    GoToSettingsMenu();
+}
+
 static void PauseMenuActionMenu(MenuOption& option)
 {
     ResetGame(GameState_MainMenu);
@@ -1558,14 +1565,16 @@ static void PauseMenuActionMenu(MenuOption& option)
 enum PauseMenuOption
 {
     PauseMenuOption_Resume,
+    PauseMenuOption_Settings,
     PauseMenuOption_Menu,
     PauseMenuOption_TOTAL
 };
 
 static MenuOption s_pauseMenuOptions[PauseMenuOption_TOTAL]
 {
-{ PauseMenuActionResume, MenuOptionType_Button, { 0.0f,200.0f,180.0f,24.0f }, { 0,312,128,24 } },
-{ PauseMenuActionMenu,   MenuOptionType_Button, { 0.0f,224.0f,180.0f,24.0f }, { 0,336,128,24 } }
+{ PauseMenuActionResume,   MenuOptionType_Button, { 0.0f,200.0f,180.0f,24.0f }, { 0,312,128,24 } },
+{ MainMenuActionSettings,  MenuOptionType_Button, { 0.0f,224.0f,180.0f,24.0f }, { 0,264,128,24 } },
+{ PauseMenuActionMenu,     MenuOptionType_Button, { 0.0f,248.0f,180.0f,24.0f }, { 0,336,128,24 } }
 };
 
 static void UpdatePauseMenu(f32 dt)
@@ -1590,10 +1599,7 @@ static void UpdatePauseMenu(f32 dt)
 
 static void RenderPauseMenu(f32 dt)
 {
-    if(s_gameState != GameState_Game) return;
     if(!s_gamePaused) return;
-
-    static Rect s_pauseClip = { 0,160,256,32 };
 
     f32 screenW = gfx::GetScreenWidth();
     f32 screenH = gfx::GetScreenHeight();
@@ -1601,12 +1607,18 @@ static void RenderPauseMenu(f32 dt)
     f32 halfH   = screenH * 0.5f;
 
     imm::DrawRectFilled(0,0,screenW,screenH, Vec4(0,0,0,0.5f));
+
+    if(s_gameState != GameState_Game) return;
+
+    static Rect s_pauseClip = { 0,160,256,32 };
+
     imm::DrawTexture("menu", halfW,halfH-40, &s_pauseClip);
     RenderMenuOptions(s_pauseMenuOptions, PauseMenuOption_TOTAL, dt);
 }
 
 static void GoToPauseMenu()
 {
+    s_gameState = GameState_Game;
     ResetMenuOptions(s_pauseMenuOptions, PauseMenuOption_TOTAL);
 }
 
@@ -1735,12 +1747,12 @@ public:
         RenderAsteroids(dt);
         RenderRocket(dt);
         RenderPowerups(dt);
+        RenderPauseMenu(dt);
         RenderMainMenu(dt);
         RenderScoresMenu(dt);
         RenderCostumesMenu(dt);
         RenderSettingsMenu(dt);
         RenderGameOverMenu(dt);
-        RenderPauseMenu(dt);
         RenderCursor(dt);
         RenderTransition(dt);
     }
