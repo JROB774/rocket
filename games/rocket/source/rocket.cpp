@@ -327,10 +327,6 @@ static void MaybeSpawnEntity(f32 dt)
 
         if(RandomS32(0,1000) <= (s_difficulty * s_boostMultiplier))
             SpawnAsteroid();
-        /*
-        if(RandomS32(0,1000) <= 2)
-            SpawnPowerup();
-        */
     }
 }
 
