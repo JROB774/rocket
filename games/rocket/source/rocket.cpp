@@ -906,17 +906,21 @@ static void RenderTransition(f32 dt)
             s_smoke.clear();
             s_gamePaused = false;
             s_fadeOut = false;
-            if(s_gameState == GameState_Game)
-                StartThruster();
-            if(s_gameState == GameState_MainMenu)
-                GoToMainMenu();
-            // Pick a random costume.
             if(s_rocket.random)
             {
+                // Pick a random costume.
                 Costume costume = Costume_Random;
                 while((!s_rocket.unlocks[costume]) || (costume == Costume_Random) || (costume == s_rocket.costume))
                     costume = CS_CAST(Costume, RandomS32(Costume_Red,Costume_Glitch));
                 s_rocket.costume = costume;
+            }
+            if(s_gameState == GameState_Game)
+            {
+                StartThruster();
+            }
+            else if(s_gameState == GameState_MainMenu)
+            {
+                GoToMainMenu();
             }
         }
     }
