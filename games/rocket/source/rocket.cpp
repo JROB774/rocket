@@ -1095,31 +1095,45 @@ static void UpdateMenuOptions(MenuOption* options, size_t count, f32 dt)
     }
 
     // Handle the interaction logic based on what type of option it is.
-    bool pressed = IsMouseButtonPressed(MouseButton_Left);
-    if(pressed)
+    bool leftPressed = IsMouseButtonPressed(MouseButton_Left);
+    bool rightPressed = IsMouseButtonPressed(MouseButton_Right);
+    if(leftPressed || rightPressed)
     {
         for(size_t i=0; i<count; ++i)
         {
             MenuOption& option = options[i];
             if(option.selected)
             {
-                sfx::PlaySound("select");
-                option.scale = 2.0f;
-                switch(option.type)
+                if(option.type == MenuOptionType_Button || option.type == MenuOptionType_Toggle)
                 {
-                    case(MenuOptionType_Toggle):
+                    if(leftPressed)
                     {
+                        sfx::PlaySound("select");
+                        option.scale = 2.0f;
                         option.toggle = !option.toggle;
-                    } break;
-                    case(MenuOptionType_Slider):
-                    {
-                        // @INCOMPLETE: ...
-                    } break;
+                        if(option.action)
+                            option.action(option);
+                    }
                 }
-                // Call the user-defined action on interaction.
-                if(option.action)
+                else if(option.type == MenuOptionType_Slider)
                 {
-                    option.action(option);
+                    sfx::PlaySound("select");
+                    option.scale = 2.0f;
+                    if(leftPressed)
+                    {
+                        option.slider += 0.1f;
+                        if(option.slider >= 1.1f)
+                            option.slider = 0.0f;
+                    }
+                    if(rightPressed)
+                    {
+                        option.slider -= 0.1f;
+                        if(option.slider <= -0.1f)
+                            option.slider = 1.0f;
+                    }
+                    option.slider = csm::Clamp(option.slider, 0.0f, 1.0f);
+                    if(option.action)
+                        option.action(option);
                 }
             }
         }
@@ -1139,13 +1153,11 @@ static void RenderMenuOptions(MenuOption* options, size_t count, f32 dt)
     for(size_t i=0; i<count; ++i)
     {
         MenuOption& option = options[i];
-
         f32 xPos  = option.bounds.x + (option.bounds.w * 0.5f);
         f32 yPos  = option.bounds.y + (option.bounds.h * 0.5f);
         f32 scale = option.scale;
         f32 angle = 0.0f;
         Rect clip = option.clip;
-
         if(option.selected)
         {
             clip.x += 128.0f;
@@ -1154,11 +1166,12 @@ static void RenderMenuOptions(MenuOption* options, size_t count, f32 dt)
         if(option.type == MenuOptionType_Toggle)
         {
             if(!option.toggle)
-            {
                 clip.y += 24.0f;
-            }
         }
-
+        if(option.type == MenuOptionType_Slider)
+        {
+            clip.y += (clip.h * roundf((option.slider*100.0f)/10.0f));
+        }
         imm::DrawTexture("menu", xPos,yPos, scale,scale, csm::ToRad(angle), imm::Flip_None, NULL, &clip);
     }
 }
@@ -1415,12 +1428,12 @@ static s32 s_resetSaveCounter;
 
 static void SettingsMenuActionSound(MenuOption& option)
 {
-    // @INCOMPLETE: ...
+    sfx::SetSoundVolume(option.slider);
 }
 
 static void SettingsMenuActionMusic(MenuOption& option)
 {
-    // @INCOMPLETE: ...
+    sfx::SetMusicVolume(option.slider);
 }
 
 static void SettingsMenuActionFullscreen(MenuOption& option)
@@ -1462,17 +1475,19 @@ enum SettingsMenuOption
 
 static MenuOption s_settingsMenuOptions[SettingsMenuOption_TOTAL]
 {
-{ SettingsMenuActionSound,      MenuOptionType_Slider, { 0.0f,128.0f,      180.0f,24.0f }, { 0,360,128,24 } },
-{ SettingsMenuActionMusic,      MenuOptionType_Slider, { 0.0f,128.0f+24.0f,180.0f,24.0f }, { 0,384,128,24 } },
-{ SettingsMenuActionFullscreen, MenuOptionType_Toggle, { 0.0f,128.0f+48.0f,180.0f,24.0f }, { 0,408,128,24 } },
-{ SettingsMenuActionVSync,      MenuOptionType_Toggle, { 0.0f,128.0f+72.0f,180.0f,24.0f }, { 0,456,128,24 } },
-{ SettingsMenuActionResetSave,  MenuOptionType_Button, { 0.0f,128.0f+96.0f,180.0f,24.0f }, { 0,504,128,24 } },
-{ SettingsMenuActionBack,       MenuOptionType_Button, { 0.0f,288.0f,      180.0f,24.0f }, { 0,576,128,24 } }
+{ SettingsMenuActionSound,      MenuOptionType_Slider, { 0.0f,128.0f,      180.0f,24.0f }, { 0,1128,128,24 } },
+{ SettingsMenuActionMusic,      MenuOptionType_Slider, { 0.0f,128.0f+24.0f,180.0f,24.0f }, { 0,1392,128,24 } },
+{ SettingsMenuActionFullscreen, MenuOptionType_Toggle, { 0.0f,128.0f+48.0f,180.0f,24.0f }, { 0, 408,128,24 } },
+{ SettingsMenuActionVSync,      MenuOptionType_Toggle, { 0.0f,128.0f+72.0f,180.0f,24.0f }, { 0, 456,128,24 } },
+{ SettingsMenuActionResetSave,  MenuOptionType_Button, { 0.0f,128.0f+96.0f,180.0f,24.0f }, { 0, 504,128,24 } },
+{ SettingsMenuActionBack,       MenuOptionType_Button, { 0.0f,288.0f,      180.0f,24.0f }, { 0, 576,128,24 } }
 };
 
 static void UpdateSettingsMenu(f32 dt)
 {
     if(s_gameState != GameState_SettingsMenu) return;
+    s_settingsMenuOptions[SettingsMenuOption_Sound].slider = sfx::GetSoundVolume();
+    s_settingsMenuOptions[SettingsMenuOption_Music].slider = sfx::GetMusicVolume();
     s_settingsMenuOptions[SettingsMenuOption_Fullscreen].toggle = IsFullscreen();
     s_settingsMenuOptions[SettingsMenuOption_ResetSave].clip.y = 504+(CS_CAST(f32,s_resetSaveCounter)*24.0f);
     UpdateMenuOptions(s_settingsMenuOptions, SettingsMenuOption_TOTAL, dt);
