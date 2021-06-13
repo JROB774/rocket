@@ -1560,6 +1560,7 @@ static void PauseMenuActionSettings(MenuOption& option)
 static void PauseMenuActionMenu(MenuOption& option)
 {
     ResetGame(GameState_MainMenu);
+    sfx::ResumeMusic();
 }
 
 enum PauseMenuOption
