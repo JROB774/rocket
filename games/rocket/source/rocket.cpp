@@ -361,7 +361,7 @@ static void RenderAsteroids(f32 dt)
     for(auto& asteroid: s_asteroids)
     {
         Rect clip = { CS_CAST(f32, 48*asteroid.type), 0, 48, 48 };
-        imm::DrawTexture("asteroid", asteroid.pos.x, asteroid.pos.y, 1.0f, 1.0f, 0.0f, asteroid.flip, &clip);
+        imm::DrawTexture("asteroid", asteroid.pos.x, asteroid.pos.y, 1.0f, 1.0f, 0.0f, asteroid.flip, NULL, &clip);
     }
 }
 
@@ -551,7 +551,7 @@ static void RenderSmoke(f32 dt)
     for(auto& s: s_smoke)
     {
         Rect clip = { CS_CAST(f32, 16*s.frame), 16*CS_CAST(f32, s_rocket.costume), 16, 16 };
-        imm::DrawTexture("smoke", s.pos.x, s.pos.y, s.scale,s.scale, csm::ToRad(s.angle), imm::Flip_None, &clip);
+        imm::DrawTexture("smoke", s.pos.x, s.pos.y, s.scale,s.scale, csm::ToRad(s.angle), imm::Flip_None, NULL, &clip);
     }
 }
 
@@ -865,8 +865,8 @@ static void RenderRocket(f32 dt)
             imm::DrawTexture("explosion", s_rocket.pos.x, s_rocket.pos.y, &clip);
             if(s_rocket.costume != Costume_Doodle)
             {
-                imm::DrawTexture("explosion", s_rocket.pos.x-20, s_rocket.pos.y-10, 0.5f,0.5f, 0.0f, imm::Flip_None, &clip);
-                imm::DrawTexture("explosion", s_rocket.pos.x+10, s_rocket.pos.y+30, 0.5f,0.5f, 0.0f, imm::Flip_None, &clip);
+                imm::DrawTexture("explosion", s_rocket.pos.x-20, s_rocket.pos.y-10, 0.5f,0.5f, 0.0f, imm::Flip_None, NULL, &clip);
+                imm::DrawTexture("explosion", s_rocket.pos.x+10, s_rocket.pos.y+30, 0.5f,0.5f, 0.0f, imm::Flip_None, NULL, &clip);
             }
         }
     }
@@ -876,7 +876,7 @@ static void RenderRocket(f32 dt)
         Rect clip = { 48*CS_CAST(f32,s_rocket.frame), 96*CS_CAST(f32,s_rocket.costume), 48, 96 };
         if(s_rocket.boost > 0.0f) clip.x += 48*5;
         f32 angle = csm::ToRad(s_rocket.angle + s_rocket.shake);
-        imm::DrawTexture("rocket", s_rocket.pos.x, s_rocket.pos.y, 1.0f, 1.0f, angle, imm::Flip_None, &clip);
+        imm::DrawTexture("rocket", s_rocket.pos.x, s_rocket.pos.y, 1.0f, 1.0f, angle, imm::Flip_None, NULL, &clip);
         // Draw the shield.
         if(s_rocket.shield)
         {
@@ -1159,7 +1159,7 @@ static void RenderMenuOptions(MenuOption* options, size_t count, f32 dt)
             }
         }
 
-        imm::DrawTexture("menu", xPos,yPos, scale,scale, csm::ToRad(angle), imm::Flip_None, &clip);
+        imm::DrawTexture("menu", xPos,yPos, scale,scale, csm::ToRad(angle), imm::Flip_None, NULL, &clip);
     }
 }
 
@@ -1254,7 +1254,7 @@ static void RenderMainMenu(f32 dt)
     s_scaleX = SinRange(0.8f, 1.0f, s_timer*1.5f);
     s_scaleY = SinRange(0.8f, 1.0f, s_timer*2.0f);
 
-    imm::DrawTexture("menu", halfW,48.0f, s_scaleX,s_scaleY, csm::ToRad(s_angle), imm::Flip_None, &titleClip);
+    imm::DrawTexture("menu", halfW,48.0f, s_scaleX,s_scaleY, csm::ToRad(s_angle), imm::Flip_None, NULL, &titleClip);
     imm::DrawTexture("menu", halfW,screenH-12.0f, &authorClip);
 }
 
@@ -1393,7 +1393,7 @@ static void RenderCostumesMenu(f32 dt)
 
     s_costumeScale = csm::Lerp(s_costumeScale, 1.0f, 0.5f);
 
-    imm::DrawTexture("costume", halfW,halfH, s_costumeScale,s_costumeScale, 0.0f, imm::Flip_None, &costumeClip);
+    imm::DrawTexture("costume", halfW,halfH, s_costumeScale,s_costumeScale, 0.0f, imm::Flip_None, NULL, &costumeClip);
     imm::DrawTexture("menu", halfW,halfH+48, &nameClip);
 }
 
