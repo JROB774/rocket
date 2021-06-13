@@ -157,11 +157,6 @@ static void GoToSettingsMenu();
 static void GoToGameOverMenu();
 static void GoToPauseMenu();
 
-static void ResetSave()
-{
-    // @INCOMPLETE: ...
-}
-
 //
 // Bitmap Font
 //
@@ -233,6 +228,25 @@ static void DrawBitmapFont(BitmapFont& font, f32 x, f32 y, std::string text, Vec
             ix += font.charWidth;
         }
     }
+}
+
+//
+// Save Game
+//
+
+static void SaveGame()
+{
+    // @INCOMPLETE: ...
+}
+
+static void LoadGame()
+{
+    // @INCOMPLETE: ...
+}
+
+static void ResetSave()
+{
+    // @INCOMPLETE: ...
 }
 
 //
