@@ -645,7 +645,7 @@ static void HitRocket()
 {
     if(s_rocket.shield)
     {
-        // @INCOMPLETE: ...
+        // ...
         s_rocket.shield = false;
     }
     else
@@ -822,7 +822,7 @@ static void UpdateRocket(f32 dt)
                     {
                         // If we're boosting then destroy the asteroid instead.
                         asteroid.dead = true;
-                        // @INCOMPLETE: ...
+                        // ...
                     }
                 }
             }
