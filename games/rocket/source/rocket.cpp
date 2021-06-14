@@ -435,6 +435,7 @@ static constexpr f32 k_difficultyIncreaseInterval = 5.0f;
 static constexpr s32 k_maxDifficulty = 75;
 
 static f32 s_entitySpawnCooldown;
+static f32 s_entitySpawnTimer;
 static f32 s_difficultyTimer;
 static s32 s_difficulty;
 
@@ -457,8 +458,13 @@ static void MaybeSpawnEntity(f32 dt)
             }
         }
 
-        if(RandomS32(0,1000) <= (s_difficulty * s_boostMultiplier))
-            SpawnAsteroid();
+        s_entitySpawnTimer += dt;
+        if(s_entitySpawnTimer >= 0.017f)
+        {
+            s_entitySpawnTimer -= 0.017f;
+            if(RandomS32(0,1000) <= (s_difficulty * s_boostMultiplier))
+                SpawnAsteroid();
+        }
     }
 }
 
@@ -917,6 +923,7 @@ static void RenderTransition(f32 dt)
             s_rocket.timer = 0.0f;
             s_rocket.dead = false;
             s_entitySpawnCooldown = k_entitySpawnCooldownTime;
+            s_entitySpawnTimer = 0.0f;
             s_boostMultiplier = 1.0f;
             s_difficultyTimer = 0.0f;
             s_difficulty = 50;
@@ -1165,6 +1172,7 @@ static void ResetMenuOptions(MenuOption* options, size_t count)
 static void MainMenuActionStart(MenuOption& option)
 {
     s_entitySpawnCooldown = k_entitySpawnCooldownTime;
+    s_entitySpawnTimer = 0.0f;
     ResetGame(GameState_Game);
 }
 
