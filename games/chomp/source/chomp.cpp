@@ -122,7 +122,7 @@ public:
 
     void SpawnSplats(f32 minX, f32 maxX, f32 minY, f32 maxY, f32 min, f32 max, const Rect* splats)
     {
-        s32 count = RandomS32(min,max);
+        s32 count = RandomS32(CS_CAST(s32,min),CS_CAST(s32,max));
         for(s32 i=0; i<count; ++i)
         {
             Vec4 color = k_bloodColors[RandomS32(0,7)];
