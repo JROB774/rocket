@@ -154,10 +154,15 @@ public:
         gfx::SetScreenScaleMode(gfx::ScaleMode_Pixel);
         gfx::SetScreenFilter(gfx::Filter_Nearest);
 
-        LoadAllAssets<gfx::Texture>();
-        LoadAllAssets<gfx::Shader>();
+        LoadAllAssetsOfType<gfx::Texture>();
+        LoadAllAssetsOfType<gfx::Shader>();
 
-        gfx::SetTextureFilter(*GetAsset<gfx::Texture>("mask"), gfx::Filter_Nearest);
+        auto& textures = GetAllAssetsOfType<gfx::Texture>();
+        for(auto& texture: textures)
+        {
+            gfx::SetTextureFilter(*texture, gfx::Filter_Nearest);
+            gfx::SetTextureWrap(*texture, gfx::Wrap_Clamp);
+        }
 
         f32 screenX = gfx::GetScreenWidth();
         f32 screenY = gfx::GetScreenHeight();
