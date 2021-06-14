@@ -16,13 +16,11 @@ config["output"] = "binary/chomp.exe"
 config["cpp"] = "c++17"
 config["debug"] = True
 config["unity"] = True
-config["compiler_params"] = "-EHsc -MT"
+config["compiler_params"] = "-EHsc -MT -W3"
 config["linker_params"] =  "-ignore:4099"
 
 config["include_dirs"] = [
     "source",
-    "source/third_party/gon",
-    "source/third_party/szlib",
     "../../cstech/source",
     "../../cstech/source/general",
     "../../cstech/source/sdl2",
