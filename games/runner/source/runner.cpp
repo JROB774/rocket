@@ -1,0 +1,45 @@
+#include "cs_application.hpp"
+#include "cs_graphics.hpp"
+
+using namespace cs;
+
+class RunnerApp: public Application
+{
+public:
+    void Init()
+    {
+        gfx::SetScreenScaleMode(gfx::ScaleMode_Pixel);
+        gfx::SetScreenFilter(gfx::Filter_Nearest);
+    }
+
+    void Quit()
+    {
+        // Nothing...
+    }
+
+    void Update(f32 dt)
+    {
+        // Nothing...
+    }
+
+    void Render(f32 dt)
+    {
+        gfx::Clear(1,0,1);
+    }
+
+    void DebugRender(f32 dt)
+    {
+        // Nothing...
+    }
+};
+
+AppConfig csMain(int argc, char** argv)
+{
+    AppConfig appConfig;
+    appConfig.title = "Runner";
+    appConfig.window.size = Vec2i(640,360);
+    appConfig.window.min  = Vec2i(320,180);
+    appConfig.screenSize  = Vec2i(320,180);
+    appConfig.app = Allocate<RunnerApp>(CS_MEM_GAME);
+    return appConfig;
+}
