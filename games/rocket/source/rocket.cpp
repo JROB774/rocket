@@ -759,7 +759,7 @@ static void UpdateRocket(f32 dt)
             // If the player moved the mouse fast enough then play a whoosh sound.
             static bool s_canPlayWhoosh = true;
             static f32 s_whooshVel = 0.0f;
-            if(abs(s_currMouseX - s_prevMouseX) >= 35.0f)
+            if(abs((s_currMouseX - s_prevMouseX) * dt) >= 35.0f * dt)
             {
                 if(s_canPlayWhoosh)
                 {
