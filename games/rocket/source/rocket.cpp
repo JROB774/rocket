@@ -1429,7 +1429,7 @@ static void SettingsMenuActionFullscreen(MenuOption& option)
 
 static void SettingsMenuActionVSync(MenuOption& option)
 {
-    // @INCOMPLETE: ...
+    EnableVSync(option.toggle);
 }
 
 static void SettingsMenuActionResetSave(MenuOption& option)
@@ -1476,6 +1476,7 @@ static void UpdateSettingsMenu(f32 dt)
     s_settingsMenuOptions[SettingsMenuOption_Sound].slider = sfx::GetSoundVolume();
     s_settingsMenuOptions[SettingsMenuOption_Music].slider = sfx::GetMusicVolume();
     s_settingsMenuOptions[SettingsMenuOption_Fullscreen].toggle = IsFullscreen();
+    s_settingsMenuOptions[SettingsMenuOption_VSync].toggle = IsVSyncOn();
     s_settingsMenuOptions[SettingsMenuOption_ResetSave].clip.y = 504+(CS_CAST(f32,s_resetSaveCounter)*24.0f);
     UpdateMenuOptions(s_settingsMenuOptions, SettingsMenuOption_TOTAL, dt);
     if(IsKeyPressed(KeyCode_Escape))
