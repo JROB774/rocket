@@ -37,9 +37,9 @@ AppConfig csMain(int argc, char** argv)
 {
     AppConfig appConfig;
     appConfig.title = "Runner";
-    appConfig.window.size = Vec2i(640,360);
-    appConfig.window.min  = Vec2i(320,180);
-    appConfig.screenSize  = Vec2i(320,180);
+    appConfig.window.size = Vec2i(480,288);
+    appConfig.window.min  = Vec2i(240,144);
+    appConfig.screenSize  = Vec2i(240,144);
     appConfig.app = Allocate<RunnerApp>(CS_MEM_GAME);
     return appConfig;
 }
