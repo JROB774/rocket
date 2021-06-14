@@ -1,0 +1,12 @@
++-------------------------------------------------------------------------------
+| GAMES
++------------------------+------------------------------------------------------
+| [/] ROCKET             | Fly upwards and dodge asteroids to get a highscore.
+| [/] CHOMP              | Crush enemies, very s
+| [/] RUNNER             | Port over the old Runner game to this engine.atisfying.
+| [ ] DESKTOP FRIEND/PET | Tamagotchi-like game.
+| [ ] BLOTUS             | ???
+| [ ] ORBY BOYS          | ???
+| [ ] SHAPE              | Test HDR+MSAA effects (redesign the gameplay).
+| [ ] PRESS THE BUTTON   | Button clicker game with some secrets and fun stuff.
+| [ ] BLOCK FEVER        | Redesign this game to actually be fun and interesting.
