@@ -5,6 +5,7 @@
 #include "cs_utility.hpp"
 
 #include <iomanip>
+#include <stack>
 #include <sstream>
 
 using namespace cs;
@@ -141,13 +142,13 @@ static constexpr Unlock k_unlocks[]
 
 static GameState s_gameState;
 static bool s_gamePaused;
-static bool s_gameOver;
 static bool s_gameResetting;
 static f32 s_boostMultiplier;
 static u32 s_gameFrame;
 static Rocket s_rocket;
 static Costume s_currentCostume;
 static std::vector<Asteroid> s_asteroids;
+static std::stack<Costume> s_gameOverUnlocks;
 
 static void GoToMainMenu();
 static void GoToScoresMenu();
@@ -684,8 +685,13 @@ static void HitRocket()
     {
         const Unlock& unlock = k_unlocks[i];
         if(s_rocket.score >= unlock.score)
+        {
             if(!s_rocket.unlocks[unlock.costume]) // Not already unlocked.
+            {
                 s_rocket.unlocks[unlock.costume] = true;
+                s_gameOverUnlocks.push(unlock.costume);
+            }
+        }
     }
 
     // Determine if the new score is a highscore and then save.
@@ -695,6 +701,8 @@ static void HitRocket()
         qsort(s_rocket.highscores,CS_ARRAY_SIZE(s_rocket.highscores),sizeof(s_rocket.highscores[0]),ScoreCompare);
     }
     SaveGame();
+
+    GoToGameOverMenu();
 }
 
 static void UpdateRocket(f32 dt)
@@ -858,17 +866,17 @@ static void RenderRocket(f32 dt)
             Rect clip = { 48*CS_CAST(f32,s_rocket.frame), 96*CS_CAST(f32,s_rocket.costume), 48, 96 };
             f32 angle = csm::ToRad(s_rocket.angle + s_rocket.shake);
             imm::DrawTexture("rocket", s_rocket.pos.x, s_rocket.pos.y, 1.0f, 1.0f, angle, imm::Flip_None, NULL, &clip);
-        }
 
-        // Draw the score.
-        bool beatHighscore = ((s_rocket.score > s_rocket.highscores[0]) && (s_rocket.highscores[0] != 0));
-        BitmapFont* font = (beatHighscore) ? &s_font1 : &s_font0;
-        std::string scoreStr = std::to_string(s_rocket.score);
-        f32 textWidth = GetTextLineWidth(*font, scoreStr);
-        if(beatHighscore) scoreStr += "!";
-        f32 screenWidth = gfx::GetScreenWidth();
-        f32 screenHeight = gfx::GetScreenHeight();
-        DrawBitmapFont(*font, roundf((screenWidth-textWidth)*0.5f),4.0f, scoreStr);
+            // Draw the score.
+            bool beatHighscore = ((s_rocket.score > s_rocket.highscores[0]) && (s_rocket.highscores[0] != 0));
+            BitmapFont* font = (beatHighscore) ? &s_font1 : &s_font0;
+            std::string scoreStr = std::to_string(s_rocket.score);
+            f32 textWidth = GetTextLineWidth(*font, scoreStr);
+            if(beatHighscore) scoreStr += "!";
+            f32 screenWidth = gfx::GetScreenWidth();
+            f32 screenHeight = gfx::GetScreenHeight();
+            DrawBitmapFont(*font, roundf((screenWidth-textWidth)*0.5f),4.0f, scoreStr);
+        }
     }
 }
 
@@ -1014,7 +1022,7 @@ static void RenderBackground(f32 dt)
 
 static void RenderCursor(f32 dt)
 {
-    if(s_gameState != GameState_Game || s_gamePaused)
+    if(s_gameState != GameState_Game || s_gamePaused || s_rocket.dead)
     {
         Vec2 pos = GetScreenMousePos();
         f32 x = roundf(pos.x);
@@ -1510,19 +1518,47 @@ static void GoToSettingsMenu()
 // Game Over Menu
 //
 
+static void GameOverMenuActionRetry(MenuOption& option)
+{
+    ResetGame(GameState_Game);
+}
+
+static void GameOverMenuActionMenu(MenuOption& option)
+{
+    ResetGame(GameState_MainMenu);
+}
+
+enum GameOverMenuOption
+{
+    GameOverMenuOption_Retry,
+    GameOverMenuOption_Menu,
+    GameOverMenuOption_TOTAL
+};
+
+static MenuOption s_gameOverMenuOptions[GameOverMenuOption_TOTAL]
+{
+{ GameOverMenuActionRetry, MenuOptionType_Button, { 0.0f,248.0f,180.0f,24.0f }, { 0,1656,128,24 } },
+{ GameOverMenuActionMenu,  MenuOptionType_Button, { 0.0f,272.0f,180.0f,24.0f }, { 0, 336,128,24 } }
+};
+
 static void UpdateGameOverMenu(f32 dt)
 {
-    // @INCOMPLETE: ...
+    if(s_gameState != GameState_Game) return;
+    if(s_gameResetting || !s_rocket.dead) return;
+    UpdateMenuOptions(s_gameOverMenuOptions, GameOverMenuOption_TOTAL, dt);
 }
 
 static void RenderGameOverMenu(f32 dt)
 {
-    // @INCOMPLETE: ...
+    if(s_gameState != GameState_Game) return;
+    if(s_gameResetting || !s_rocket.dead) return;
+    RenderMenuOptions(s_gameOverMenuOptions, GameOverMenuOption_TOTAL, dt);
 }
 
 static void GoToGameOverMenu()
 {
-    // @INCOMPLETE: ...
+    s_gameState = GameState_Game;
+    ResetMenuOptions(s_gameOverMenuOptions, GameOverMenuOption_TOTAL);
 }
 
 //
@@ -1695,7 +1731,7 @@ public:
     void Update(f32 dt)
     {
         // Handle locking/unlocking and showing/hiding the mouse with debug mode.
-        s_lockMouse = (!s_gamePaused && (s_gameState == GameState_Game));
+        s_lockMouse = (!s_gamePaused && !s_rocket.dead && (s_gameState == GameState_Game));
         s_showMouse = (IsDebugMode());
         if(IsDebugMode() && IsKeyDown(KeyCode_LeftAlt))
             s_lockMouse = false;
@@ -1715,11 +1751,6 @@ public:
 
         if(!s_gamePaused)
         {
-            // If the rocket is dead then pressing R resets the game.
-            if(s_gameState == GameState_Game && s_rocket.dead && !s_gameResetting)
-                if(IsMouseButtonPressed(MouseButton_Left))
-                    ResetGame(GameState_Game);
-
             if((s_gameState == GameState_Game) && !s_gameResetting)
                 MaybeSpawnEntity(dt);
             UpdateBackground(dt);
