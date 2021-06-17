@@ -1584,12 +1584,12 @@ static void RenderGameOverMenu(f32 dt)
     // Draw the score achieved.
     bool newHighscore = (s_rocket.score >= s_rocket.highscores[0]);
     std::string scoreStr = std::to_string(s_rocket.score);
-    f32 textWidth = GetTextLineWidth(s_font0, scoreStr);
+    f32 textWidth = GetTextLineWidth(s_bigFont0, scoreStr);
     if(newHighscore) scoreStr += "!";
     f32 screenWidth = gfx::GetScreenWidth();
     f32 screenHeight = gfx::GetScreenHeight();
-    f32 textHeight = screenHeight*0.40f;
-    DrawBitmapFont(s_font0, roundf((screenWidth-textWidth)*0.5f),textHeight, scoreStr);
+    f32 textHeight = screenHeight*0.33f;
+    DrawBitmapFont(s_bigFont0, roundf((screenWidth-textWidth)*0.5f),textHeight, scoreStr);
 
     // Draw a message depending on what the score was.
     Rect newHighClip  = { 0,1680,256,24 };
@@ -1600,7 +1600,7 @@ static void RenderGameOverMenu(f32 dt)
     if(s_rocket.score >= s_rocket.highscores[9]) clip = wellDoneClip;
     if(s_rocket.score >= s_rocket.highscores[0]) clip = newHighClip;
 
-    imm::DrawTexture("menu", screenWidth*0.5f,textHeight+48.0f, &clip);
+    imm::DrawTexture("menu", screenWidth*0.5f,textHeight+64.0f, &clip);
 }
 
 static void GoToGameOverMenu()
