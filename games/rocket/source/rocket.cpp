@@ -3,35 +3,11 @@
 static bool s_lockMouse = true;
 static bool s_showMouse = false;
 
-static void GameStateDebugUiCallback(bool& open)
-{
-    ImGui::Text("Lock Mouse: %s", (s_lockMouse) ? "True" : "False");
-    ImGui::Text("Show Mouse: %s", (s_showMouse) ? "True" : "False");
-    ImGui::Separator();
-    ImGui::Text("Particle Count: %d", s_smoke.size());
-    ImGui::Text("Asteroid Count: %d", s_asteroids.size());
-    ImGui::Separator();
-    ImGui::Text("Rocket");
-    ImGui::Spacing();
-    ImGui::Text("Position: (%f,%f)", s_rocket.pos.x,s_rocket.pos.y);
-    ImGui::Text("Velocity: (%f,%f)", s_rocket.vel.x,s_rocket.vel.y);
-    ImGui::Text("Angle: %f", s_rocket.angle);
-    ImGui::Text("Shake: %f", s_rocket.shake);
-    ImGui::Text("Timer: %f", s_rocket.timer);
-    ImGui::Text("Score: %d", s_rocket.score);
-    ImGui::Text("Frame: %d", s_rocket.frame);
-    ImGui::Text("Dead: %s", (s_rocket.dead) ? "True" : "False");
-    ImGui::Separator();
-    ImGui::Text("Difficulty: %d", s_difficulty);
-}
-
 class RocketApp: public Application
 {
 public:
     void Init()
     {
-        RegisterDebugUiWindow("Game State", GameStateDebugUiCallback);
-
         gfx::SetScreenScaleMode(gfx::ScaleMode_Pixel);
         gfx::SetScreenFilter(gfx::Filter_Nearest);
 
