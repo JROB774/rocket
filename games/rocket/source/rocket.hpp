@@ -12,8 +12,6 @@
 
 using namespace cs;
 
-static constexpr f32 k_fallSpeed = 400.0f;
-
 enum GameState
 {
     GameState_MainMenu,

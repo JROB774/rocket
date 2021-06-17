@@ -19,6 +19,7 @@ struct Asteroid
 
 static constexpr f32 k_asteroidMinSpinSpeed = 240.0f;
 static constexpr f32 k_asteroidMaxSpinSpeed = 420.0f;
+static constexpr f32 k_asteroidFallSpeed = 400.0f;
 
 static constexpr f32 k_entitySpawnCooldownTime = 2.0f;
 static constexpr f32 k_difficultyIncreaseInterval = 5.0f;

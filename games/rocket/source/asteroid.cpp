@@ -18,9 +18,7 @@ static void SpawnAsteroid()
 static void UpdateAsteroids(f32 dt)
 {
     for(auto& asteroid: s_asteroids)
-    {
-        asteroid.pos.y += k_fallSpeed * dt;
-    }
+        asteroid.pos.y += k_asteroidFallSpeed * dt;
 
     s_asteroids.erase(std::remove_if(s_asteroids.begin(), s_asteroids.end(),
     [](const Asteroid& asteroid)
@@ -52,9 +50,7 @@ static void DebugRenderAsteroids(f32 dt)
 static void MaybeSpawnEntity(f32 dt)
 {
     if(s_entitySpawnCooldown > 0.0f)
-    {
         s_entitySpawnCooldown -= dt;
-    }
     else
     {
         // Slowly increase the difficulty as the game goes on.
