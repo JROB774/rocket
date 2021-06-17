@@ -431,7 +431,7 @@ enum EntityType
     EntityType_TOTAL
 };
 
-static constexpr f32 k_entitySpawnCooldownTime = 1.0f;
+static constexpr f32 k_entitySpawnCooldownTime = 2.0f;
 static constexpr f32 k_difficultyIncreaseInterval = 5.0f;
 static constexpr s32 k_maxDifficulty = 75;
 
