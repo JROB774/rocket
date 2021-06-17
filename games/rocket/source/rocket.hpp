@@ -23,9 +23,9 @@ enum GameState
 };
 
 static GameState s_gameState;
+static u64 s_gameFrame;
 static bool s_gamePaused;
 static bool s_gameResetting;
-static u32 s_gameFrame;
 
 #include "utility.hpp"
 #include "collision.hpp"
