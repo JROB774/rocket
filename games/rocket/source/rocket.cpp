@@ -856,6 +856,8 @@ static void UpdateRocket(f32 dt)
         {
             u32 oldScore = s_rocket.score;
             s_rocket.score += CS_CAST(s32, (2.0f * s_boostMultiplier));
+            if(s_rocket.score > 999999)
+                s_rocket.score = 999999;
             if(s_rocket.highscores[0] != 0 && oldScore <= s_rocket.highscores[0] && s_rocket.score > s_rocket.highscores[0])
                 sfx::PlaySound("highscore");
         }
