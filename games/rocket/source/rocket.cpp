@@ -1555,6 +1555,8 @@ static void RenderGameOverMenu(f32 dt)
     if(s_gameState != GameState_Game) return;
     if(s_gameResetting || !s_rocket.dead) return;
     RenderMenuOptions(s_gameOverMenuOptions, GameOverMenuOption_TOTAL, dt);
+    Rect titleClip = { 0,1704,256,32 };
+    imm::DrawTexture("menu", gfx::GetScreenWidth()*0.5f,24.0f, &titleClip);
 }
 
 static void GoToGameOverMenu()
