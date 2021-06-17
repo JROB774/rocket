@@ -191,6 +191,7 @@ static f32 GetCharWidth(BitmapFont& font, char c)
     {
         switch(c)
         {
+            case('!'): return  6;
             case('0'): return 13;
             case('1'): return 10;
             case('2'): return 13;
@@ -207,6 +208,7 @@ static f32 GetCharWidth(BitmapFont& font, char c)
     {
         switch(c)
         {
+            case('!'): return  8;
             case('0'): return 21;
             case('1'): return 14;
             case('2'): return 21;
@@ -1583,9 +1585,8 @@ static void RenderGameOverMenu(f32 dt)
 
     // Draw the score achieved.
     bool newHighscore = (s_rocket.score >= s_rocket.highscores[0]);
-    std::string scoreStr = std::to_string(s_rocket.score);
+    std::string scoreStr = std::to_string(s_rocket.score) + "!";
     f32 textWidth = GetTextLineWidth(s_bigFont0, scoreStr);
-    if(newHighscore) scoreStr += "!";
     f32 screenWidth = gfx::GetScreenWidth();
     f32 screenHeight = gfx::GetScreenHeight();
     f32 textHeight = screenHeight*0.33f;
