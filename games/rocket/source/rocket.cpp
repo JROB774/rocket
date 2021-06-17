@@ -1557,6 +1557,27 @@ static void RenderGameOverMenu(f32 dt)
     RenderMenuOptions(s_gameOverMenuOptions, GameOverMenuOption_TOTAL, dt);
     Rect titleClip = { 0,1704,256,32 };
     imm::DrawTexture("menu", gfx::GetScreenWidth()*0.5f,24.0f, &titleClip);
+
+    // Draw the score achieved.
+    bool newHighscore = (s_rocket.score >= s_rocket.highscores[0]);
+    std::string scoreStr = std::to_string(s_rocket.score);
+    f32 textWidth = GetTextLineWidth(s_font0, scoreStr);
+    if(newHighscore) scoreStr += "!";
+    f32 screenWidth = gfx::GetScreenWidth();
+    f32 screenHeight = gfx::GetScreenHeight();
+    f32 textHeight = screenHeight*0.40f;
+    DrawBitmapFont(s_font0, roundf((screenWidth-textWidth)*0.5f),textHeight, scoreStr);
+
+    // Draw a message depending on what the score was.
+    Rect newHighClip  = { 0,1680,256,24 };
+    Rect wellDoneClip = { 0,1760,256,24 };
+    Rect niceTryClip  = { 0,1736,256,24 };
+
+    Rect clip = niceTryClip;
+    if(s_rocket.score >= s_rocket.highscores[9]) clip = wellDoneClip;
+    if(s_rocket.score >= s_rocket.highscores[0]) clip = newHighClip;
+
+    imm::DrawTexture("menu", screenWidth*0.5f,textHeight+48.0f, &clip);
 }
 
 static void GoToGameOverMenu()
