@@ -171,6 +171,8 @@ struct BitmapFont
 
 static BitmapFont s_font0;
 static BitmapFont s_font1;
+static BitmapFont s_bigFont0;
+static BitmapFont s_bigFont1;
 
 static void LoadBitmapFont(BitmapFont& font, f32 cw, f32 ch, std::string texture)
 {
@@ -185,18 +187,37 @@ static void LoadBitmapFont(BitmapFont& font, f32 cw, f32 ch, std::string texture
 
 static f32 GetCharWidth(BitmapFont& font, char c)
 {
-    switch(c)
+    if(font.charWidth == 14) // Small font.
     {
-        case('0'): return 13;
-        case('1'): return 10;
-        case('2'): return 13;
-        case('3'): return 13;
-        case('4'): return 13;
-        case('5'): return 13;
-        case('6'): return 13;
-        case('7'): return 13;
-        case('8'): return 13;
-        case('9'): return 13;
+        switch(c)
+        {
+            case('0'): return 13;
+            case('1'): return 10;
+            case('2'): return 13;
+            case('3'): return 13;
+            case('4'): return 13;
+            case('5'): return 13;
+            case('6'): return 13;
+            case('7'): return 13;
+            case('8'): return 13;
+            case('9'): return 13;
+        }
+    }
+    if(font.charWidth == 24) // Big font.
+    {
+        switch(c)
+        {
+            case('0'): return 21;
+            case('1'): return 14;
+            case('2'): return 21;
+            case('3'): return 21;
+            case('4'): return 23;
+            case('5'): return 20;
+            case('6'): return 21;
+            case('7'): return 21;
+            case('8'): return 21;
+            case('9'): return 20;
+        }
     }
     return font.charWidth;
 }
@@ -1738,8 +1759,10 @@ public:
         CreateRocket();
         CreateSmoke();
 
-        LoadBitmapFont(s_font0, 14,24, "font0");
-        LoadBitmapFont(s_font1, 14,24, "font1");
+        LoadBitmapFont(   s_font0, 14,24,    "font0");
+        LoadBitmapFont(   s_font1, 14,24,    "font1");
+        LoadBitmapFont(s_bigFont0, 24,40, "bigfont0");
+        LoadBitmapFont(s_bigFont1, 24,40, "bigfont1");
 
         sfx::PlayMusic("music", -1);
 
