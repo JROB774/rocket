@@ -1546,6 +1546,8 @@ static void UpdateGameOverMenu(f32 dt)
     if(s_gameState != GameState_Game) return;
     if(s_gameResetting || !s_rocket.dead) return;
     UpdateMenuOptions(s_gameOverMenuOptions, GameOverMenuOption_TOTAL, dt);
+    if(IsKeyPressed(KeyCode_R))
+        GameOverMenuActionRetry(s_gameOverMenuOptions[GameOverMenuOption_Retry]);
 }
 
 static void RenderGameOverMenu(f32 dt)
