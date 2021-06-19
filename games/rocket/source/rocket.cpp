@@ -11,9 +11,6 @@ public:
         gfx::SetScreenScaleMode(gfx::ScaleMode_Pixel);
         gfx::SetScreenFilter(gfx::Filter_Nearest);
 
-        sfx::SetSoundVolume(0.4f);
-        sfx::SetMusicVolume(0.0f);
-
         LoadAllAssetsOfType<gfx::Texture>();
         LoadAllAssetsOfType<gfx::Shader>();
         LoadAllAssetsOfType<sfx::Sound>();
