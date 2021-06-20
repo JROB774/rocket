@@ -6,7 +6,7 @@ static bool s_showMouse = false;
 class RocketApp: public Application
 {
 public:
-    void Init()
+    void OnInit() override
     {
         gfx::SetScreenScaleMode(gfx::ScaleMode_Pixel);
         gfx::SetScreenFilter(gfx::Filter_Nearest);
@@ -40,12 +40,12 @@ public:
         s_gamePaused = false;
     }
 
-    void Quit()
+    void OnQuit() override
     {
         SaveGame();
     }
 
-    void Update(f32 dt)
+    void OnUpdate(f32 dt) override
     {
         // Handle locking/unlocking and showing/hiding the mouse with debug mode.
         s_lockMouse = (!s_gamePaused && !s_rocket.dead && (s_gameState == GameState_Game));
@@ -79,7 +79,7 @@ public:
         s_gameFrame++;
     }
 
-    void Render(f32 dt)
+    void OnRender(f32 dt) override
     {
         RenderBackground(dt);
         RenderSmoke(dt);
@@ -95,7 +95,7 @@ public:
         RenderTransition(dt);
     }
 
-    void DebugRender(f32 dt)
+    void OnDebugRender(f32 dt) override
     {
         DebugRenderAsteroids(dt);
         DebugRenderRocket(dt);
