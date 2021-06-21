@@ -37,6 +37,7 @@ enum PlayerType
 struct Player
 {
     Vec2 pos,vel;
+    AnimationState anim;
     PlayerState state;
     PlayerType type;
 };
