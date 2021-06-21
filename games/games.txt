@@ -10,3 +10,11 @@
 | [ ] SHAPE              | Test HDR+MSAA effects (redesign the gameplay).
 | [ ] PRESS THE BUTTON   | Button clicker game with some secrets and fun stuff.
 | [ ] BLOCK FEVER        | Redesign this game to actually be fun and interesting.
+| [ ] TYPING GAME        | Game where typing is the main mechanic.
+| [ ] POINT AND CLICK    | Weird point-and-click puzzle/exploration game.
+| [ ] FPS DUNGEON        | First-person dungeon (turn-based?) etc.
+| [ ] EYEBALL SHMUP      | Controlled with the mouse.
+| [ ] ARCADE SHOOTER     | Topdown arcade highscore shooter game.
+| [ ] CARD GAME FIGHTER  | Combat revolves around cards (twitter monsters?).
+| [ ] ZELDA-LIKE         | A game that's in the style of Zelda 1.
+| [ ] SIMPLE PLATFORMER  | Very simple platformer game.
