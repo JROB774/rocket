@@ -3,28 +3,32 @@
 class RunnerApp: public Application
 {
 public:
-    void Init()
+    void OnInit() override
     {
         gfx::SetScreenScaleMode(gfx::ScaleMode_Pixel);
         gfx::SetScreenFilter(gfx::Filter_Nearest);
     }
 
-    void Quit()
+    void OnQuit() override
     {
         // Nothing...
     }
 
-    void Update(f32 dt)
+    void OnUpdate(f32 dt) override
     {
         // Nothing...
     }
 
-    void Render(f32 dt)
+    void OnRender(f32 dt) override
     {
-        gfx::Clear(1,0,1);
+        f32 halfWidth = gfx::GetScreenWidth() * 0.5f;
+        f32 halfHeight = gfx::GetScreenHeight() * 0.5f;
+
+        imm::DrawTexture("bg", halfWidth,halfHeight);
+        imm::DrawTexture("fg", halfWidth,halfHeight);
     }
 
-    void DebugRender(f32 dt)
+    void OnDebugRender(f32 dt) override
     {
         // Nothing...
     }
