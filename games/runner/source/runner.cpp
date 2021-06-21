@@ -7,6 +7,12 @@ public:
     {
         gfx::SetScreenScaleMode(gfx::ScaleMode_Pixel);
         gfx::SetScreenFilter(gfx::Filter_Nearest);
+
+        LoadAllAssetsOfType<gfx::Texture>();
+        LoadAllAssetsOfType<gfx::Shader>();
+        LoadAllAssetsOfType<sfx::Sound>();
+        LoadAllAssetsOfType<sfx::Music>();
+        LoadAllAssetsOfType<Animation>();
     }
 
     void OnQuit() override

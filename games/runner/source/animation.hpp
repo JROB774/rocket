@@ -1,16 +1,31 @@
 #pragma once
 
-struct Animation
+struct AnimationFrame
 {
-    // @INCOMPLETE: ...
+    f32 duration;
+    Rect clip;
 };
 
 struct AnimationState
 {
-    // @INCOMPLETE: ...
+    f32 timer;
+    s32 frame;
+};
+
+struct Animation
+{
+    std::vector<AnimationFrame> frames;
+    bool looped;
 };
 
 static bool LoadAnimation(Animation& anim, std::string fileName);
+static void FreeAnimation(Animation& anim);
+static void UpdateAnimation(std::string name, AnimationState& state, f32 dt);
+static void ResetAnimation(std::string name, AnimationState& state);
+static bool IsAnimationDone(std::string name, AnimationState& state);
+static Rect GetAnimationFrame(std::string name, AnimationState& state);
+static f32  GetAnimationFrameWidth(std::string name, AnimationState& state);
+static f32  GetAnimatioNFrameHeight(std::string name, AnimationState& state);
 
 CS_DECLARE_ASSET(Animation)
 {

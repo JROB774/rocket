@@ -1,7 +1,11 @@
 #pragma once
 
+#include "cs_platform.hpp"
 #include "cs_application.hpp"
 #include "cs_graphics.hpp"
+#include "cs_audio.hpp"
+
+#include <sstream>
 
 using namespace cs;
 
