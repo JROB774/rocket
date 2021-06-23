@@ -34,7 +34,7 @@ public:
         LoadBitmapFont(s_bigFont0, 24,40, "bigfont0");
         LoadBitmapFont(s_bigFont1, 24,40, "bigfont1");
 
-        sfx::PlayMusic("music", -1);
+        // sfx::PlayMusic("music", -1); // @INCOMPLETE: Add in music!
 
         s_gameState = GameState_MainMenu;
         s_gamePaused = false;
