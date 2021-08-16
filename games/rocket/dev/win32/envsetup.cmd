@@ -1,3 +1,3 @@
 @echo off
-set path=%path%;%~dp0..\..\..\..\cstech\csbuild
+set path=%path%;%~dp0..\csbuild
 cd ..\..

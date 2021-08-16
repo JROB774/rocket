@@ -3,15 +3,15 @@ from shutil import copyfile
 # Right now we are just specifying a bunch of stuff manually with no arguments/options. In the future
 # we are going to want to implement a proper build script for this program which is more advanced.
 
-copyfile("../../cstech/third_party/sdl2/bin/win32/SDL2.dll", "binary/SDL2.dll")
-copyfile("../../cstech/third_party/sdl2_mixer/bin/win32/SDL2_mixer.dll", "binary/SDL2_mixer.dll")
-copyfile("../../cstech/third_party/sdl2_mixer/bin/win32/libogg-0.dll", "binary/libogg-0.dll")
-copyfile("../../cstech/third_party/sdl2_mixer/bin/win32/libvorbis-0.dll", "binary/libvorbis-0.dll")
-copyfile("../../cstech/third_party/sdl2_mixer/bin/win32/libvorbisfile-3.dll", "binary/libvorbisfile-3.dll")
+copyfile("source/cstech/third_party/sdl2/bin/win32/SDL2.dll", "binary/SDL2.dll")
+copyfile("source/cstech/third_party/sdl2_mixer/bin/win32/SDL2_mixer.dll", "binary/SDL2_mixer.dll")
+copyfile("source/cstech/third_party/sdl2_mixer/bin/win32/libogg-0.dll", "binary/libogg-0.dll")
+copyfile("source/cstech/third_party/sdl2_mixer/bin/win32/libvorbis-0.dll", "binary/libvorbis-0.dll")
+copyfile("source/cstech/third_party/sdl2_mixer/bin/win32/libvorbisfile-3.dll", "binary/libvorbisfile-3.dll")
 
 config = empty_config()
 
-config["dependencies"] = [ "../../cstech/build.script" ]
+config["dependencies"] = []
 config["output"] = "binary/rocket.exe"
 config["cpp"] = "c++17"
 config["debug"] = True
@@ -21,27 +21,25 @@ config["linker_params"] =  "-ignore:4099"
 
 config["include_dirs"] = [
     "source",
-    "../../cstech/source",
-    "../../cstech/source/general",
-    "../../cstech/source/sdl2",
-    "../../cstech/source/opengl",
-    "../../cstech/third_party/sdl2/include",
-    "../../cstech/third_party/sdl2/include/SDL2",
-    "../../cstech/third_party/sdl2_mixer/include",
-    "../../cstech/third_party/sdl2_mixer/include/SDL2",
-    "../../cstech/third_party/glad",
-    "../../cstech/third_party/imgui",
-    "../../cstech/third_party/nothings",
-    "../../cstech/third_party/nlohmann",
-    "../../cstech/third_party/csmath"
+    "source/cstech/source",
+    "source/cstech/source/general",
+    "source/cstech/source/sdl2",
+    "source/cstech/source/opengl",
+    "source/cstech/third_party/sdl2/include",
+    "source/cstech/third_party/sdl2/include/SDL2",
+    "source/cstech/third_party/sdl2_mixer/include",
+    "source/cstech/third_party/sdl2_mixer/include/SDL2",
+    "source/cstech/third_party/glad",
+    "source/cstech/third_party/imgui",
+    "source/cstech/third_party/nothings",
+    "source/cstech/third_party/nlohmann",
+    "source/cstech/third_party/csmath"
 ]
 config["library_dirs"] = [
-    "../../cstech/binary",
-    "../../cstech/third_party/sdl2/lib/win32",
-    "../../cstech/third_party/sdl2_mixer/lib/win32"
+    "source/cstech/third_party/sdl2/lib/win32",
+    "source/cstech/third_party/sdl2_mixer/lib/win32"
 ]
 config["libraries"] = [
-    "cstech.lib",
     "SDL2main.lib",
     "SDL2.lib",
     "SDL2_mixer.lib",
@@ -71,5 +69,19 @@ config["defines"] = [
 config["sources"] = [
     "source/rocket.cpp"
 ]
+
+exclude_dirs = set(["faudio", "stub"])
+third_party_dir = "source/cstech/third_party"
+for root, dirs, files in os.walk(third_party_dir):
+    dirs[:] = [d for d in dirs if d not in exclude_dirs]
+    for dir in dirs:
+        config["include_dirs"].append(os.path.join(root, dir))
+    for file in files:
+        file_name = os.path.join(root, file)
+        extension = os.path.splitext(file_name)[1]
+        if extension in [ ".cpp", ".c" ]:
+            config["sources"].append(file_name)
+        elif extension in [ ".hpp", ".h" ]:
+            config["headers"].append(file_name)
 
 generate_config(config)
