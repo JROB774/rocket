@@ -5,8 +5,6 @@
 
 CS_PUBLIC_SCOPE
 {
-    CS_API void InputStateDebugUi(bool& open);
-
     // Keyboard
     enum KeyCode
     {

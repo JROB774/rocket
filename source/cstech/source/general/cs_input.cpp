@@ -13,32 +13,24 @@ CS_PRIVATE_SCOPE
 
 CS_PUBLIC_SCOPE
 {
-    CS_API void InputStateDebugUi(bool& open)
-    {
-        // @INCOMPLETE: ...
-    }
-
     //
     // Keyboard
     //
 
     CS_API bool IsKeyDown(KeyCode code)
     {
-        if(DoesDebugUiWantKeyboardInput()) return false;
         if(code == KeyCode_Invalid) return false;
         return (GetInput().currentKeyState[code] != 0);
     }
 
     CS_API bool IsKeyUp(KeyCode code)
     {
-        if(DoesDebugUiWantKeyboardInput()) return false;
         if(code == KeyCode_Invalid) return false;
         return (GetInput().currentKeyState[code] == 0);
     }
 
     CS_API bool IsKeyPressed(KeyCode code)
     {
-        if(DoesDebugUiWantKeyboardInput()) return false;
         if(code == KeyCode_Invalid) return false;
         return (GetInput().currentKeyState[code] != 0 &&
                 GetInput().previousKeyState[code] == 0);
@@ -46,7 +38,6 @@ CS_PUBLIC_SCOPE
 
     CS_API bool IsKeyReleased(KeyCode code)
     {
-        if(DoesDebugUiWantKeyboardInput()) return false;
         if(code == KeyCode_Invalid) return false;
         return (GetInput().currentKeyState[code] == 0 &&
                 GetInput().previousKeyState[code] != 0);
@@ -54,7 +45,6 @@ CS_PUBLIC_SCOPE
 
     CS_API bool IsAnyKeyDown()
     {
-        if(DoesDebugUiWantKeyboardInput()) return false;
         for(s32 i=0; i<CS_CAST(s32, KeyCode_TOTAL); ++i)
             if(IsKeyDown(CS_CAST(KeyCode, i))) return true;
         return false;
@@ -62,7 +52,6 @@ CS_PUBLIC_SCOPE
 
     CS_API bool IsAnyKeyUp()
     {
-        if(DoesDebugUiWantKeyboardInput()) return false;
         for(s32 i=0; i<CS_CAST(s32, KeyCode_TOTAL); ++i)
             if(IsKeyUp(CS_CAST(KeyCode, i))) return true;
         return false;
@@ -70,7 +59,6 @@ CS_PUBLIC_SCOPE
 
     CS_API bool IsAnyKeyPressed()
     {
-        if(DoesDebugUiWantKeyboardInput()) return false;
         for(s32 i=0; i<CS_CAST(s32, KeyCode_TOTAL); ++i)
             if(IsKeyPressed(CS_CAST(KeyCode, i))) return true;
         return false;
@@ -78,7 +66,6 @@ CS_PUBLIC_SCOPE
 
     CS_API bool IsAnyKeyReleased()
     {
-        if(DoesDebugUiWantKeyboardInput()) return false;
         for(s32 i=0; i<CS_CAST(s32, KeyCode_TOTAL); ++i)
             if(IsKeyReleased(CS_CAST(KeyCode, i))) return true;
         return false;
@@ -230,7 +217,6 @@ CS_PUBLIC_SCOPE
                 GetInput().previousButtonState[button] != 0);
     }
 
-    // @INCOMPLETE: Should this be handling the deadzone? Maybe have GetAxisRaw if we want it without deadzone.
     CS_API s16 GetAxis(GamepadAxis axis)
     {
         if(!GetInput().hasGamepad) return 0;

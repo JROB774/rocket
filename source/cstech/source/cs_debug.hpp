@@ -28,7 +28,6 @@ CS_PUBLIC_SCOPE
     CS_API void RegisterDebugUiWindow(std::string name, DebugUiWindowCallback windowCallback);
     CS_API void UnregisterDebugUiWindow(std::string name);
 
-    CS_API bool DoesDebugUiWantKeyboardInput();
     CS_API bool DoesDebugUiWantMouseInput();
 
     CS_API Rect GetDebugGameViewport();

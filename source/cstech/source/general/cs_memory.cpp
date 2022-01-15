@@ -44,9 +44,4 @@ CS_PUBLIC_SCOPE
             }
         }
     }
-
-    CS_API void MemoryTrackerDebugUi(bool& open)
-    {
-        // @INCOMPLETE: ...
-    }
 }

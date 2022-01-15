@@ -24,8 +24,6 @@ CS_PUBLIC_SCOPE
 
     CS_API void CheckTrackedMemory();
 
-    CS_API void MemoryTrackerDebugUi(bool& open);
-
     template<typename T>
     CS_API CS_INLINE T* Allocate(const MemoryTag& tag, size_t count = 1)
     {

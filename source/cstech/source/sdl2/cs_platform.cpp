@@ -416,7 +416,6 @@ CS_PUBLIC_SCOPE
 
     CS_API std::string ValidatePath(std::string pathName)
     {
-        // @IMPROVE: Check if it's a file name at the end and if it is then don't append a slash!
         std::replace(pathName.begin(), pathName.end(), '\\', '/');
         if(IsPath(pathName) && pathName.back() != '/') pathName += "/";
         return pathName;
@@ -622,9 +621,7 @@ int main(int argc, char** argv)
     };
 
     // Register Debug Windows
-    RegisterDebugUiWindow("Memory Tracker", MemoryTrackerDebugUi);
     RegisterDebugUiWindow("Asset Manager", AssetManagerDebugUi);
-    RegisterDebugUiWindow("Input State", InputStateDebugUi);
 
     s_appConfig.app->OnInit();
     s_appConfig.app->m_running = true;

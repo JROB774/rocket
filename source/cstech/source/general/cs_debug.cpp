@@ -333,13 +333,6 @@ CS_PUBLIC_SCOPE
         s_debugWindows.erase(name);
     }
 
-    CS_API bool DoesDebugUiWantKeyboardInput()
-    {
-        if(!s_debugMode) return false;
-        // @INCOMPLETE: ...
-        return false;
-    }
-
     CS_API bool DoesDebugUiWantMouseInput()
     {
         if(!s_debugMode) return false;

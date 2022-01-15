@@ -5,7 +5,7 @@
 
 #define IMGUI_USER_CONFIG "cs_imgui.hpp"
 
-#define IMGUI_DEFINE_MATH_OPERATORS // @TEMPORARY?
+#define IMGUI_DEFINE_MATH_OPERATORS
 
 #define IM_VEC2_CLASS_EXTRA                                       \
 ImVec2(const cs::Vec2& v) { x = v.x; y = v.y; }                   \
