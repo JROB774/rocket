@@ -29,8 +29,7 @@
 
 #define CS_CAST(t,x) ((t)(x))
 
-// @TODO: Implement our own assertion function instead of using the CRT one.
-#if defined(CS_DEBUG)
+#if CS_DEBUG
 #include <assert.h>
 #define CS_ASSERT(e,msg) assert(e)
 #else

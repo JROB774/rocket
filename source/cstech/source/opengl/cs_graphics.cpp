@@ -820,7 +820,9 @@ CS_PUBLIC_SCOPE
     }
     void Asset<gfx::Shader>::DoDebugView()
     {
+        #if CS_DEBUG
         ImGui::InputTextMultiline("##shader", CS_CCAST(char*, m_data->source.c_str()), m_data->source.size(), ImVec2(-1,-1), ImGuiInputTextFlags_ReadOnly);
+        #endif
     }
     const char* Asset<gfx::Shader>::GetPath() const
     {
@@ -845,6 +847,7 @@ CS_PUBLIC_SCOPE
     }
     void Asset<gfx::Texture>::DoDebugView()
     {
+        #if CS_DEBUG
         ImTextureID textureID = CS_CAST(ImTextureID, CS_CAST(intptr_t, CS_CAST(u32, m_data->handle)));
         ImVec2 imageSize(m_data->w,m_data->h);
         ImVec2 imagePos = (ImGui::GetContentRegionAvail() + ImVec2(0,ImGui::GetCurrentWindow()->TitleBarHeight()) - imageSize) * 0.5f;
@@ -853,6 +856,7 @@ CS_PUBLIC_SCOPE
         cursorPos.y = roundf(cursorPos.y);
         ImGui::SetCursorPos(cursorPos);
         ImGui::Image(textureID, imageSize);
+        #endif
     }
     const char* Asset<gfx::Texture>::GetPath() const
     {

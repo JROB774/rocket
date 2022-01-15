@@ -222,8 +222,10 @@ CS_PUBLIC_SCOPE
     }
     void Asset<sfx::Sound>::DoDebugView()
     {
+        #if CS_DEBUG
         if(ImGui::Button("Play Sound", ImVec2(-1,0)))
             sfx::PlaySound(m_data);
+        #endif
     }
     const char* Asset<sfx::Sound>::GetPath() const
     {
@@ -248,8 +250,10 @@ CS_PUBLIC_SCOPE
     }
     void Asset<sfx::Music>::DoDebugView()
     {
+        #if CS_DEBUG
         if(ImGui::Button("Play Music", ImVec2(-1,0)))
             sfx::PlayMusic(m_data);
+        #endif
     }
     const char* Asset<sfx::Music>::GetPath() const
     {

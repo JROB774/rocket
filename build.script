@@ -16,7 +16,7 @@ config["output"] = "binary/rocket.exe"
 config["cpp"] = "c++17"
 config["debug"] = True
 config["unity"] = True
-config["compiler_params"] = "-EHsc -MT -W3"
+config["compiler_params"] = "-EHsc -MT -W3 -Z7 -O2"
 config["linker_params"] =  "-ignore:4099"
 
 config["include_dirs"] = [
@@ -63,17 +63,19 @@ config["defines"] = [
     "_CRT_SECURE_NO_WARNINGS=1",
     "CS_PLATFORM_SDL2=1",
     "CS_COMPILER_MSVC=1",
-    "CS_DEBUG=1",
+    "CS_DEBUG=0",
     "SDL_MAIN_HANDLED=1"
 ]
 config["sources"] = [
     "source/rocket.cpp"
 ]
 
-exclude_dirs = set(["faudio", "stub"])
+exclude_dirs = set(["faudio", "stub", "imgui"])
+exclude_files = set(["stb_image_write.h", "stb_image_write.c", "stb_rect_pack.h", "stb_rect_pack.c"])
 third_party_dir = "source/cstech/third_party"
 for root, dirs, files in os.walk(third_party_dir):
     dirs[:] = [d for d in dirs if d not in exclude_dirs]
+    files[:] = [f for f in files if f not in exclude_files]
     for dir in dirs:
         config["include_dirs"].append(os.path.join(root, dir))
     for file in files:

@@ -611,14 +611,15 @@ int main(int argc, char** argv)
     sfx::InitAudio();
     CS_DEFER { sfx::QuitAudio(); };
 
+    #if CS_DEBUG
     ImGui_ImplSDL2_InitForOpenGL(s_context.window, s_context.glContext);
     ImGui_ImplOpenGL3_Init("#version 330");
-
     CS_DEFER
     {
         ImGui_ImplOpenGL3_Shutdown();
         ImGui_ImplSDL2_Shutdown();
     };
+    #endif
 
     // Register Debug Windows
     RegisterDebugUiWindow("Asset Manager", AssetManagerDebugUi);
@@ -711,7 +712,9 @@ int main(int argc, char** argv)
                 } break;
             }
 
+            #if CS_DEBUG
             ImGui_ImplSDL2_ProcessEvent(&event);
+            #endif
         }
 
         frameAccumulator += deltaTime;
@@ -727,9 +730,11 @@ int main(int argc, char** argv)
                 timeAverager[i] = desiredFrametime;
         }
 
+        #if CS_DEBUG
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplSDL2_NewFrame(s_context.window);
         BeginDebugUiFrame();
+        #endif
 
         bool didUpdate = false;
         while(frameAccumulator >= desiredFrametime)
@@ -752,6 +757,7 @@ int main(int argc, char** argv)
         }
         gfx::EndRenderFrame();
 
+        #if CS_DEBUG
         EndDebugUiFrame();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
@@ -766,15 +772,18 @@ int main(int argc, char** argv)
             ImGui::RenderPlatformWindowsDefault();
             SDL_GL_MakeCurrent(backupCurrentWindow, backupCurrentContext);
         }
+        #endif
 
         SDL_GL_SwapWindow(s_context.window);
 
-        if(CS_DEBUG || IsDebugMode())
+        #if CS_DEBUG
+        if(IsDebugMode())
         {
             s_context.currentFPS = CS_CAST(f32, SDL_GetPerformanceFrequency()) / deltaTime;
             std::string title = s_appConfig.title + " (FPS: " + std::to_string(s_context.currentFPS) + ")";
             SDL_SetWindowTitle(s_context.window, title.c_str());
         }
+        #endif
 
         // The window starts out hidden, after the first draw we unhide the window as this looks quite clean.
         if(CS_CHECK_FLAGS(SDL_GetWindowFlags(s_context.window), SDL_WINDOW_HIDDEN))

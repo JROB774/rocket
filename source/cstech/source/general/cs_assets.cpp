@@ -42,6 +42,8 @@ CS_PUBLIC_SCOPE
 
     CS_API void AssetManagerDebugUi(bool& open)
     {
+        #if CS_DEBUG
+
         enum ColumnID
         {
             ColumnID_Type,
@@ -178,5 +180,7 @@ CS_PUBLIC_SCOPE
                 }
             }
         }
+
+        #endif
     }
 }

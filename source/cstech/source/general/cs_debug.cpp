@@ -3,6 +3,11 @@
 #include "cs_graphics.hpp"
 #include "cs_state.hpp"
 
+#if CS_DEBUG
+#include "cs_imgui.hpp"
+#include "cs_imgui.cpp"
+#endif
+
 #include <map>
 
 using namespace cs;
@@ -41,6 +46,8 @@ CS_PRIVATE_SCOPE
 
     static void DoDockSpace()
     {
+        #if CS_DEBUG
+
         ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoCollapse|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|
             ImGuiWindowFlags_NoBringToFrontOnFocus|ImGuiWindowFlags_NoNavFocus|ImGuiWindowFlags_NoDocking;
         ImGuiDockNodeFlags dockSpaceFlags = ImGuiDockNodeFlags_NoDockingInCentralNode|ImGuiDockNodeFlags_NoWindowMenuButton|ImGuiDockNodeFlags_NoCloseButton;
@@ -70,10 +77,14 @@ CS_PRIVATE_SCOPE
         ImGui::DockSpace(dockSpaceID, ImVec2(0,0), dockSpaceFlags);
 
         ImGui::End();
+
+        #endif
     }
 
     static void DoGameViewport()
     {
+        #if CS_DEBUG
+
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0,0));
 
         // Due to issues with style colors for docked windows we need to also push ImGuiCol_ChildBg and
@@ -121,6 +132,8 @@ CS_PRIVATE_SCOPE
         ImGui::End();
 
         ImGui::PopStyleVar();
+
+        #endif
     }
 }
 
@@ -128,6 +141,8 @@ CS_PUBLIC_SCOPE
 {
     CS_API void InitDebugUi()
     {
+        #if CS_DEBUG
+
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
 
@@ -199,42 +214,59 @@ CS_PUBLIC_SCOPE
         colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.00f, 0.47f, 0.78f, 1.00f);
         colors[ImGuiCol_TabHovered] = ImVec4(0.11f, 0.59f, 0.93f, 1.00f);
 
-        // std::string fontFileName = GetAssetPath<Font>("LiberationMono-Regular");
-        // io.Fonts->AddFontFromFileTTF(fontFileName.c_str(), 12.0f);
+        #endif
     }
 
     CS_API void QuitDebugUi()
     {
+        #if CS_DEBUG
+
         ImGui::DestroyContext();
 
         json debugState = json::object();
         for(auto& [name,window]: s_debugWindows)
             debugState[ToSnakeCase(name)] = window.open;
         GetState()["debug"] = debugState;
+
+        #endif
     }
 
     CS_API void ToggleDebugMode(bool enable)
     {
+        #if CS_DEBUG
         s_debugMode = enable;
+        #endif
     }
 
     CS_API bool IsDebugMode()
     {
+        #if CS_DEBUG
         return s_debugMode;
+        #else
+        return false;
+        #endif
     }
 
     CS_API void EnableDebugRender(bool enable)
     {
+        #if CS_DEBUG
         s_debugRender = enable;
+        #endif
     }
 
     CS_API bool IsDebugRender()
     {
+        #if CS_DEBUG
         return s_debugRender;
+        #else
+        return false;
+        #endif
     }
 
     CS_API void UpdateDebugUi()
     {
+        #if CS_DEBUG
+
         // We defer toggling the debug UI so it doesn't happen partway through a debug UI frame.
         if(IsKeyPressed(KeyCode_F1))
         {
@@ -243,10 +275,14 @@ CS_PUBLIC_SCOPE
         }
         if(IsKeyPressed(KeyCode_F2))
             s_debugRender = !s_debugRender;
+
+        #endif
     }
 
     CS_API void BeginDebugUiFrame()
     {
+        #if CS_DEBUG
+
         static bool s_demoWindowOpen = false;
 
         ImGui::NewFrame();
@@ -292,11 +328,16 @@ CS_PUBLIC_SCOPE
             {
                 ImGui::ShowDemoWindow(&s_demoWindowOpen);
             }
+
         }
+
+        #endif
     }
 
     CS_API void EndDebugUiFrame()
     {
+        #if CS_DEBUG
+
         if(s_debugMode)
             DoGameViewport();
         ImGui::Render();
@@ -311,10 +352,14 @@ CS_PUBLIC_SCOPE
 
         if(s_deferDebugMode)
             s_debugMode = s_newDebugMode;
+
+        #endif
     }
 
     CS_API void RegisterDebugUiWindow(std::string name, DebugUiWindowCallback windowCallback)
     {
+        #if CS_DEBUG
+
         if(s_debugWindows.find(name) != s_debugWindows.end())
             CS_DEBUG_LOG("Debug window with the name '%s' is already registered.", name.c_str());
         bool open = false;
@@ -326,28 +371,42 @@ CS_PUBLIC_SCOPE
             open = (debugState.contains(stateName)) ? debugState[stateName] : false; // Restore the state or start off closed.
         }
         s_debugWindows.insert({ name, { windowCallback, open, false } });
+
+        #endif
     }
 
     CS_API void UnregisterDebugUiWindow(std::string name)
     {
+        #if CS_DEBUG
         s_debugWindows.erase(name);
+        #endif
     }
 
     CS_API bool DoesDebugUiWantMouseInput()
     {
+        #if CS_DEBUG
         if(!s_debugMode) return false;
         for(auto& [name,window]: s_debugWindows)
             if(window.hovered) return true;
         return ImGui::IsAnyItemHovered();
+        #else
+        return false;
+        #endif
     }
 
     CS_API Rect GetDebugGameViewport()
     {
+        #if CS_DEBUG
         return s_gameViewport;
+        #else
+        return { 0,0,0,0 };
+        #endif
     }
 
     CS_API void DebugLog(const char* file, const char* format, ...)
     {
+        #if CS_DEBUG
+
         if(!s_debugLogger.logFile)
         {
             std::string logFileName = GetDataPath() + "debug.log";
@@ -366,5 +425,7 @@ CS_PUBLIC_SCOPE
             fprintf(s_debugLogger.logFile, "%s\n", message.c_str());
         if(CS_DEBUG)
             fprintf(stdout, "%s\n", message.c_str());
+
+        #endif
     }
 }
