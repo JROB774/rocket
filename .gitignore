@@ -6,5 +6,6 @@
 **/binary/*.lib
 **/binary/*.pdb
 **/binary/*.dll
+**/binary/*.obj
 
 imgui.ini
