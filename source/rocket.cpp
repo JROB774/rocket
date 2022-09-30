@@ -49,9 +49,8 @@ public:
     {
         // Handle locking/unlocking and showing/hiding the mouse with debug mode.
         s_lockMouse = (!s_gamePaused && !s_rocket.dead && (s_gameState == GameState_Game));
-        s_showMouse = (IsDebugMode());
-        if(IsDebugMode() && IsKeyDown(KeyCode_LeftAlt))
-            s_lockMouse = false;
+        s_showMouse = false;
+
         LockMouse(s_lockMouse);
         ShowCursor(s_showMouse);
 

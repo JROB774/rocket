@@ -11,22 +11,17 @@
 #include "cs_math.hpp"
 #include "cs_memory.hpp"
 #include "cs_platform.hpp"
-#include "cs_state.hpp"
 #include "cs_utility.hpp"
 
 #include "cs_assets.cpp"
+#include "cs_audio.cpp"
 #include "cs_debug.cpp"
+#include "cs_graphics.cpp"
 #include "cs_hash.cpp"
 #include "cs_input.cpp"
 #include "cs_memory.cpp"
-#include "cs_state.cpp"
+#include "cs_platform.cpp"
 #include "cs_utility.cpp"
-
-#if CS_PLATFORM_SDL2
-#include "opengl/cs_graphics.cpp"
-#include "sdl2/cs_audio.cpp"
-#include "sdl2/cs_platform.cpp"
-#endif
 
 #include <iomanip>
 #include <stack>
