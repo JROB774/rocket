@@ -710,11 +710,12 @@ int main(int argc, char** argv)
 
         SDL_GL_SwapWindow(s_context.window);
 
-        #if CS_DEBUG
-        s_context.currentFPS = CS_CAST(f32, SDL_GetPerformanceFrequency()) / deltaTime;
-        std::string title = s_appConfig.title + " (FPS: " + std::to_string(s_context.currentFPS) + ")";
-        SDL_SetWindowTitle(s_context.window, title.c_str());
-        #endif // CS_DEBUG
+        if(CS_DEBUG)
+        {
+            s_context.currentFPS = CS_CAST(f32, SDL_GetPerformanceFrequency()) / deltaTime;
+            std::string title = s_appConfig.title + " (FPS: " + std::to_string(s_context.currentFPS) + ")";
+            SDL_SetWindowTitle(s_context.window, title.c_str());
+        }
 
         // The window starts out hidden, after the first draw we unhide the window as this looks quite clean.
         if(CHECK_FLAGS(SDL_GetWindowFlags(s_context.window), SDL_WINDOW_HIDDEN))
