@@ -27,9 +27,9 @@ static AudioContext s_audioContext;
 static void InitAudio()
 {
     if(!(Mix_Init(MIX_INIT_OGG) & MIX_INIT_OGG))
-        printf("Failed to initialize SDL2 Mixer OGG support! (%s)\n", Mix_GetError()); // @Incomplete: Fatal error should terminate!
+        FatalError("Failed to initialize SDL2 Mixer OGG support! (%s)\n", Mix_GetError());
     if(Mix_OpenAudio(k_mixerFrequency, k_mixerSampleFormat, k_mixerChannels, k_mixerSampleSize) != 0)
-        printf("Failed to open SDL2 Mixer audio device! (%s)\n", Mix_GetError()); // @Incomplete: Fatal error should terminate!
+        FatalError("Failed to open SDL2 Mixer audio device! (%s)\n", Mix_GetError());
     Mix_AllocateChannels(32);
 
     f32 soundVolume = k_defaultSoundVolume;
@@ -66,14 +66,14 @@ static void QuitAudio()
 static void SetSoundVolume(f32 volume)
 {
     s_audioContext.soundVolume = nk::clamp(volume, 0.0f, 1.0f);
-    s32 iVolume = CS_CAST(s32, CS_CAST(f32, MIX_MAX_VOLUME) * s_audioContext.soundVolume);
+    s32 iVolume = CAST(s32, CAST(f32, MIX_MAX_VOLUME) * s_audioContext.soundVolume);
     Mix_Volume(-1, iVolume);
 }
 
 static void SetMusicVolume(f32 volume)
 {
     s_audioContext.musicVolume = nk::clamp(volume, 0.0f, 1.0f);
-    s32 iVolume = CS_CAST(int, CS_CAST(f32, MIX_MAX_VOLUME) * s_audioContext.musicVolume);
+    s32 iVolume = CAST(int, CAST(f32, MIX_MAX_VOLUME) * s_audioContext.musicVolume);
     Mix_VolumeMusic(iVolume);
 }
 
@@ -109,11 +109,11 @@ static bool IsMusicPlaying()
 static bool LoadSound(Sound& sound, std::string fileName)
 {
     sound = Allocate<GET_PTR_TYPE(sound)>(MEM_SYSTEM);
-    if(!sound) printf("Failed to allocate sound!\n"); // @Incomplete: Fatal error should terminate!
+    if(!sound) FatalError("Failed to allocate sound!\n");
 
     sound->chunk = Mix_LoadWAV(fileName.c_str());
     if(!sound->chunk)
-        printf("Failed to load sound: %s (%s)\n", fileName.c_str(), Mix_GetError()); // @Incomplete: Fatal error should terminate!
+        FatalError("Failed to load sound: %s (%s)\n", fileName.c_str(), Mix_GetError());
     return true;
 }
 
@@ -139,7 +139,7 @@ static SoundRef PlaySound(Sound sound, s32 loops)
         printf("Failed to play sound effect! (%s)\n", Mix_GetError());
         return k_invalidSoundRef;
     }
-    return CS_CAST(SoundRef,channel);
+    return CAST(SoundRef,channel);
 }
 
 static void StopSound(SoundRef soundRef)
@@ -154,11 +154,10 @@ static void StopSound(SoundRef soundRef)
 static bool LoadMusic(Music& music, std::string fileName)
 {
     music = Allocate<GET_PTR_TYPE(music)>(MEM_SYSTEM);
-    if(!music) printf("Failed to allocate music!\n"); // @Incomplete: Fatal error should terminate!
-
+    if(!music) FatalError("Failed to allocate music!\n");
     music->music = Mix_LoadMUS(fileName.c_str());
     if(!music->music)
-        printf("Failed to load music: %s (%s)\n", fileName.c_str(), Mix_GetError()); // @Incomplete: Fatal error should terminate!
+        FatalError("Failed to load music: %s (%s)\n", fileName.c_str(), Mix_GetError());
     return true;
 }
 

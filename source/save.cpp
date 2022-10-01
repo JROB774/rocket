@@ -15,7 +15,7 @@ static void SaveGame()
     {
         DEFER { fclose(file); };
 
-        u8 currentCostume = (s_rocket.random) ? CS_CAST(u8, Costume_Random) : CS_CAST(u8, s_rocket.costume);
+        u8 currentCostume = (s_rocket.random) ? CAST(u8, Costume_Random) : CAST(u8, s_rocket.costume);
         u8 unlockFlags = UnlockFlags_None;
 
         if(s_rocket.unlocks[Costume_Happy  ]) SET_FLAGS(unlockFlags, UnlockFlags_Happy);
@@ -65,7 +65,7 @@ static void LoadGame()
                 for(s32 i=0; i<10; ++i)
                     fread(&s_rocket.highscores[i], sizeof(s_rocket.highscores[i]), 1, file);
 
-                s_rocket.costume = CS_CAST(Costume, currentCostume);
+                s_rocket.costume = CAST(Costume, currentCostume);
                 s_rocket.random = (s_rocket.costume == Costume_Random);
 
                 s_rocket.unlocks[Costume_Happy  ] = CHECK_FLAGS(unlockFlags, UnlockFlags_Happy);

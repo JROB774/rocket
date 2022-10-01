@@ -96,7 +96,7 @@ static void RenderSmoke(f32 dt)
 {
     for(auto& s: s_smoke)
     {
-        Rect clip = { CS_CAST(f32, 16*s.frame), 16*CS_CAST(f32, s_rocket.costume), 16, 16 };
+        Rect clip = { CAST(f32, 16*s.frame), 16*CAST(f32, s_rocket.costume), 16, 16 };
         imm::DrawTexture("smoke", s.pos.x, s.pos.y, s.scale,s.scale, nk::torad(s.angle), imm::Flip_None, NULL, &clip);
     }
 }

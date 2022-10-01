@@ -6,7 +6,7 @@ static void LoadBitmapFont(BitmapFont& font, f32 cw, f32 ch, std::string texture
 
     for(s32 iy=0; iy<3; ++iy)
         for(s32 ix=0; ix<32; ++ix)
-            font.bounds[iy*32+ix] = { CS_CAST(f32,ix)*cw, CS_CAST(f32,iy)*ch, cw, ch };
+            font.bounds[iy*32+ix] = { CAST(f32,ix)*cw, CAST(f32,iy)*ch, cw, ch };
 }
 
 static f32 GetCharWidth(BitmapFont& font, char c)
@@ -88,7 +88,7 @@ static void DrawBitmapFont(BitmapFont& font, f32 x, f32 y, std::string text, nkV
         }
         else
         {
-            Rect bounds = font.bounds[CS_CAST(u8,text.at(i))];
+            Rect bounds = font.bounds[CAST(u8,text.at(i))];
             imm::DrawTexture(font.texture, ix,iy, 1.0f,1.0f, 0.0f, imm::Flip_None, &anchor, &bounds, color);
             ix += roundf(GetCharWidth(font, text[i]));
         }

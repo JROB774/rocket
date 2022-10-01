@@ -85,7 +85,10 @@ static GLuint CompileShader(std::string& source, GLenum type)
 static bool CreateShader(Shader& shader, std::stringstream& stream)
 {
     shader = Allocate<GET_PTR_TYPE(shader)>(MEM_SYSTEM);
-    if(!shader) printf("Failed to allocate shader!\n"); // @Incomplete: Fatal error should terminate!
+    if(!shader)
+    {
+        FatalError("Failed to allocate shader!\n");
+    }
 
     shader->source = stream.str();
 
@@ -237,7 +240,10 @@ static void FreeShader(Shader& shader)
 static bool CreateTexture(Texture& texture, s32 w, s32 h, s32 bpp, void* data, Filter filter, Wrap wrap)
 {
     texture = Allocate<GET_PTR_TYPE(texture)>(MEM_SYSTEM);
-    if(!texture) printf("Failed to allocate texture!\n"); // @Incomplete: Fatal error should terminate!
+    if(!texture)
+    {
+        FatalError("Failed to allocate texture!\n");
+    }
 
     glActiveTexture(GL_TEXTURE0);
 
@@ -252,8 +258,8 @@ static bool CreateTexture(Texture& texture, s32 w, s32 h, s32 bpp, void* data, F
     GLenum glFormat = BPPToGLFormat(bpp);
     glTexImage2D(GL_TEXTURE_2D, 0, glFormat, w,h, 0, glFormat, GL_UNSIGNED_BYTE, data);
 
-    texture->w = CS_CAST(f32, w);
-    texture->h = CS_CAST(f32, h);
+    texture->w = CAST(f32, w);
+    texture->h = CAST(f32, h);
     texture->wrap = wrap;
     texture->filter = filter;
 
@@ -309,7 +315,10 @@ static void SetTextureWrap(Texture& texture, Wrap wrap)
 static void CreateVertexBuffer(VertexBuffer& buffer)
 {
     buffer = Allocate<GET_PTR_TYPE(buffer)>(MEM_SYSTEM);
-    if(!buffer) printf("Failed to allocate vertex buffer!\n"); // @Incomplete: Fatal error should terminate!
+    if(!buffer)
+    {
+        FatalError("Failed to allocate vertex buffer!\n");
+    }
 
     glGenVertexArrays(1, &buffer->vao);
     glBindVertexArray(buffer->vao);
@@ -317,9 +326,9 @@ static void CreateVertexBuffer(VertexBuffer& buffer)
     glGenBuffers(1, &buffer->vbo);
     glBindBuffer(GL_ARRAY_BUFFER, buffer->vbo);
 
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), CS_CAST(void*, offsetof(Vertex, position)));
-    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), CS_CAST(void*, offsetof(Vertex, color)));
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), CS_CAST(void*, offsetof(Vertex, texCoord)));
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), CAST(void*, offsetof(Vertex, position)));
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), CAST(void*, offsetof(Vertex, color)));
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), CAST(void*, offsetof(Vertex, texCoord)));
 
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
@@ -356,7 +365,7 @@ static void DrawVertexBuffer(VertexBuffer& buffer, DrawMode drawMode)
     glBindBuffer(GL_ARRAY_BUFFER, buffer->vbo);
     GLsizeiptr size = buffer->verts.size() * sizeof(Vertex);
     glBufferData(GL_ARRAY_BUFFER, size, &buffer->verts[0], GL_DYNAMIC_DRAW);
-    glDrawArrays(primitive, 0, CS_CAST(GLsizei, buffer->verts.size()));
+    glDrawArrays(primitive, 0, CAST(GLsizei, buffer->verts.size()));
     glFlush();
 }
 
@@ -441,8 +450,8 @@ static void QuitGraphics()
 
 static void BeginRenderFrame()
 {
-    f32 windowWidth = CS_CAST(f32, GetWindowWidth());
-    f32 windowHeight = CS_CAST(f32, GetWindowHeight());
+    f32 windowWidth = CAST(f32, GetWindowWidth());
+    f32 windowHeight = CAST(f32, GetWindowHeight());
     f32 screenWidth = s_renderer.screen.buffer->texture->w;
     f32 screenHeight = s_renderer.screen.buffer->texture->h;
 
@@ -459,7 +468,7 @@ static void BeginRenderFrame()
         } break;
         case(ScaleMode_Fit):
         {
-            ResizeFramebuffer(s_renderer.screen.buffer, CS_CAST(s32,windowWidth),CS_CAST(s32,windowHeight), s_renderer.screen.filter);
+            ResizeFramebuffer(s_renderer.screen.buffer, CAST(s32,windowWidth),CAST(s32,windowHeight), s_renderer.screen.filter);
             x = 0.0f;
             y = 0.0f;
             w = windowWidth;
@@ -513,7 +522,7 @@ static void BeginRenderFrame()
     // If the filter has changed then update the screen buffer.
     if(s_renderer.screen.filter != s_renderer.screen.buffer->texture->filter)
     {
-        ResizeFramebuffer(s_renderer.screen.buffer, CS_CAST(s32,s_renderer.screen.buffer->texture->w),CS_CAST(s32,s_renderer.screen.buffer->texture->h), s_renderer.screen.filter);
+        ResizeFramebuffer(s_renderer.screen.buffer, CAST(s32,s_renderer.screen.buffer->texture->w),CAST(s32,s_renderer.screen.buffer->texture->h), s_renderer.screen.filter);
     }
 
     // Update these again as they could have changed (e.g. ScaleMode_Fit).
@@ -543,13 +552,13 @@ static void EndRenderFrame()
 
     s32 srcX0 = 0;
     s32 srcY0 = 0;
-    s32 srcX1 = srcX0 + CS_CAST(s32, s_renderer.screen.buffer->texture->w);
-    s32 srcY1 = srcY0 + CS_CAST(s32, s_renderer.screen.buffer->texture->h);
+    s32 srcX1 = srcX0 + CAST(s32, s_renderer.screen.buffer->texture->w);
+    s32 srcY1 = srcY0 + CAST(s32, s_renderer.screen.buffer->texture->h);
 
-    s32 dstX0 = CS_CAST(s32, s_renderer.screen.bounds.x);
-    s32 dstY0 = CS_CAST(s32, s_renderer.screen.bounds.y);
-    s32 dstX1 = CS_CAST(s32, s_renderer.screen.bounds.w) + dstX0;
-    s32 dstY1 = CS_CAST(s32, s_renderer.screen.bounds.h) + dstY0;
+    s32 dstX0 = CAST(s32, s_renderer.screen.bounds.x);
+    s32 dstY0 = CAST(s32, s_renderer.screen.bounds.y);
+    s32 dstX1 = CAST(s32, s_renderer.screen.bounds.w) + dstX0;
+    s32 dstY1 = CAST(s32, s_renderer.screen.bounds.h) + dstY0;
 
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, GL_NONE); // Window
     glBindFramebuffer(GL_READ_FRAMEBUFFER, s_renderer.screen.buffer->handle);
@@ -584,12 +593,12 @@ static void SetViewport(Rect* viewport)
     GLsizei w,h;
 
     if(viewport) s_renderer.viewport = *viewport;
-    else s_renderer.viewport = { 0,0,CS_CAST(f32,GetRenderTargetWidth()),CS_CAST(f32,GetRenderTargetHeight()) };
+    else s_renderer.viewport = { 0,0,CAST(f32,GetRenderTargetWidth()),CAST(f32,GetRenderTargetHeight()) };
 
-    x = CS_CAST(GLint,   s_renderer.viewport.x);
-    y = CS_CAST(GLint,   s_renderer.viewport.y);
-    w = CS_CAST(GLsizei, s_renderer.viewport.w);
-    h = CS_CAST(GLsizei, s_renderer.viewport.h);
+    x = CAST(GLint,   s_renderer.viewport.x);
+    y = CAST(GLint,   s_renderer.viewport.y);
+    w = CAST(GLsizei, s_renderer.viewport.w);
+    h = CAST(GLsizei, s_renderer.viewport.h);
 
     glViewport(x,y,w,h);
 }
@@ -611,7 +620,7 @@ static Framebuffer GetScreen()
 
 static u32 GetScreenTextureInternal()
 {
-    return CS_CAST(u32, s_renderer.screen.buffer->texture->handle);
+    return CAST(u32, s_renderer.screen.buffer->texture->handle);
 }
 
 static Rect GetScreenBounds()
@@ -711,7 +720,7 @@ static void SetShaderBool(std::string name, bool val)
     if(!s_renderer.boundShader) return;
     GLint location = glGetUniformLocation(s_renderer.boundShader->program, name.c_str());
     if(location == -1) printf("No shader uniform found: %s\n", name.c_str());
-    glUniform1i(location, CS_CAST(s32, val));
+    glUniform1i(location, CAST(s32, val));
 }
 static void SetShaderInt(std::string name, s32 val)
 {
@@ -893,7 +902,7 @@ namespace imm
         BeginDraw(DrawMode_LineLoop);
         for(s32 i=0; i<segments; ++i)
         {
-            f32 theta = 2 * k_tau32 * CS_CAST(f32,i) / CS_CAST(f32,segments);
+            f32 theta = 2 * k_tau32 * CAST(f32,i) / CAST(f32,segments);
             f32 xx = r * cosf(theta);
             f32 yy = r * sinf(theta);
             PutVertex({ {xx+x,yy+y}, color, {0,0} });
@@ -907,7 +916,7 @@ namespace imm
         PutVertex({ {x,y}, color, {0,0} });
         for(s32 i=0; i<=segments; ++i)
         {
-            f32 theta = 2 * k_tau32 * CS_CAST(f32,i) / CS_CAST(f32,segments);
+            f32 theta = 2 * k_tau32 * CAST(f32,i) / CAST(f32,segments);
             f32 xx = r * cosf(theta);
             f32 yy = r * sinf(theta);
             PutVertex({ {xx+x,yy+y}, color, {0,0} });

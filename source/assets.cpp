@@ -1,4 +1,4 @@
-CS_API void InitAssetManager()
+static void InitAssetManager()
 {
     // The executable's location is the highest priority location for assets.
     s_assetManager.assetPaths.push_back(GetExecPath());
@@ -15,7 +15,7 @@ CS_API void InitAssetManager()
     }
 }
 
-CS_API void QuitAssetManager()
+static void QuitAssetManager()
 {
     for(auto& [name,asset]: s_assetManager.assetMap)
     {

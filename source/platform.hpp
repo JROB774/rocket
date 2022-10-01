@@ -18,6 +18,8 @@ static const AppConfig& GetAppConfig();
 
 static std::string GetExecPath();
 
+static void FatalError(const char* format, ...);
+
 static void PositionWindow(s32 x, s32 y);
 static void ResizeWindow(s32 w, s32 h);
 

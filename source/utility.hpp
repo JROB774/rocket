@@ -1,24 +1,22 @@
-// @Incomplete: Clear out but keep around for now!!!
-#define CS_PUBLIC_SCOPE namespace cs
-#define CS_PRIVATE_SCOPE namespace
-
-#define CS_API
-
-#define CS_CAST(t,x) ((t)(x))
-
-#define CS_ARRAY_SIZE(arr) (sizeof(arr)/sizeof((arr)[0]))
-
 #define JOIN( a, b) JOIN2(a, b)
 #define JOIN2(a, b) JOIN1(a, b)
 #define JOIN1(a, b) a##b
 
-// @Incomplete: Sort this out a bit...
-#define ASSERT(e,msg)
+#define CAST(t,x) ((t)(x))
+
+#define ARRAY_SIZE(arr) (sizeof(arr)/sizeof((arr)[0]))
+
+#if BUILD_DEBUG
+#include <assert.h>
+#define ASSERT(e,msg) assert(e)
+#else
+#define ASSERT(e,msg) ((void)0)
+#endif
 
 #define DECLARE_PRIVATE_STRUCT(name) struct name##__Type; typedef name##__Type* name;
 #define DEFINE_PRIVATE_STRUCT(name) struct name##__Type
 
-#define CHECK_FLAGS(val, flags) (((val) & (flags)) != CS_CAST(decltype(val),0))
+#define CHECK_FLAGS(val, flags) (((val) & (flags)) != CAST(decltype(val),0))
 #define SET_FLAGS(val, flags) ((val) |= (flags))
 #define UNSET_FLAGS(val, flags) ((val) &= ~(flags))
 
@@ -59,38 +57,3 @@ template<typename T>
 static bool Contains(std::vector<T>& vec, const T& x);
 template<typename K, typename V>
 static bool Contains(std::map<K,V>& map, const K& x);
-
-// @Incomplete: Move into the source file...
-
-// Internal implementation details for DEFER.
-template<typename T>
-struct Defer
-{
-    T lambda;
-    Defer(T lambda): lambda(lambda) {}
-   ~Defer() { lambda(); }
-    Defer(const Defer&) = delete;
-    Defer& operator=(const Defer&) = delete;
-};
-struct DeferHelp
-{
-    template<typename T>
-    Defer<T> operator+(T type) { return type; }
-};
-
-// Internal implementation details for GET_PTR_TYPE.
-template<typename T>
-struct RemovePtr
-{
-    typedef T Type;
-};
-template<typename T>
-struct RemovePtr<T*>
-{
-    typedef T Type;
-};
-template<typename T>
-struct RemovePtr<T*&>
-{
-    typedef T Type;
-};

@@ -4,7 +4,7 @@ static void SpawnAsteroid()
     asteroid.pos = { RandomF32(0, GetScreenWidth()), -48.0f };
     asteroid.dead = false;
     asteroid.flip = (RandomS32() % 2 == 0) ? imm::Flip_None : imm::Flip_Horizontal;
-    asteroid.type = CS_CAST(AsteroidType, RandomS32(0,AsteroidType_TOTAL-1));
+    asteroid.type = CAST(AsteroidType, RandomS32(0,AsteroidType_TOTAL-1));
     asteroid.collider.offset = { 0,-2 };
     switch(asteroid.type)
     {
@@ -32,7 +32,7 @@ static void RenderAsteroids(f32 dt)
 {
     for(auto& asteroid: s_asteroids)
     {
-        Rect clip = { CS_CAST(f32, 48*asteroid.type), 0, 48, 48 };
+        Rect clip = { CAST(f32, 48*asteroid.type), 0, 48, 48 };
         imm::DrawTexture("asteroid", asteroid.pos.x, asteroid.pos.y, 1.0f, 1.0f, 0.0f, asteroid.flip, NULL, &clip);
     }
 }
