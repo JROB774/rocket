@@ -1,41 +1,28 @@
-#pragma once
-
 #define SDL_MAIN_HANDLED
+
+#define GLEW_STATIC
 
 #define STB_IMAGE_STATIC
 #define STB_IMAGE_IMPLEMENTATION
 
 #include <stdint.h>
 
+#include <fstream>
 #include <sstream>
+#include <filesystem>
 #include <vector>
 #include <map>
+#include <stack>
 #include <random>
+#include <iomanip>
 
+#include <SDL.h>
 #include <SDL_mixer.h>
 
+#include <glew.h>
+#include <glew.c>
+
 #include <stb_image.h>
-
-#include "define.hpp"
-#include "cs_math.hpp"
-using namespace csm;
-#include "utility.hpp"
-#include "application.hpp"
-#include "memory.hpp"
-#include "input.hpp"
-#include "assets.hpp"
-#include "audio.hpp"
-#include "graphics.hpp"
-
-#include "cs_platform.hpp"
-
-#include "cs_platform.cpp"
-
-#include <iomanip>
-#include <stack>
-#include <sstream>
-
-using namespace cs;
 
 enum GameState
 {
@@ -47,7 +34,22 @@ enum GameState
     GameState_TOTAL
 };
 
+static GameState s_gameState;
+static size_t s_gameFrame;
+static bool s_gamePaused;
+static bool s_gameResetting;
 
+#include "define.hpp"
+#include "cs_math.hpp" // @Incomplete!
+using namespace csm; // @Incomplete!
+#include "utility.hpp"
+#include "application.hpp"
+#include "memory.hpp"
+#include "input.hpp"
+#include "assets.hpp"
+#include "audio.hpp"
+#include "graphics.hpp"
+#include "platform.hpp"
 #include "collision.hpp"
 #include "bitmap_font.hpp"
 #include "save.hpp"
@@ -64,17 +66,13 @@ enum GameState
 #include "menu_gameover.hpp"
 #include "menu_pause.hpp"
 
-static GameState s_gameState;
-static u64       s_gameFrame;
-static bool      s_gamePaused;
-static bool      s_gameResetting;
-
 #include "utility.cpp"
 #include "memory.cpp"
 #include "input.cpp"
 #include "assets.cpp"
 #include "audio.cpp"
 #include "graphics.cpp"
+#include "platform.cpp"
 #include "collision.cpp"
 #include "bitmap_font.cpp"
 #include "save.cpp"

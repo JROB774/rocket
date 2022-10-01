@@ -4,7 +4,7 @@ setlocal
 set input=../source/rocket.cpp
 set output=rocket.exe
 set defines=-D CS_DEBUG=1
-set idirs=-I ../source -I ../source/cstech -I ../depends/sdl/include -I ../depends/sdl_mixer/include -I ../depends/glew/include -I ../depends/glew/source -I ../depends/imgui -I ../depends/stb -I ../depends/nlohmann -I ../depends/csmath
+set idirs=-I ../source -I ../source/cstech -I ../depends/sdl/include -I ../depends/sdl_mixer/include -I ../depends/glew/include -I ../depends/glew/include/GL -I ../depends/glew/source -I ../depends/imgui -I ../depends/stb -I ../depends/nlohmann -I ../depends/csmath
 set ldirs=-libpath:../depends/sdl/lib/win32 -libpath:../depends/sdl_mixer/lib/win32
 set libs=SDL2main.lib SDL2.lib SDL2_mixer.lib opengl32.lib
 
