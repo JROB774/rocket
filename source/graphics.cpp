@@ -540,32 +540,25 @@ static void BeginRenderFrame()
 
 static void EndRenderFrame()
 {
-    // @Incomplete: Implement this using an actual draw as framebuffer blit isn't supported in GLES!
-    #ifndef __EMSCRIPTEN__
-    glColorMask(false,false,false,true);
-    glClearColor(0,0,0,1);
-    glClear(GL_COLOR_BUFFER_BIT);
-    glColorMask(true,true,true,true);
-
     glBindFramebuffer(GL_FRAMEBUFFER, GL_NONE);
 
-    SetViewport(NULL);
+    Rect viewport = { 0,0,CAST(f32,GetWindowWidth()),CAST(f32,GetWindowHeight()) };
+    SetViewport(&viewport);
 
-    s32 srcX0 = 0;
-    s32 srcY0 = 0;
-    s32 srcX1 = srcX0 + CAST(s32, s_renderer.screen.buffer->texture->w);
-    s32 srcY1 = srcY0 + CAST(s32, s_renderer.screen.buffer->texture->h);
+    f32 dstX0 = s_renderer.screen.bounds.x;
+    f32 dstY0 = s_renderer.screen.bounds.y;
+    f32 dstX1 = s_renderer.screen.bounds.w + dstX0;
+    f32 dstY1 = s_renderer.screen.bounds.h + dstY0;
 
-    s32 dstX0 = CAST(s32, s_renderer.screen.bounds.x);
-    s32 dstY0 = CAST(s32, s_renderer.screen.bounds.y);
-    s32 dstX1 = CAST(s32, s_renderer.screen.bounds.w) + dstX0;
-    s32 dstY1 = CAST(s32, s_renderer.screen.bounds.h) + dstY0;
+    auto& projection = imm::GetProjectionMatrix();
+    auto& view = imm::GetViewMatrix();
+    auto& model = imm::GetModelMatrix();
 
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, GL_NONE); // Window
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, s_renderer.screen.buffer->handle);
+    projection = nk::orthographic(0,GetWindowWidth(),GetWindowHeight(),0,0,1);
+    view = nk::mat4_identity();
+    model = nk::mat4_identity();
 
-    glBlitFramebuffer(srcX0,srcY0,srcX1,srcY1, dstX0,dstY0,dstX1,dstY1, GL_COLOR_BUFFER_BIT, FilterToGLFilter(s_renderer.screen.filter));
-    #endif // __EMSCRIPTEN__
+    imm::DrawFramebuffer(s_renderer.screen.buffer, dstX0,dstY0,dstX1,dstY1);
 }
 
 static void Clear(f32 r, f32 g, f32 b, f32 a)
@@ -999,37 +992,18 @@ namespace imm
         modelMatrix = cachedMatrix;
     }
 
-    static void DrawFramebuffer(Framebuffer& framebuffer, f32 x, f32 y)
+    static void DrawFramebuffer(Framebuffer& framebuffer, f32 dstX0, f32 dstY0, f32 dstX1, f32 dstY1)
     {
-        f32 s1 = 0;
-        f32 t1 = 0;
-        f32 s2 = framebuffer->texture->w;
-        f32 t2 = framebuffer->texture->h;
-
-        f32 x1 = x - ((s2-s1)*0.5f);
-        f32 y1 = y - ((t2-t1)*0.5f);
-        f32 x2 = x1+(s2-s1);
-        f32 y2 = y1+(t2-t1);
-
-        // Normalize the texture coords.
-        s1 /= framebuffer->texture->w;
-        t1 /= framebuffer->texture->h;
-        s2 /= framebuffer->texture->w;
-        t2 /= framebuffer->texture->h;
-
-        // Flip the texture.
-        std::swap(t1,t2);
-
         bool textureMapping = s_immContext.textureMapping;
         s_immContext.textureMapping = true;
 
         SetCurrentTexture(framebuffer->texture);
 
         BeginDraw(DrawMode_TriangleStrip);
-        PutVertex({ { x1,y2 }, { 1,1,1,1 }, { s1,t2 } });
-        PutVertex({ { x1,y1 }, { 1,1,1,1 }, { s1,t1 } });
-        PutVertex({ { x2,y2 }, { 1,1,1,1 }, { s2,t2 } });
-        PutVertex({ { x2,y1 }, { 1,1,1,1 }, { s2,t1 } });
+        PutVertex({ { dstX0,dstY1 }, { 1,1,1,1 }, { 0,0 } });
+        PutVertex({ { dstX0,dstY0 }, { 1,1,1,1 }, { 0,1 } });
+        PutVertex({ { dstX1,dstY1 }, { 1,1,1,1 }, { 1,0 } });
+        PutVertex({ { dstX1,dstY0 }, { 1,1,1,1 }, { 1,1 } });
         EndDraw();
 
         s_immContext.textureMapping = textureMapping;
@@ -1041,7 +1015,7 @@ namespace imm
         s_immContext.drawMode = drawMode;
 
         // Set shader.
-        if(!s_immContext.shader) UseShader("imm");
+        if(!s_immContext.shader) UseShader("basic");
         else UseShader(s_immContext.shader);
 
         // Set texture.

@@ -125,7 +125,11 @@ public:
 
     bool Load(std::string fileName) override { return LoadShader(m_data, fileName); }
     void Free() override { FreeShader(m_data); }
-    const char* GetPath() const override { return "shaders/"; }
+    #ifndef __EMSCRIPTEN__
+    const char* GetPath() const override { return "shaders/gl_330/"; }
+    #else
+    const char* GetPath() const override { return "shaders/es_300/"; }
+    #endif
     const char* GetExt() const override { return ".shader"; }
     const char* GetType() const override { return "Shader"; }
 };
@@ -165,7 +169,7 @@ namespace imm
     static void DrawTexture(std::string textureName, f32 x, f32 y, f32 sx, f32 sy, f32 angle, Flip flip, const nkVec2* anchor = NULL, const Rect* clip = NULL, nkVec4 color = { 1,1,1,1 });
     static void DrawTexture(Texture& texture, f32 x, f32 y, const Rect* clip = NULL, nkVec4 color = { 1,1,1,1 });
     static void DrawTexture(Texture& texture, f32 x, f32 y, f32 sx, f32 sy, f32 angle, Flip flip, const nkVec2* anchor = NULL, const Rect* clip = NULL, nkVec4 color = { 1,1,1,1 });
-    static void DrawFramebuffer(Framebuffer& framebuffer, f32 x, f32 y);
+    static void DrawFramebuffer(Framebuffer& framebuffer, f32 dstX0, f32 dstY0, f32 dstX1, f32 dstY1);
 
     static void BeginDraw(DrawMode drawMode);
     static void EndDraw();

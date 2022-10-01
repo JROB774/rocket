@@ -24,6 +24,7 @@
 #ifndef __EMSCRIPTEN__
 #include <glew.c>
 #else
+#include <emscripten.h>
 #include <GLES2/gl2.h>
 #endif
 
