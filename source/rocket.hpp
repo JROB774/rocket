@@ -12,20 +12,19 @@
 #include "cs_math.hpp"
 using namespace csm;
 #include "utility.hpp"
+#include "memory.hpp"
 
 #include "cs_application.hpp"
 #include "cs_assets.hpp"
 #include "cs_audio.hpp"
 #include "cs_graphics.hpp"
 #include "cs_input.hpp"
-#include "cs_memory.hpp"
 #include "cs_platform.hpp"
 
 #include "cs_assets.cpp"
 #include "cs_audio.cpp"
 #include "cs_graphics.cpp"
 #include "cs_input.cpp"
-#include "cs_memory.cpp"
 #include "cs_platform.cpp"
 
 #include <iomanip>
@@ -67,6 +66,7 @@ static bool      s_gamePaused;
 static bool      s_gameResetting;
 
 #include "utility.cpp"
+#include "memory.cpp"
 #include "collision.cpp"
 #include "bitmap_font.cpp"
 #include "save.cpp"

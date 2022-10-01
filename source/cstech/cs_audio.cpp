@@ -124,7 +124,7 @@ CS_PUBLIC_SCOPE::sfx
 
     CS_API bool LoadSound(Sound& sound, std::string fileName)
     {
-        sound = Allocate<GET_PTR_TYPE(sound)>(CS_MEM_SYSTEM);
+        sound = Allocate<GET_PTR_TYPE(sound)>(MEM_SYSTEM);
         if(!sound) printf("Failed to allocate sound!\n"); // @Incomplete: Fatal error should terminate!
 
         sound->chunk = Mix_LoadWAV(fileName.c_str());
@@ -169,7 +169,7 @@ CS_PUBLIC_SCOPE::sfx
 
     CS_API bool LoadMusic(Music& music, std::string fileName)
     {
-        music = Allocate<GET_PTR_TYPE(music)>(CS_MEM_SYSTEM);
+        music = Allocate<GET_PTR_TYPE(music)>(MEM_SYSTEM);
         if(!music) printf("Failed to allocate music!\n"); // @Incomplete: Fatal error should terminate!
 
         music->music = Mix_LoadMUS(fileName.c_str());

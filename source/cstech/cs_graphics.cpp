@@ -1,5 +1,4 @@
 #include "cs_graphics.hpp"
-#include "cs_memory.hpp"
 #include "cs_platform.hpp"
 
 #include <fstream>
@@ -103,7 +102,7 @@ CS_PRIVATE_SCOPE
 
     static bool CreateShader(Shader& shader, std::stringstream& stream)
     {
-        shader = Allocate<GET_PTR_TYPE(shader)>(CS_MEM_SYSTEM);
+        shader = Allocate<GET_PTR_TYPE(shader)>(MEM_SYSTEM);
         if(!shader) printf("Failed to allocate shader!\n"); // @Incomplete: Fatal error should terminate!
 
         shader->source = stream.str();
@@ -258,7 +257,7 @@ CS_PUBLIC_SCOPE::gfx
 
     CS_API bool CreateTexture(Texture& texture, s32 w, s32 h, s32 bpp, void* data, Filter filter, Wrap wrap)
     {
-        texture = Allocate<GET_PTR_TYPE(texture)>(CS_MEM_SYSTEM);
+        texture = Allocate<GET_PTR_TYPE(texture)>(MEM_SYSTEM);
         if(!texture) printf("Failed to allocate texture!\n"); // @Incomplete: Fatal error should terminate!
 
         glActiveTexture(GL_TEXTURE0);
@@ -330,7 +329,7 @@ CS_PUBLIC_SCOPE::gfx
 
     CS_API void CreateVertexBuffer(VertexBuffer& buffer)
     {
-        buffer = Allocate<GET_PTR_TYPE(buffer)>(CS_MEM_SYSTEM);
+        buffer = Allocate<GET_PTR_TYPE(buffer)>(MEM_SYSTEM);
         if(!buffer) printf("Failed to allocate vertex buffer!\n"); // @Incomplete: Fatal error should terminate!
 
         glGenVertexArrays(1, &buffer->vao);
@@ -393,7 +392,7 @@ CS_PUBLIC_SCOPE::gfx
 
     CS_API void CreateFramebuffer(Framebuffer& framebuffer, s32 w, s32 h, Filter filter, Wrap wrap, Vec4 clear)
     {
-        framebuffer = Allocate<GET_PTR_TYPE(framebuffer)>(CS_MEM_SYSTEM);
+        framebuffer = Allocate<GET_PTR_TYPE(framebuffer)>(MEM_SYSTEM);
         ResizeFramebuffer(framebuffer, w, h, filter, wrap);
         // Clear the render target to the desired color.
         glBindFramebuffer(GL_FRAMEBUFFER, framebuffer->handle);

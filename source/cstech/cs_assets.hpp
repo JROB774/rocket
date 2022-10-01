@@ -1,7 +1,5 @@
 #pragma once
 
-#include "cs_memory.hpp"
-
 #include <string>
 #include <map>
 #include <vector>
@@ -82,7 +80,7 @@ CS_PUBLIC_SCOPE
         if(asset && asset->m_loaded) return true;
         // Load the asset is we need to.
         printf("Loading %s: %s\n", dummy.GetType(), name.c_str());
-        if(!asset) asset = Allocate<AssetType>(CS_MEM_ASSET);
+        if(!asset) asset = Allocate<AssetType>(MEM_ASSET);
         if(!asset) return false;
         asset->m_name = ValidatePath(name);
         asset->m_lookup = lookup;
