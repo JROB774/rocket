@@ -27,19 +27,28 @@ static void MainMenuActionExit(MenuOption& option)
 
 static MenuOption s_mainMenuOptions[MainMenuOption_TOTAL]
 {
+#ifndef __EMSCRIPTEN__
 MenuOption(MainMenuActionStart,    MenuOptionType_Button, { 0.0f,128.0f,      180.0f,24.0f }, { 0, 192,128,24 }),
 MenuOption(MainMenuActionScores,   MenuOptionType_Button, { 0.0f,128.0f+24.0f,180.0f,24.0f }, { 0, 216,128,24 }),
 MenuOption(MainMenuActionCostumes, MenuOptionType_Button, { 0.0f,128.0f+48.0f,180.0f,24.0f }, { 0, 240,128,24 }),
 MenuOption(MainMenuActionSettings, MenuOptionType_Button, { 0.0f,128.0f+72.0f,180.0f,24.0f }, { 0, 264,128,24 }),
 MenuOption(MainMenuActionExit,     MenuOptionType_Button, { 0.0f,128.0f+96.0f,180.0f,24.0f }, { 0, 288,128,24 })
+#else
+MenuOption(MainMenuActionStart,    MenuOptionType_Button, { 0.0f,140.0f,      180.0f,24.0f }, { 0, 192,128,24 }),
+MenuOption(MainMenuActionScores,   MenuOptionType_Button, { 0.0f,140.0f+24.0f,180.0f,24.0f }, { 0, 216,128,24 }),
+MenuOption(MainMenuActionCostumes, MenuOptionType_Button, { 0.0f,140.0f+48.0f,180.0f,24.0f }, { 0, 240,128,24 }),
+MenuOption(MainMenuActionSettings, MenuOptionType_Button, { 0.0f,140.0f+72.0f,180.0f,24.0f }, { 0, 264,128,24 })
+#endif
 };
 
 static void UpdateMainMenu(f32 dt)
 {
     if(s_gameState != GameState_MainMenu) return;
     UpdateMenuOptions(s_mainMenuOptions, MainMenuOption_TOTAL, dt);
+    #ifndef __EMSCRIPTEN__
     if(IsKeyPressed(KeyCode_Escape))
         MainMenuActionExit(s_mainMenuOptions[MainMenuOption_Exit]);
+    #endif
 }
 
 static void RenderMainMenu(f32 dt)

@@ -63,8 +63,6 @@ static ImmContext s_immContext;
 
 static GLuint CompileShader(std::string& source, GLenum type)
 {
-    printf("%s\n", source.c_str());
-
     GLuint shader = glCreateShader(type);
     const char* cSource = source.c_str();
     glShaderSource(shader, 1, &cSource, NULL);

@@ -6,7 +6,9 @@ enum MainMenuOptionID
     MainMenuOption_Scores,
     MainMenuOption_Costumes,
     MainMenuOption_Settings,
+    #ifndef __EMSCRIPTEN__
     MainMenuOption_Exit,
+    #endif
     MainMenuOption_TOTAL
 };
 
