@@ -1,6 +1,5 @@
 #include "cs_platform.hpp"
 #include "cs_graphics.hpp"
-#include "cs_assets.hpp"
 #include "cs_audio.hpp"
 
 #include <filesystem>

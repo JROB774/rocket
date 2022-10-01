@@ -14,14 +14,13 @@ using namespace csm;
 #include "utility.hpp"
 #include "memory.hpp"
 #include "input.hpp"
+#include "assets.hpp"
 
 #include "cs_application.hpp"
-#include "cs_assets.hpp"
 #include "cs_audio.hpp"
 #include "cs_graphics.hpp"
 #include "cs_platform.hpp"
 
-#include "cs_assets.cpp"
 #include "cs_audio.cpp"
 #include "cs_graphics.cpp"
 #include "cs_platform.cpp"
@@ -67,6 +66,7 @@ static bool      s_gameResetting;
 #include "utility.cpp"
 #include "memory.cpp"
 #include "input.cpp"
+#include "assets.cpp"
 #include "collision.cpp"
 #include "bitmap_font.cpp"
 #include "save.cpp"

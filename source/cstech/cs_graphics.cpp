@@ -800,49 +800,46 @@ CS_PUBLIC_SCOPE::gfx
     }
 }
 
-CS_PUBLIC_SCOPE
+bool Asset<gfx::Shader>::Load(std::string fileName)
 {
-    bool Asset<gfx::Shader>::Load(std::string fileName)
-    {
-        return gfx::LoadShader(m_data, fileName);
-    }
-    void Asset<gfx::Shader>::Free()
-    {
-        gfx::FreeShader(m_data);
-    }
-    const char* Asset<gfx::Shader>::GetPath() const
-    {
-        return "shaders/";
-    }
-    const char* Asset<gfx::Shader>::GetExt() const
-    {
-        return ".shader";
-    }
-    const char* Asset<gfx::Shader>::GetType() const
-    {
-        return "Shader";
-    }
+    return gfx::LoadShader(m_data, fileName);
+}
+void Asset<gfx::Shader>::Free()
+{
+    gfx::FreeShader(m_data);
+}
+const char* Asset<gfx::Shader>::GetPath() const
+{
+    return "shaders/";
+}
+const char* Asset<gfx::Shader>::GetExt() const
+{
+    return ".shader";
+}
+const char* Asset<gfx::Shader>::GetType() const
+{
+    return "Shader";
+}
 
-    bool Asset<gfx::Texture>::Load(std::string fileName)
-    {
-        return gfx::LoadTexture(m_data, fileName);
-    }
-    void Asset<gfx::Texture>::Free()
-    {
-        gfx::FreeTexture(m_data);
-    }
-    const char* Asset<gfx::Texture>::GetPath() const
-    {
-        return "textures/";
-    }
-    const char* Asset<gfx::Texture>::GetExt() const
-    {
-        return ".png";
-    }
-    const char* Asset<gfx::Texture>::GetType() const
-    {
-        return "Texture";
-    }
+bool Asset<gfx::Texture>::Load(std::string fileName)
+{
+    return gfx::LoadTexture(m_data, fileName);
+}
+void Asset<gfx::Texture>::Free()
+{
+    gfx::FreeTexture(m_data);
+}
+const char* Asset<gfx::Texture>::GetPath() const
+{
+    return "textures/";
+}
+const char* Asset<gfx::Texture>::GetExt() const
+{
+    return ".png";
+}
+const char* Asset<gfx::Texture>::GetType() const
+{
+    return "Texture";
 }
 
 CS_PUBLIC_SCOPE::imm

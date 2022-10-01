@@ -213,47 +213,44 @@ CS_PUBLIC_SCOPE::sfx
     }
 }
 
-CS_PUBLIC_SCOPE
+bool Asset<sfx::Sound>::Load(std::string fileName)
 {
-    bool Asset<sfx::Sound>::Load(std::string fileName)
-    {
-        return sfx::LoadSound(m_data, fileName);
-    }
-    void Asset<sfx::Sound>::Free()
-    {
-        sfx::FreeSound(m_data);
-    }
-    const char* Asset<sfx::Sound>::GetPath() const
-    {
-        return "sounds/";
-    }
-    const char* Asset<sfx::Sound>::GetExt() const
-    {
-        return ".ogg";
-    }
-    const char* Asset<sfx::Sound>::GetType() const
-    {
-        return "Sound";
-    }
+    return sfx::LoadSound(m_data, fileName);
+}
+void Asset<sfx::Sound>::Free()
+{
+    sfx::FreeSound(m_data);
+}
+const char* Asset<sfx::Sound>::GetPath() const
+{
+    return "sounds/";
+}
+const char* Asset<sfx::Sound>::GetExt() const
+{
+    return ".ogg";
+}
+const char* Asset<sfx::Sound>::GetType() const
+{
+    return "Sound";
+}
 
-    bool Asset<sfx::Music>::Load(std::string fileName)
-    {
-        return sfx::LoadMusic(m_data, fileName);
-    }
-    void Asset<sfx::Music>::Free()
-    {
-        sfx::FreeMusic(m_data);
-    }
-    const char* Asset<sfx::Music>::GetPath() const
-    {
-        return "music/";
-    }
-    const char* Asset<sfx::Music>::GetExt() const
-    {
-        return ".ogg";
-    }
-    const char* Asset<sfx::Music>::GetType() const
-    {
-        return "Music";
-    }
+bool Asset<sfx::Music>::Load(std::string fileName)
+{
+    return sfx::LoadMusic(m_data, fileName);
+}
+void Asset<sfx::Music>::Free()
+{
+    sfx::FreeMusic(m_data);
+}
+const char* Asset<sfx::Music>::GetPath() const
+{
+    return "music/";
+}
+const char* Asset<sfx::Music>::GetExt() const
+{
+    return ".ogg";
+}
+const char* Asset<sfx::Music>::GetType() const
+{
+    return "Music";
 }

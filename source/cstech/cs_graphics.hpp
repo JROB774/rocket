@@ -1,7 +1,6 @@
 #pragma once
 
 #include "cs_math.hpp"
-#include "cs_assets.hpp"
 
 #include <string>
 
@@ -130,32 +129,29 @@ CS_PUBLIC_SCOPE::gfx
     CS_API Texture GetFramebufferTexture(Framebuffer& framebuffer);
 }
 
-CS_PUBLIC_SCOPE
+DECLARE_ASSET(cs::gfx::Shader)
 {
-    CS_DECLARE_ASSET(gfx::Shader)
-    {
-    public:
-        gfx::Shader m_data;
+public:
+    cs::gfx::Shader m_data;
 
-        bool        Load(std::string fileName) override;
-        void        Free() override;
-        const char* GetPath() const override;
-        const char* GetExt() const override;
-        const char* GetType() const override;
-    };
+    bool        Load(std::string fileName) override;
+    void        Free() override;
+    const char* GetPath() const override;
+    const char* GetExt() const override;
+    const char* GetType() const override;
+};
 
-    CS_DECLARE_ASSET(gfx::Texture)
-    {
-    public:
-        gfx::Texture m_data;
+DECLARE_ASSET(cs::gfx::Texture)
+{
+public:
+    cs::gfx::Texture m_data;
 
-        bool        Load(std::string fileName) override;
-        void        Free() override;
-        const char* GetPath() const override;
-        const char* GetExt() const override;
-        const char* GetType() const override;
-    };
-}
+    bool        Load(std::string fileName) override;
+    void        Free() override;
+    const char* GetPath() const override;
+    const char* GetExt() const override;
+    const char* GetType() const override;
+};
 
 CS_PUBLIC_SCOPE::imm
 {

@@ -1,7 +1,5 @@
 #pragma once
 
-#include "cs_assets.hpp"
-
 CS_PUBLIC_SCOPE::sfx
 {
     typedef u32 SoundRef;
@@ -42,29 +40,26 @@ CS_PUBLIC_SCOPE::sfx
     CS_API void StopMusic();
 }
 
-CS_PUBLIC_SCOPE
+DECLARE_ASSET(cs::sfx::Sound)
 {
-    CS_DECLARE_ASSET(sfx::Sound)
-    {
-    public:
-        sfx::Sound m_data;
+public:
+    cs::sfx::Sound m_data;
 
-        bool        Load(std::string fileName) override;
-        void        Free() override;
-        const char* GetPath() const override;
-        const char* GetExt() const override;
-        const char* GetType() const override;
-    };
+    bool        Load(std::string fileName) override;
+    void        Free() override;
+    const char* GetPath() const override;
+    const char* GetExt() const override;
+    const char* GetType() const override;
+};
 
-    CS_DECLARE_ASSET(sfx::Music)
-    {
-    public:
-        sfx::Music m_data;
+DECLARE_ASSET(cs::sfx::Music)
+{
+public:
+    cs::sfx::Music m_data;
 
-        bool        Load(std::string fileName) override;
-        void        Free() override;
-        const char* GetPath() const override;
-        const char* GetExt() const override;
-        const char* GetType() const override;
-    };
-}
+    bool        Load(std::string fileName) override;
+    void        Free() override;
+    const char* GetPath() const override;
+    const char* GetExt() const override;
+    const char* GetType() const override;
+};
