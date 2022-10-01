@@ -21,6 +21,8 @@
 
 #include <nk_math.hpp>
 
+#include <gon.cpp>
+
 #ifndef __EMSCRIPTEN__
 #include <glew.c>
 #else

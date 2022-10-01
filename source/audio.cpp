@@ -13,9 +13,6 @@ static constexpr u16 k_mixerSampleFormat = MIX_DEFAULT_FORMAT;
 static constexpr s32 k_mixerChannels = 2; // Stereo Sound
 static constexpr s32 k_mixerSampleSize = 2048;
 
-static constexpr f32 k_defaultSoundVolume = 0.5f;
-static constexpr f32 k_defaultMusicVolume = 0.5f;
-
 struct AudioContext
 {
     f32 soundVolume;
@@ -31,36 +28,11 @@ static void InitAudio()
     if(Mix_OpenAudio(k_mixerFrequency, k_mixerSampleFormat, k_mixerChannels, k_mixerSampleSize) != 0)
         FatalError("Failed to open SDL2 Mixer audio device! (%s)\n", Mix_GetError());
     Mix_AllocateChannels(32);
-
-    f32 soundVolume = k_defaultSoundVolume;
-    f32 musicVolume = k_defaultMusicVolume;
-
-    // @Incomplete: Need to reimplement sound/music volume saving!
-    /*
-    json& engineState = GetState();
-    if(engineState.contains("audio"))
-    {
-        json& audioState = engineState["audio"];
-        soundVolume = GetJSONValueWithDefault<f32>(audioState, "sound_volume", k_defaultSoundVolume);
-        musicVolume = GetJSONValueWithDefault<f32>(audioState, "music_volume", k_defaultMusicVolume);
-    }
-    */
-
-    SetSoundVolume(soundVolume);
-    SetMusicVolume(musicVolume);
 }
 
 static void QuitAudio()
 {
     Mix_CloseAudio();
-
-    // @Incomplete: Need to reimplement sound/music volume loading!
-    /*
-    json& audioState = json::object();
-    audioState["sound_volume"] = s_audioContext.soundVolume;
-    audioState["music_volume"] = s_audioContext.musicVolume;
-    GetState()["audio"] = audioState;
-    */
 }
 
 static void SetSoundVolume(f32 volume)

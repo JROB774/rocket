@@ -22,7 +22,7 @@ if not exist binary\win32\asset_paths.txt copy docs\asset_paths.txt binary\win32
 if not exist binary\win32\credits.txt copy docs\credits.txt binary\win32\credits.txt > NUL
 
 set defs=-D BUILD_DEBUG -D SDL_MAIN_HANDLED
-set idir=-I ../../depends/sdl/include -I ../../depends/sdl_mixer/include -I ../../depends/glew/include -I ../../depends/glew/source -I ../../depends/stb -I ../../depends/nksdk/nklibs
+set idir=-I ../../depends/sdl/include -I ../../depends/sdl_mixer/include -I ../../depends/glew/include -I ../../depends/glew/source -I ../../depends/stb -I ../../depends/nksdk/nklibs -I ../../depends/gon
 set ldir=-libpath:../../depends/sdl/lib/win32 -libpath:../../depends/sdl_mixer/lib/win32
 set libs=SDL2main.lib SDL2.lib SDL2_mixer.lib opengl32.lib shell32.lib
 set cflg=-EHsc -std:c++17

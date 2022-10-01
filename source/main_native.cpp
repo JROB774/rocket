@@ -28,40 +28,44 @@ int main(int argc, char** argv)
     bool windowMaximized = s_appConfig.window.maximized;
     bool windowFullscreen = s_appConfig.window.fullscreen;
     s32 windowDisplay = 0;
+    f32 soundVolume = 0.5f;
+    f32 musicVolume = 0.5f;
 
-    // @Incomplete: Reimplement window state loading!
-    /*
     // If we have the previous session's window state stored then restore the window.
-    json& engineState = GetState();
-    if(engineState.contains("window"))
+    GonObject engineState;
+    printf("Looking for previous engine state...\n");
+    std::string stateFileName = GetExecPath() + "state.dat";
+    if(!DoesFileExist(stateFileName))
+        printf("No previous engine state!\n");
+    else
     {
-        json windowState = engineState["window"];
-        if(windowState.contains("bounds"))
-        {
-            windowX = GetJSONValueWithDefault<s32>(windowState["bounds"], "x", windowX);
-            windowY = GetJSONValueWithDefault<s32>(windowState["bounds"], "y", windowY);
-            windowW = GetJSONValueWithDefault<s32>(windowState["bounds"], "w", windowW);
-            windowH = GetJSONValueWithDefault<s32>(windowState["bounds"], "h", windowH);
-        }
-        windowMaximized = GetJSONValueWithDefault<bool>(windowState, "maximized", windowMaximized);
-        windowFullscreen = GetJSONValueWithDefault<bool>(windowState, "fullscreen", windowFullscreen);
-        windowDisplay = GetJSONValueWithDefault<s32>(windowState, "display", windowDisplay);
-
-        SDL_Rect displayBounds;
-        if(SDL_GetDisplayBounds(windowDisplay, &displayBounds) < 0)
-        {
-            printf("Previous display no longer available, aborting window restore!\n");
-        }
-        else
-        {
-            // Make sure the window is not out of bounds at all.
-            if(windowX != SDL_WINDOWPOS_CENTERED && windowX < displayBounds.x) windowX = displayBounds.x;
-            if(windowX != SDL_WINDOWPOS_CENTERED && (windowX+windowW) >= displayBounds.w) windowX = displayBounds.w - windowW;
-            if(windowY != SDL_WINDOWPOS_CENTERED && windowY < displayBounds.y) windowY = displayBounds.y;
-            if(windowY != SDL_WINDOWPOS_CENTERED && (windowY+windowH) >= displayBounds.h) windowY = displayBounds.h - windowH;
-        }
+        printf("Previous engine state found!\n");
+        engineState = GonObject::Load(stateFileName);
     }
-    */
+
+    windowX = engineState["bounds_x"].Int(windowX);
+    windowY = engineState["bounds_y"].Int(windowY);
+    windowW = engineState["bounds_w"].Int(windowW);
+    windowH = engineState["bounds_h"].Int(windowH);
+    windowMaximized = engineState["maximized"].Bool(windowMaximized);
+    windowFullscreen = engineState["fullscreen"].Bool(windowFullscreen);
+    windowDisplay = engineState["display"].Int(windowDisplay);
+    soundVolume = engineState["sound_volume"].Number(soundVolume);
+    musicVolume = engineState["music_volume"].Number(musicVolume);
+
+    SDL_Rect displayBounds;
+    if(SDL_GetDisplayBounds(windowDisplay, &displayBounds) < 0)
+    {
+        printf("Previous display no longer available, aborting window restore!\n");
+    }
+    else
+    {
+        // Make sure the window is not out of bounds at all.
+        if(windowX != SDL_WINDOWPOS_CENTERED && windowX < displayBounds.x) windowX = displayBounds.x;
+        if(windowX != SDL_WINDOWPOS_CENTERED && (windowX+windowW) >= displayBounds.w) windowX = displayBounds.w - windowW;
+        if(windowY != SDL_WINDOWPOS_CENTERED && windowY < displayBounds.y) windowY = displayBounds.y;
+        if(windowY != SDL_WINDOWPOS_CENTERED && (windowY+windowH) >= displayBounds.h) windowY = displayBounds.h - windowH;
+    }
 
     s_context.window = SDL_CreateWindow(s_appConfig.title.c_str(), windowX,windowY,windowW,windowH, SDL_WINDOW_HIDDEN|SDL_WINDOW_RESIZABLE|SDL_WINDOW_OPENGL);
     if(!s_context.window)
@@ -87,6 +91,9 @@ int main(int argc, char** argv)
 
     InitAudio();
     DEFER { QuitAudio(); };
+
+    SetSoundVolume(soundVolume);
+    SetMusicVolume(musicVolume);
 
     s_appConfig.app->OnInit();
     s_appConfig.app->m_running = true;
@@ -188,7 +195,7 @@ int main(int argc, char** argv)
 
     s_appConfig.app->OnQuit();
 
-    // Save the window state so it can be restored for future sessions.
+    // Save the engine state so it can be restored for future sessions.
     if(s_context.window)
     {
         SDL_RestoreWindow(s_context.window);
@@ -211,19 +218,25 @@ int main(int argc, char** argv)
 
         windowDisplay = SDL_GetWindowDisplayIndex(s_context.window);
 
-        // @Incomplete: Reimplement window state saving!
-        /*
-        engineState["window"] = json::object();
-        json& windowState = engineState["window"];
+        soundVolume = GetSoundVolume();
+        musicVolume = GetMusicVolume();
 
-        windowState["bounds"]["x"] = windowX;
-        windowState["bounds"]["y"] = windowY;
-        windowState["bounds"]["w"] = windowW;
-        windowState["bounds"]["h"] = windowH;
-        windowState["maximized"] = windowMaximized;
-        windowState["fullscreen"] = windowFullscreen;
-        windowState["display"] = windowDisplay;
-        */
+        FILE* state = fopen(stateFileName.c_str(), "w");
+        if(!state)
+            printf("Failed to write out the engine state!\n");
+        else
+        {
+            fprintf(state, "bounds_x %d\n", windowX);
+            fprintf(state, "bounds_y %d\n", windowY);
+            fprintf(state, "bounds_w %d\n", windowW);
+            fprintf(state, "bounds_h %d\n", windowH);
+            fprintf(state, "maximized %s\n", (windowMaximized) ? "true" : "false");
+            fprintf(state, "fullscreen %s\n", (windowFullscreen) ? "true" : "false");
+            fprintf(state, "display %d\n", windowDisplay);
+            fprintf(state, "sound_volume %f\n", soundVolume);
+            fprintf(state, "music_volume %f\n", musicVolume);
+            fclose(state);
+        }
     }
 
     return 0;
