@@ -3,7 +3,6 @@
 #include "cs_assets.hpp"
 #include "cs_audio.hpp"
 #include "cs_memory.hpp"
-#include "cs_utility.hpp"
 
 #include <filesystem>
 #include <fstream>
@@ -515,11 +514,11 @@ CS_PUBLIC_SCOPE
 
 int main(int argc, char** argv)
 {
-    CS_DEFER { CheckTrackedMemory(); };
+    DEFER { CheckTrackedMemory(); };
 
     s_appConfig = csMain(argc, argv);
     ASSERT(s_appConfig.app, "Need to define an application for the engine to run!");
-    CS_DEFER { Deallocate(s_appConfig.app); };
+    DEFER { Deallocate(s_appConfig.app); };
 
     // Cache useful paths.
     s_context.execPath = ValidatePath(SDL_GetBasePath());
@@ -529,7 +528,7 @@ int main(int argc, char** argv)
 
     if(SDL_Init(SDL_INIT_EVERYTHING) < 0)
         printf("Failed to initialize SDL2!\n"); // @Incomplete: Fatal error should terminate!
-    CS_DEFER { SDL_Quit(); };
+    DEFER { SDL_Quit(); };
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
@@ -583,12 +582,12 @@ int main(int argc, char** argv)
 
     s_context.window = SDL_CreateWindow(s_appConfig.title.c_str(), windowX,windowY,windowW,windowH, SDL_WINDOW_HIDDEN|SDL_WINDOW_RESIZABLE|SDL_WINDOW_OPENGL);
     if(!s_context.window) printf("Failed to create window!\n"); // @Incomplete: Fatal error should terminate!
-    CS_DEFER { SDL_DestroyWindow(s_context.window); };
+    DEFER { SDL_DestroyWindow(s_context.window); };
     SDL_SetWindowMinimumSize(s_context.window, s_appConfig.window.min.x, s_appConfig.window.min.y);
 
     s_context.glContext = SDL_GL_CreateContext(s_context.window);
     if(!s_context.glContext) printf("Failed to create OpenGL context!\n"); // @Incomplete: Fatal error should terminate!
-    CS_DEFER { SDL_GL_DeleteContext(s_context.glContext); };
+    DEFER { SDL_GL_DeleteContext(s_context.glContext); };
 
     glewInit();
 
@@ -598,13 +597,13 @@ int main(int argc, char** argv)
     FullscreenWindow(windowFullscreen);
 
     InitAssetManager();
-    CS_DEFER { QuitAssetManager(); };
+    DEFER { QuitAssetManager(); };
 
     gfx::InitGraphics();
-    CS_DEFER { gfx::QuitGraphics(); };
+    DEFER { gfx::QuitGraphics(); };
 
     sfx::InitAudio();
-    CS_DEFER { sfx::QuitAudio(); };
+    DEFER { sfx::QuitAudio(); };
 
     s_appConfig.app->OnInit();
     s_appConfig.app->m_running = true;

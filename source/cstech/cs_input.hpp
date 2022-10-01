@@ -1,7 +1,5 @@
 #pragma once
 
-#include "cs_utility.hpp"
-
 CS_PUBLIC_SCOPE
 {
     // Keyboard

@@ -13,7 +13,7 @@ static void SaveGame()
         printf("Failed to save game data!\n");
     else
     {
-        CS_DEFER { fclose(file); };
+        DEFER { fclose(file); };
 
         u8 currentCostume = (s_rocket.random) ? CS_CAST(u8, Costume_Random) : CS_CAST(u8, s_rocket.costume);
         u8 unlockFlags = UnlockFlags_None;
@@ -51,7 +51,7 @@ static void LoadGame()
             printf("Failed to load game data!\n");
         else
         {
-            CS_DEFER { fclose(file); };
+            DEFER { fclose(file); };
 
             u16 version;
             u8 currentCostume;
