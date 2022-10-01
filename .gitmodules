@@ -1,0 +1,3 @@
+[submodule "depends/nksdk"]
+	path = depends/nksdk
+	url = https://github.com/JROB774/nksdk.git
