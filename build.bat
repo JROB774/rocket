@@ -12,14 +12,10 @@ echo ----------------------------------------
 
 if not exist binary\win32 mkdir binary\win32
 
-if not exist binary\win32\SDL2.dll copy depends\sdl\bin\win32\SDL2.dll binary\win32\SDL2.dll > NUL
-if not exist binary\win32\SDL2_mixer.dll copy depends\sdl_mixer\bin\win32\SDL2_mixer.dll binary\win32\SDL2_mixer.dll > NUL
-if not exist binary\win32\libogg-0.dll copy depends\sdl_mixer\bin\win32\libogg-0.dll binary\win32\libogg-0.dll > NUL
-if not exist binary\win32\libvorbis-0.dll copy depends\sdl_mixer\bin\win32\libvorbis-0.dll binary\win32\libvorbis-0.dll > NUL
-if not exist binary\win32\libvorbisfile-3.dll copy depends\sdl_mixer\bin\win32\libvorbisfile-3.dll binary\win32\libvorbisfile-3.dll > NUL
-
-if not exist binary\win32\asset_paths.txt copy docs\asset_paths.txt binary\win32\asset_paths.txt > NUL
-if not exist binary\win32\credits.txt copy docs\credits.txt binary\win32\credits.txt > NUL
+copy depends\sdl\bin\win32\*.dll binary\win32\ > NUL
+copy depends\sdl_mixer\bin\win32\*.dll binary\win32\ > NUL
+copy docs\asset_paths.txt binary\win32\asset_paths.txt > NUL
+copy docs\credits.txt binary\win32\credits.txt > NUL
 
 set defs=-D BUILD_DEBUG -D SDL_MAIN_HANDLED
 set idir=-I ../../depends/sdl/include -I ../../depends/sdl_mixer/include -I ../../depends/glew/include -I ../../depends/glew/source -I ../../depends/stb -I ../../depends/nksdk/nklibs -I ../../depends/gon
