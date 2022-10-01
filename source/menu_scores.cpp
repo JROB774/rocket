@@ -21,11 +21,11 @@ static void RenderScoresMenu(f32 dt)
     if(s_gameState != GameState_ScoresMenu) return;
     RenderMenuOptions(s_scoresMenuOptions, ScoresMenuOption_TOTAL, dt);
     Rect titleClip = { 0,64,256,32 };
-    imm::DrawTexture("menu", gfx::GetScreenWidth()*0.5f,24.0f, &titleClip);
+    imm::DrawTexture("menu", GetScreenWidth()*0.5f,24.0f, &titleClip);
 
     // Draw the highscores.
-    f32 screenWidth = gfx::GetScreenWidth();
-    f32 screenHeight = gfx::GetScreenHeight();
+    f32 screenWidth = GetScreenWidth();
+    f32 screenHeight = GetScreenHeight();
     f32 yPos = 42.0f;
     for(s32 i=0; i<10; ++i)
     {

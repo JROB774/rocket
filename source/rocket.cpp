@@ -8,19 +8,19 @@ class RocketApp: public Application
 public:
     void OnInit() override
     {
-        gfx::SetScreenScaleMode(gfx::ScaleMode_Pixel);
-        gfx::SetScreenFilter(gfx::Filter_Nearest);
+        SetScreenScaleMode(ScaleMode_Pixel);
+        SetScreenFilter(Filter_Nearest);
 
-        LoadAllAssetsOfType<gfx::Texture>();
-        LoadAllAssetsOfType<gfx::Shader>();
+        LoadAllAssetsOfType<Texture>();
+        LoadAllAssetsOfType<Shader>();
         LoadAllAssetsOfType<Sound>();
         LoadAllAssetsOfType<Music>();
 
-        auto& textures = GetAllAssetsOfType<gfx::Texture>();
+        auto& textures = GetAllAssetsOfType<Texture>();
         for(auto& texture: textures)
         {
-            gfx::SetTextureFilter(*texture, gfx::Filter_Nearest);
-            gfx::SetTextureWrap(*texture, gfx::Wrap_Clamp);
+            SetTextureFilter(*texture, Filter_Nearest);
+            SetTextureWrap(*texture, Wrap_Clamp);
         }
 
         ShowCursor(false);

@@ -4,14 +4,14 @@ static void CreateBackground()
     for(s32 i=k_backCount-1; i>=0; --i)
     {
         s_backSpeed[i] = speed;
-        s_backOffset[i] = gfx::GetScreenHeight() * 0.5f;
+        s_backOffset[i] = GetScreenHeight() * 0.5f;
         speed += 120.0f;
     }
 }
 
 static void UpdateBackground(f32 dt)
 {
-    f32 screenHeight = gfx::GetScreenHeight();
+    f32 screenHeight = GetScreenHeight();
     for(s32 i=0; i<k_backCount; ++i)
     {
         s_backOffset[i] += s_backSpeed[i] * dt;
@@ -22,9 +22,9 @@ static void UpdateBackground(f32 dt)
 
 static void RenderBackground(f32 dt)
 {
-    gfx::Clear(0.0f, 0.05f, 0.2f);
-    f32 screenWidth = gfx::GetScreenWidth();
-    f32 screenHeight = gfx::GetScreenHeight();
+    Clear(0.0f, 0.05f, 0.2f);
+    f32 screenWidth = GetScreenWidth();
+    f32 screenHeight = GetScreenHeight();
     Rect clip = { 0, 0, 180, 320 };
     Vec4 color = Vec4(1,1,1,0.4f);
     for(s32 i=0; i<k_backCount; ++i)

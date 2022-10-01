@@ -55,8 +55,8 @@ static void RenderMainMenu(f32 dt)
     static f32 s_angle  = 0.0f;
     static f32 s_timer  = 0.0f;
 
-    f32 screenW = gfx::GetScreenWidth();
-    f32 screenH = gfx::GetScreenHeight();
+    f32 screenW = GetScreenWidth();
+    f32 screenH = GetScreenHeight();
     f32 halfW   = screenW * 0.5f;
     f32 halfH   = screenH * 0.5f;
 

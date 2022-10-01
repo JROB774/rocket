@@ -1,7 +1,7 @@
 static void SpawnAsteroid()
 {
     Asteroid asteroid = {};
-    asteroid.pos = Vec2(RandomF32(0, gfx::GetScreenWidth()), -48.0f);
+    asteroid.pos = Vec2(RandomF32(0, GetScreenWidth()), -48.0f);
     asteroid.dead = false;
     asteroid.flip = (RandomS32() % 2 == 0) ? imm::Flip_None : imm::Flip_Horizontal;
     asteroid.type = CS_CAST(AsteroidType, RandomS32(0,AsteroidType_TOTAL-1));
@@ -23,7 +23,7 @@ static void UpdateAsteroids(f32 dt)
     s_asteroids.erase(std::remove_if(s_asteroids.begin(), s_asteroids.end(),
     [](const Asteroid& asteroid)
     {
-        return (asteroid.dead || (asteroid.pos.y >= (gfx::GetScreenHeight()+48.0f)));
+        return (asteroid.dead || (asteroid.pos.y >= (GetScreenHeight()+48.0f)));
     }),
     s_asteroids.end());
 }

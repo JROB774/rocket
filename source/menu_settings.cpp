@@ -63,7 +63,7 @@ static void RenderSettingsMenu(f32 dt)
     if(s_gameState != GameState_SettingsMenu) return;
     RenderMenuOptions(s_settingsMenuOptions, SettingsMenuOption_TOTAL, dt);
     Rect titleClip = { 0,128,256,32 };
-    imm::DrawTexture("menu", gfx::GetScreenWidth()*0.5f,24.0f, &titleClip);
+    imm::DrawTexture("menu", GetScreenWidth()*0.5f,24.0f, &titleClip);
 }
 
 static void GoToSettingsMenu()

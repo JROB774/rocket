@@ -89,7 +89,7 @@ static void RenderMenuOptions(MenuOption* options, size_t count, f32 dt)
     static f32 s_angle = 0.0f;
     static f32 s_timer = 0.0f;
 
-    f32 halfW = gfx::GetScreenWidth() * 0.5f;
+    f32 halfW = GetScreenWidth() * 0.5f;
 
     s_timer += dt;
     s_angle = SinRange(-10.0f, 10.0f, s_timer*2.5f);

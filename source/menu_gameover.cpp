@@ -29,14 +29,14 @@ static void RenderGameOverMenu(f32 dt)
     if(s_gameResetting || !s_rocket.dead) return;
     RenderMenuOptions(s_gameOverMenuOptions, GameOverMenuOption_TOTAL, dt);
     Rect titleClip = { 0,1704,256,32 };
-    imm::DrawTexture("menu", gfx::GetScreenWidth()*0.5f,24.0f, &titleClip);
+    imm::DrawTexture("menu", GetScreenWidth()*0.5f,24.0f, &titleClip);
 
     // Draw the score achieved.
     bool newHighscore = (s_rocket.score >= s_rocket.highscores[0]);
     std::string scoreStr = std::to_string(s_rocket.score) + "!";
     f32 textWidth = GetTextLineWidth(s_bigFont0, scoreStr);
-    f32 screenWidth = gfx::GetScreenWidth();
-    f32 screenHeight = gfx::GetScreenHeight();
+    f32 screenWidth = GetScreenWidth();
+    f32 screenHeight = GetScreenHeight();
     f32 textHeight = screenHeight*0.33f;
     DrawBitmapFont(s_bigFont0, roundf((screenWidth-textWidth)*0.5f),textHeight, scoreStr);
 

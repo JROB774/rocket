@@ -62,8 +62,8 @@ static void RenderPauseMenu(f32 dt)
 {
     if(!s_gamePaused) return;
 
-    f32 screenW = gfx::GetScreenWidth();
-    f32 screenH = gfx::GetScreenHeight();
+    f32 screenW = GetScreenWidth();
+    f32 screenH = GetScreenHeight();
     f32 halfW   = screenW * 0.5f;
     f32 halfH   = screenH * 0.5f;
 

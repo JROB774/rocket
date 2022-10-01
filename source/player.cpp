@@ -21,8 +21,8 @@ static void StopThruster()
 
 static void CreateRocket()
 {
-    s_rocket.pos.x = (gfx::GetScreenWidth()  *  0.5f);
-    s_rocket.pos.y = (gfx::GetScreenHeight() - 32.0f);
+    s_rocket.pos.x = (GetScreenWidth()  *  0.5f);
+    s_rocket.pos.y = (GetScreenHeight() - 32.0f);
     s_rocket.vel   = Vec2(0);
     s_rocket.angle = 0.0f;
     s_rocket.shake = 0.0f;
@@ -163,8 +163,8 @@ static void UpdateRocket(f32 dt)
         s_rocket.vel.y = csm::Clamp(s_rocket.vel.y, -k_rocketTerminalVelocity, k_rocketTerminalVelocity);
 
         s_rocket.pos += (s_rocket.vel * k_rocketVelocityMultiplier) * dt;
-        s_rocket.pos.x = csm::Clamp(s_rocket.pos.x, 0.0f, gfx::GetScreenWidth());
-        s_rocket.pos.y = csm::Clamp(s_rocket.pos.y, 0.0f, gfx::GetScreenHeight());
+        s_rocket.pos.x = csm::Clamp(s_rocket.pos.x, 0.0f, GetScreenWidth());
+        s_rocket.pos.y = csm::Clamp(s_rocket.pos.y, 0.0f, GetScreenHeight());
 
         s_rocket.vel = csm::Lerp(s_rocket.vel, Vec2(0), Vec2(0.1f));
 
@@ -236,8 +236,8 @@ static void RenderRocket(f32 dt)
             std::string scoreStr = std::to_string(s_rocket.score);
             f32 textWidth = GetTextLineWidth(*font, scoreStr);
             if(beatHighscore) scoreStr += "!";
-            f32 screenWidth = gfx::GetScreenWidth();
-            f32 screenHeight = gfx::GetScreenHeight();
+            f32 screenWidth = GetScreenWidth();
+            f32 screenHeight = GetScreenHeight();
             DrawBitmapFont(*font, roundf((screenWidth-textWidth)*0.5f),4.0f, scoreStr);
         }
     }

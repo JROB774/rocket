@@ -44,8 +44,8 @@ static void RenderCostumesMenu(f32 dt)
     if(s_gameState != GameState_CostumesMenu) return;
     RenderMenuOptions(s_costumesMenuOptions, CostumesMenuOption_TOTAL, dt);
 
-    f32 screenW = gfx::GetScreenWidth();
-    f32 screenH = gfx::GetScreenHeight();
+    f32 screenW = GetScreenWidth();
+    f32 screenH = GetScreenHeight();
     f32 halfW   = screenW * 0.5f;
     f32 halfH   = screenH * 0.5f;
 

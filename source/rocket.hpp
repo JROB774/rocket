@@ -2,13 +2,19 @@
 
 #define SDL_MAIN_HANDLED
 
+#define STB_IMAGE_STATIC
+#define STB_IMAGE_IMPLEMENTATION
+
 #include <stdint.h>
 
+#include <sstream>
 #include <vector>
 #include <map>
 #include <random>
 
 #include <SDL_mixer.h>
+
+#include <stb_image.h>
 
 #include "define.hpp"
 #include "cs_math.hpp"
@@ -18,12 +24,11 @@ using namespace csm;
 #include "input.hpp"
 #include "assets.hpp"
 #include "audio.hpp"
+#include "graphics.hpp"
 
 #include "cs_application.hpp"
-#include "cs_graphics.hpp"
 #include "cs_platform.hpp"
 
-#include "cs_graphics.cpp"
 #include "cs_platform.cpp"
 
 #include <iomanip>
@@ -69,6 +74,7 @@ static bool      s_gameResetting;
 #include "input.cpp"
 #include "assets.cpp"
 #include "audio.cpp"
+#include "graphics.cpp"
 #include "collision.cpp"
 #include "bitmap_font.cpp"
 #include "save.cpp"

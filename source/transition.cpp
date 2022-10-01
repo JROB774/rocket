@@ -8,8 +8,8 @@ static void ResetGame(GameState target)
 
 static void RenderTransition(f32 dt)
 {
-    f32 screenW = gfx::GetScreenWidth();
-    f32 screenH = gfx::GetScreenHeight();
+    f32 screenW = GetScreenWidth();
+    f32 screenH = GetScreenHeight();
 
     f32 speed = 1400.0f;
     Vec4 color = Vec4(0,0,0,1);
@@ -21,7 +21,7 @@ static void RenderTransition(f32 dt)
         imm::DrawRectFilled(0,y,screenW,y+s_fadeHeight, color);
         imm::DrawTexture("transition", screenW*0.5f, y-8.0f);
 
-        if(s_fadeHeight >= gfx::GetScreenHeight())
+        if(s_fadeHeight >= GetScreenHeight())
         {
             s_gameState = s_resetTarget;
             s_rocket.pos = Vec2(screenW*0.5f, screenH-32.0f);

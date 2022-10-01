@@ -1,5 +1,4 @@
 #include "cs_platform.hpp"
-#include "cs_graphics.hpp"
 
 #include <filesystem>
 #include <fstream>
@@ -11,7 +10,6 @@
 #include <glew.c>
 
 using namespace cs;
-using namespace gfx;
 
 CS_PRIVATE_SCOPE
 {
@@ -596,8 +594,8 @@ int main(int argc, char** argv)
     InitAssetManager();
     DEFER { QuitAssetManager(); };
 
-    gfx::InitGraphics();
-    DEFER { gfx::QuitGraphics(); };
+    InitGraphics();
+    DEFER { QuitGraphics(); };
 
     InitAudio();
     DEFER { QuitAudio(); };
@@ -710,12 +708,12 @@ int main(int argc, char** argv)
 
         if(didUpdate)
         {
-            gfx::SetViewport(NULL);
-            gfx::Clear(s_appConfig.clearColor);
-            gfx::BeginRenderFrame();
+            SetViewport(NULL);
+            Clear(s_appConfig.clearColor);
+            BeginRenderFrame();
             s_appConfig.app->OnRender(fixedDeltaTime);
         }
-        gfx::EndRenderFrame();
+        EndRenderFrame();
 
         SDL_GL_SwapWindow(s_context.window);
 
