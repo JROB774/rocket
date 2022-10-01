@@ -5,7 +5,6 @@
 #include "cs_application.hpp"
 #include "cs_assets.hpp"
 #include "cs_audio.hpp"
-#include "cs_debug.hpp"
 #include "cs_define.hpp"
 #include "cs_graphics.hpp"
 #include "cs_hash.hpp"
@@ -17,7 +16,6 @@
 
 #include "cs_assets.cpp"
 #include "cs_audio.cpp"
-#include "cs_debug.cpp"
 #include "cs_graphics.cpp"
 #include "cs_hash.cpp"
 #include "cs_input.cpp"

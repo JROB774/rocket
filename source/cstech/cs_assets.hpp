@@ -1,7 +1,6 @@
 #pragma once
 
 #include "cs_define.hpp"
-#include "cs_debug.hpp"
 #include "cs_memory.hpp"
 
 #include <string>
@@ -83,7 +82,7 @@ CS_PUBLIC_SCOPE
         AssetType* asset = CS_DCAST(AssetType*, s_assetManager.assetMap[lookup]);
         if(asset && asset->m_loaded) return true;
         // Load the asset is we need to.
-        CS_DEBUG_LOG("Loading %s: %s", dummy.GetType(), name.c_str());
+        printf("Loading %s: %s\n", dummy.GetType(), name.c_str());
         if(!asset) asset = Allocate<AssetType>(CS_MEM_ASSET);
         if(!asset) return false;
         asset->m_name = ValidatePath(name);

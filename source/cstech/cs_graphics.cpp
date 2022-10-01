@@ -1,5 +1,4 @@
 #include "cs_graphics.hpp"
-#include "cs_debug.hpp"
 #include "cs_memory.hpp"
 #include "cs_platform.hpp"
 #include "cs_utility.hpp"
@@ -97,7 +96,7 @@ CS_PRIVATE_SCOPE
             std::string infoLog;
             infoLog.resize(infoLogLength);
             glGetShaderInfoLog(shader, infoLogLength, NULL, &infoLog[0]);
-            CS_DEBUG_LOG("Failed to compile shader:\n%s", infoLog.c_str());
+            printf("Failed to compile shader:\n%s\n", infoLog.c_str());
         }
 
         return shader;
@@ -106,7 +105,7 @@ CS_PRIVATE_SCOPE
     static bool CreateShader(Shader& shader, std::stringstream& stream)
     {
         shader = Allocate<CS_GET_PTR_TYPE(shader)>(CS_MEM_SYSTEM);
-        if(!shader) CS_ERROR_LOG("Failed to allocate shader!");
+        if(!shader) printf("Failed to allocate shader!\n"); // @Incomplete: Fatal error should terminate!
 
         shader->source = stream.str();
 
@@ -159,7 +158,7 @@ CS_PRIVATE_SCOPE
             std::string infoLog;
             infoLog.resize(infoLogLength);
             glGetProgramInfoLog(shader->program, infoLogLength, NULL, &infoLog[0]);
-            CS_DEBUG_LOG("Failed to link shader:\n%s", infoLog.c_str());
+            printf("Failed to link shader:\n%s\n", infoLog.c_str());
             return false;
         }
 
@@ -237,7 +236,7 @@ CS_PUBLIC_SCOPE::gfx
     {
         std::ifstream file(fileName);
         if (!file.is_open())
-            CS_DEBUG_LOG("Failed to load shader from file '%s'!", fileName.c_str());
+            printf("Failed to load shader from file '%s'!\n", fileName.c_str());
         else
         {
             std::stringstream stream;
@@ -261,7 +260,7 @@ CS_PUBLIC_SCOPE::gfx
     CS_API bool CreateTexture(Texture& texture, s32 w, s32 h, s32 bpp, void* data, Filter filter, Wrap wrap)
     {
         texture = Allocate<CS_GET_PTR_TYPE(texture)>(CS_MEM_SYSTEM);
-        if(!texture) CS_ERROR_LOG("Failed to allocate texture!");
+        if(!texture) printf("Failed to allocate texture!\n"); // @Incomplete: Fatal error should terminate!
 
         glActiveTexture(GL_TEXTURE0);
 
@@ -290,7 +289,7 @@ CS_PUBLIC_SCOPE::gfx
         s32 width,height,bytesPerPixel;
         u8* rawData = stbi_load(fileName.c_str(), &width,&height,&bytesPerPixel,k_bytesPerPixel); // We force all textures to 4-channel RGBA.
         if(!rawData)
-            CS_DEBUG_LOG("Failed to load texture from file '%s'!", fileName.c_str());
+            printf("Failed to load texture from file '%s'!\n", fileName.c_str());
         else
         {
             CS_DEFER { stbi_image_free(rawData); };
@@ -333,7 +332,7 @@ CS_PUBLIC_SCOPE::gfx
     CS_API void CreateVertexBuffer(VertexBuffer& buffer)
     {
         buffer = Allocate<CS_GET_PTR_TYPE(buffer)>(CS_MEM_SYSTEM);
-        if(!buffer) CS_ERROR_LOG("Failed to allocate vertex buffer!");
+        if(!buffer) printf("Failed to allocate vertex buffer!\n"); // @Incomplete: Fatal error should terminate!
 
         glGenVertexArrays(1, &buffer->vao);
         glBindVertexArray(buffer->vao);
@@ -427,7 +426,7 @@ CS_PUBLIC_SCOPE::gfx
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, framebuffer->texture->handle, 0);
 
         if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-            CS_DEBUG_LOG("Failed to complete framebuffer resize!");
+            printf("Failed to complete framebuffer resize!\n");
 
         glBindFramebuffer(GL_FRAMEBUFFER, GL_NONE);
     }
@@ -443,10 +442,10 @@ CS_PUBLIC_SCOPE::gfx
 
     CS_API void InitGraphics()
     {
-        CS_DEBUG_LOG("OpenGL Version: %s", glGetString(GL_VERSION));
-        CS_DEBUG_LOG("GLSL Version: %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
-        CS_DEBUG_LOG("Renderer: %s", glGetString(GL_RENDERER));
-        CS_DEBUG_LOG("Vendor: %s", glGetString(GL_VENDOR));
+        printf("OpenGL Version: %s\n", glGetString(GL_VERSION));
+        printf("GLSL Version: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
+        printf("Renderer: %s\n", glGetString(GL_RENDERER));
+        printf("Vendor: %s\n", glGetString(GL_VENDOR));
 
         s32 width = GetAppConfig().screenSize.x;
         s32 height = GetAppConfig().screenSize.y;
@@ -734,7 +733,7 @@ CS_PUBLIC_SCOPE::gfx
         CS_ASSERT(s_renderer.boundShader, "No shader is currently bound!");
         if(!s_renderer.boundShader) return;
         GLint location = glGetUniformLocation(s_renderer.boundShader->program, name.c_str());
-        if(location == -1) CS_DEBUG_LOG("No shader uniform found: %s", name.c_str());
+        if(location == -1) printf("No shader uniform found: %s\n", name.c_str());
         glUniform1i(location, CS_CAST(s32, val));
     }
     CS_API void SetShaderInt(std::string name, s32 val)
@@ -742,7 +741,7 @@ CS_PUBLIC_SCOPE::gfx
         CS_ASSERT(s_renderer.boundShader, "No shader is currently bound!");
         if(!s_renderer.boundShader) return;
         GLint location = glGetUniformLocation(s_renderer.boundShader->program, name.c_str());
-        if(location == -1) CS_DEBUG_LOG("No shader uniform found: %s", name.c_str());
+        if(location == -1) printf("No shader uniform found: %s\n", name.c_str());
         glUniform1i(location, val);
     }
     CS_API void SetShaderFloat(std::string name, f32 val)
@@ -750,7 +749,7 @@ CS_PUBLIC_SCOPE::gfx
         CS_ASSERT(s_renderer.boundShader, "No shader is currently bound!");
         if(!s_renderer.boundShader) return;
         GLint location = glGetUniformLocation(s_renderer.boundShader->program, name.c_str());
-        if(location == -1) CS_DEBUG_LOG("No shader uniform found: %s", name.c_str());
+        if(location == -1) printf("No shader uniform found: %s\n", name.c_str());
         glUniform1f(location, val);
     }
     CS_API void SetShaderVec2(std::string name, Vec2 vec)
@@ -758,7 +757,7 @@ CS_PUBLIC_SCOPE::gfx
         CS_ASSERT(s_renderer.boundShader, "No shader is currently bound!");
         if(!s_renderer.boundShader) return;
         GLint location = glGetUniformLocation(s_renderer.boundShader->program, name.c_str());
-        if(location == -1) CS_DEBUG_LOG("No shader uniform found: %s", name.c_str());
+        if(location == -1) printf("No shader uniform found: %s\n", name.c_str());
         glUniform2fv(location, 1, vec.raw);
     }
     CS_API void SetShaderVec3(std::string name, Vec3 vec)
@@ -766,7 +765,7 @@ CS_PUBLIC_SCOPE::gfx
         CS_ASSERT(s_renderer.boundShader, "No shader is currently bound!");
         if(!s_renderer.boundShader) return;
         GLint location = glGetUniformLocation(s_renderer.boundShader->program, name.c_str());
-        if(location == -1) CS_DEBUG_LOG("No shader uniform found: %s", name.c_str());
+        if(location == -1) printf("No shader uniform found: %s\n", name.c_str());
         glUniform3fv(location, 1, vec.raw);
     }
     CS_API void SetShaderVec4(std::string name, Vec4 vec)
@@ -774,7 +773,7 @@ CS_PUBLIC_SCOPE::gfx
         CS_ASSERT(s_renderer.boundShader, "No shader is currently bound!");
         if(!s_renderer.boundShader) return;
         GLint location = glGetUniformLocation(s_renderer.boundShader->program, name.c_str());
-        if(location == -1) CS_DEBUG_LOG("No shader uniform found: %s", name.c_str());
+        if(location == -1) printf("No shader uniform found: %s\n", name.c_str());
         glUniform4fv(location, 1, vec.raw);
     }
     CS_API void SetShaderMat2(std::string name, Mat2 mat)
@@ -782,7 +781,7 @@ CS_PUBLIC_SCOPE::gfx
         CS_ASSERT(s_renderer.boundShader, "No shader is currently bound!");
         if(!s_renderer.boundShader) return;
         GLint location = glGetUniformLocation(s_renderer.boundShader->program, name.c_str());
-        if(location == -1) CS_DEBUG_LOG("No shader uniform found: %s", name.c_str());
+        if(location == -1) printf("No shader uniform found: %s\n", name.c_str());
         glUniformMatrix2fv(location, 1, GL_FALSE, mat.raw);
     }
     CS_API void SetShaderMat3(std::string name, Mat3 mat)
@@ -790,7 +789,7 @@ CS_PUBLIC_SCOPE::gfx
         CS_ASSERT(s_renderer.boundShader, "No shader is currently bound!");
         if(!s_renderer.boundShader) return;
         GLint location = glGetUniformLocation(s_renderer.boundShader->program, name.c_str());
-        if(location == -1) CS_DEBUG_LOG("No shader uniform found: %s", name.c_str());
+        if(location == -1) printf("No shader uniform found: %s\n", name.c_str());
         glUniformMatrix3fv(location, 1, GL_FALSE, mat.raw);
     }
     CS_API void SetShaderMat4(std::string name, Mat4 mat)
@@ -798,7 +797,7 @@ CS_PUBLIC_SCOPE::gfx
         CS_ASSERT(s_renderer.boundShader, "No shader is currently bound!");
         if(!s_renderer.boundShader) return;
         GLint location = glGetUniformLocation(s_renderer.boundShader->program, name.c_str());
-        if(location == -1) CS_DEBUG_LOG("No shader uniform found: %s", name.c_str());
+        if(location == -1) printf("No shader uniform found: %s\n", name.c_str());
         glUniformMatrix4fv(location, 1, GL_FALSE, mat.raw);
     }
 }

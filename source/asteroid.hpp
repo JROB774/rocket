@@ -35,5 +35,4 @@ static s32 s_difficulty;
 static void SpawnAsteroid();
 static void UpdateAsteroids(f32 dt);
 static void RenderAsteroids(f32 dt);
-static void DebugRenderAsteroids(f32 dt);
 static void MaybeSpawnEntity(f32 dt);

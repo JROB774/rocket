@@ -10,7 +10,7 @@ static void SaveGame()
     std::string fileName = GetDataPath() + k_saveFileName;
     FILE* file = fopen(fileName.c_str(), "wb");
     if(!file)
-        CS_DEBUG_LOG("Failed to save game data!");
+        printf("Failed to save game data!\n");
     else
     {
         CS_DEFER { fclose(file); };
@@ -48,7 +48,7 @@ static void LoadGame()
     {
         FILE* file = fopen(fileName.c_str(), "rb");
         if(!file)
-            CS_DEBUG_LOG("Failed to load game data!");
+            printf("Failed to load game data!\n");
         else
         {
             CS_DEFER { fclose(file); };

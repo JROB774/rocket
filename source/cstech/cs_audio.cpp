@@ -43,10 +43,10 @@ CS_PUBLIC_SCOPE::sfx
 {
     CS_API void InitAudio()
     {
-        if (!(Mix_Init(MIX_INIT_OGG) & MIX_INIT_OGG))
-            CS_ERROR_LOG("Failed to initialize SDL2 Mixer OGG support! (%s)", Mix_GetError());
+        if(!(Mix_Init(MIX_INIT_OGG) & MIX_INIT_OGG))
+            printf("Failed to initialize SDL2 Mixer OGG support! (%s)\n", Mix_GetError()); // @Incomplete: Fatal error should terminate!
         if(Mix_OpenAudio(k_mixerFrequency, k_mixerSampleFormat, k_mixerChannels, k_mixerSampleSize) != 0)
-            CS_ERROR_LOG("Failed to open SDL2 Mixer audio device! (%s)", Mix_GetError());
+            printf("Failed to open SDL2 Mixer audio device! (%s)\n", Mix_GetError()); // @Incomplete: Fatal error should terminate!
         Mix_AllocateChannels(32);
 
         f32 soundVolume = k_defaultSoundVolume;
@@ -126,11 +126,11 @@ CS_PUBLIC_SCOPE::sfx
     CS_API bool LoadSound(Sound& sound, std::string fileName)
     {
         sound = Allocate<CS_GET_PTR_TYPE(sound)>(CS_MEM_SYSTEM);
-        if(!sound) CS_ERROR_LOG("Failed to allocate sound!");
+        if(!sound) printf("Failed to allocate sound!\n"); // @Incomplete: Fatal error should terminate!
 
         sound->chunk = Mix_LoadWAV(fileName.c_str());
         if(!sound->chunk)
-            CS_ERROR_LOG("Failed to load sound: %s (%s)", fileName.c_str(), Mix_GetError());
+            printf("Failed to load sound: %s (%s)\n", fileName.c_str(), Mix_GetError()); // @Incomplete: Fatal error should terminate!
         return true;
     }
 
@@ -153,7 +153,7 @@ CS_PUBLIC_SCOPE::sfx
         s32 channel = Mix_PlayChannel(-1, sound->chunk, loops);
         if(channel == -1)
         {
-            CS_DEBUG_LOG("Failed to play sound effect! (%s)", Mix_GetError());
+            printf("Failed to play sound effect! (%s)\n", Mix_GetError());
             return k_invalidSoundRef;
         }
         return CS_CAST(SoundRef,channel);
@@ -171,11 +171,11 @@ CS_PUBLIC_SCOPE::sfx
     CS_API bool LoadMusic(Music& music, std::string fileName)
     {
         music = Allocate<CS_GET_PTR_TYPE(music)>(CS_MEM_SYSTEM);
-        if(!music) CS_ERROR_LOG("Failed to allocate music!");
+        if(!music) printf("Failed to allocate music!\n"); // @Incomplete: Fatal error should terminate!
 
         music->music = Mix_LoadMUS(fileName.c_str());
         if(!music->music)
-            CS_ERROR_LOG("Failed to load music: %s (%s)", fileName.c_str(), Mix_GetError());
+            printf("Failed to load music: %s (%s)\n", fileName.c_str(), Mix_GetError()); // @Incomplete: Fatal error should terminate!
         return true;
     }
 
@@ -195,7 +195,7 @@ CS_PUBLIC_SCOPE::sfx
     {
         if(!music) return;
         if(Mix_PlayMusic(music->music, loops) == -1)
-            CS_DEBUG_LOG("Failed to play music! (%s)", Mix_GetError());
+            printf("Failed to play music! (%s)\n", Mix_GetError());
     }
 
     CS_API void ResumeMusic()

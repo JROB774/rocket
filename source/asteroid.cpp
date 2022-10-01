@@ -37,16 +37,6 @@ static void RenderAsteroids(f32 dt)
     }
 }
 
-static void DebugRenderAsteroids(f32 dt)
-{
-    for(auto& asteroid: s_asteroids)
-    {
-        Vec2 pos(asteroid.pos + asteroid.collider.offset);
-        imm::DrawCircleFilled(pos.x, pos.y, asteroid.collider.radius, Vec4(1,0,0,0.25f));
-        imm::DrawCircleOutline(pos.x, pos.y, asteroid.collider.radius, Vec4(1,0,0,1.00f));
-    }
-}
-
 static void MaybeSpawnEntity(f32 dt)
 {
     if(s_entitySpawnCooldown > 0.0f)

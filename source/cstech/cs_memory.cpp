@@ -1,6 +1,5 @@
 #include "cs_memory.hpp"
 #include "cs_platform.hpp"
-#include "cs_debug.hpp"
 
 #include <map>
 
@@ -35,11 +34,11 @@ CS_PUBLIC_SCOPE
     {
         if(!s_trackedMemory.empty())
         {
-            CS_DEBUG_LOG("Memory Leaks Present:");
+            printf("Memory Leaks Present:\n");
             for(auto [data,metaData]: s_trackedMemory)
             {
                 std::string fileName = StripFileExtensionAndPath(metaData.tag.fileName);
-                CS_DEBUG_LOG("[%s,%d] %s Memory: %d %s (0x%p) %d bytes", fileName, metaData.tag.lineNumber,
+                printf("[%s,%d] %s Memory: %zd %s (0x%p) %zd bytes\n", fileName.c_str(), metaData.tag.lineNumber,
                     metaData.tag.category, metaData.count, metaData.typeName, data, metaData.count * metaData.typeSize);
             }
         }

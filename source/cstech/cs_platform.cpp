@@ -1,5 +1,4 @@
 #include "cs_platform.hpp"
-#include "cs_debug.hpp"
 #include "cs_graphics.hpp"
 #include "cs_assets.hpp"
 #include "cs_audio.hpp"
@@ -332,7 +331,7 @@ CS_PUBLIC_SCOPE
     CS_API void EnableVSync(bool enable)
     {
         if(SDL_GL_SetSwapInterval((enable) ? 1 : 0))
-            CS_DEBUG_LOG("Failed to set the swap interval!");
+            printf("Failed to set the swap interval!\n");
     }
 
     CS_API bool IsVSyncOn()
@@ -526,9 +525,10 @@ int main(int argc, char** argv)
     s_context.execPath = ValidatePath(SDL_GetBasePath());
     s_context.dataPath = ValidatePath(SDL_GetPrefPath("ChromoStudio", s_appConfig.title.c_str()));
 
-    CS_DEBUG_LOG("Starting Application %s...", s_appConfig.title.c_str());;
+    printf("Starting Application %s...\n", s_appConfig.title.c_str());
 
-    if(SDL_Init(SDL_INIT_EVERYTHING) < 0) CS_ERROR_LOG("Failed to initialize SDL2!");
+    if(SDL_Init(SDL_INIT_EVERYTHING) < 0)
+        printf("Failed to initialize SDL2!\n"); // @Incomplete: Fatal error should terminate!
     CS_DEFER { SDL_Quit(); };
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
@@ -568,7 +568,7 @@ int main(int argc, char** argv)
         SDL_Rect displayBounds;
         if(SDL_GetDisplayBounds(windowDisplay, &displayBounds) < 0)
         {
-            CS_DEBUG_LOG("Previous display no longer available, aborting window restore!");
+            printf("Previous display no longer available, aborting window restore!\n");
         }
         else
         {
@@ -582,12 +582,12 @@ int main(int argc, char** argv)
     */
 
     s_context.window = SDL_CreateWindow(s_appConfig.title.c_str(), windowX,windowY,windowW,windowH, SDL_WINDOW_HIDDEN|SDL_WINDOW_RESIZABLE|SDL_WINDOW_OPENGL);
-    if(!s_context.window) CS_ERROR_LOG("Failed to create window!");
+    if(!s_context.window) printf("Failed to create window!\n"); // @Incomplete: Fatal error should terminate!
     CS_DEFER { SDL_DestroyWindow(s_context.window); };
     SDL_SetWindowMinimumSize(s_context.window, s_appConfig.window.min.x, s_appConfig.window.min.y);
 
     s_context.glContext = SDL_GL_CreateContext(s_context.window);
-    if(!s_context.glContext) CS_ERROR_LOG("Failed to create OpenGL context!");
+    if(!s_context.glContext) printf("Failed to create OpenGL context!\n"); // @Incomplete: Fatal error should terminate!
     CS_DEFER { SDL_GL_DeleteContext(s_context.glContext); };
 
     glewInit();
@@ -718,10 +718,6 @@ int main(int argc, char** argv)
             gfx::Clear(s_appConfig.clearColor);
             gfx::BeginRenderFrame();
             s_appConfig.app->OnRender(fixedDeltaTime);
-            if(IsDebugRender())
-            {
-                s_appConfig.app->OnDebugRender(fixedDeltaTime);
-            }
         }
         gfx::EndRenderFrame();
 

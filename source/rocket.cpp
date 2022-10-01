@@ -93,12 +93,6 @@ public:
         RenderCursor(dt);
         RenderTransition(dt);
     }
-
-    void OnDebugRender(f32 dt) override
-    {
-        DebugRenderAsteroids(dt);
-        DebugRenderRocket(dt);
-    }
 };
 
 AppConfig csMain(int argc, char** argv)

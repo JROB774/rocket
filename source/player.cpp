@@ -95,31 +95,6 @@ static void UpdateRocket(f32 dt)
 {
     if(s_gameState != GameState_Game) return;
 
-    // Change costume.
-    if(CS_DEBUG)
-    {
-        Costume oldCostume = s_rocket.costume;
-        if(IsKeyPressed(KeyCode_1)) s_rocket.costume = Costume_Red;
-        if(IsKeyPressed(KeyCode_2)) s_rocket.costume = Costume_Blue;
-        if(IsKeyPressed(KeyCode_3)) s_rocket.costume = Costume_Yellow;
-        if(IsKeyPressed(KeyCode_4)) s_rocket.costume = Costume_Happy;
-        if(IsKeyPressed(KeyCode_5)) s_rocket.costume = Costume_Sad;
-        if(IsKeyPressed(KeyCode_6)) s_rocket.costume = Costume_Sick;
-        if(IsKeyPressed(KeyCode_7)) s_rocket.costume = Costume_Meat;
-        if(IsKeyPressed(KeyCode_8)) s_rocket.costume = Costume_Doodle;
-        if(IsKeyPressed(KeyCode_9)) s_rocket.costume = Costume_Rainbow;
-        if(IsKeyPressed(KeyCode_0)) s_rocket.costume = Costume_Glitch;
-        // Need to reset the thruster sound.
-        if(oldCostume != s_rocket.costume)
-        {
-            if(!s_rocket.dead)
-            {
-                StopThruster();
-                StartThruster();
-            }
-        }
-    }
-
     s_rocket.timer += dt;
 
     if(s_rocket.costume == Costume_Doodle)
@@ -266,15 +241,4 @@ static void RenderRocket(f32 dt)
             DrawBitmapFont(*font, roundf((screenWidth-textWidth)*0.5f),4.0f, scoreStr);
         }
     }
-}
-
-static void DebugRenderRocket(f32 dt)
-{
-    Vec2 posA(s_rocket.pos + s_rocket.collector.offset);
-    Vec2 posB(s_rocket.pos + s_rocket.collider.offset);
-
-    imm::DrawCircleFilled(posA.x, posA.y, s_rocket.collector.radius, Vec4(0,0,1,0.25f));
-    imm::DrawCircleOutline(posA.x, posA.y, s_rocket.collector.radius, Vec4(0,0,1,1.00f));
-    imm::DrawCircleFilled(posB.x, posB.y, s_rocket.collider.radius, Vec4(0,1,0,0.25f));
-    imm::DrawCircleOutline(posB.x, posB.y, s_rocket.collider.radius, Vec4(0,1,0,1.00f));
 }

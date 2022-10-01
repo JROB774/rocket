@@ -42,7 +42,6 @@ CS_PUBLIC_SCOPE
         virtual void OnQuit() {}
         virtual void OnUpdate(f32 dt) {}
         virtual void OnRender(f32 dt) {}
-        virtual void OnDebugRender(f32 dt) {}
         virtual ~Application() {}
 
         bool m_running = false;

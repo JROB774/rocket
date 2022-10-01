@@ -67,4 +67,3 @@ static void CreateRocket();
 static void HitRocket();
 static void UpdateRocket(f32 dt);
 static void RenderRocket(f32 dt);
-static void DebugRenderRocket(f32 dt);
