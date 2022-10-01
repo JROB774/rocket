@@ -16,12 +16,6 @@
 
 #define CS_INLINE inline
 
-#if defined(CS_COMPILER_MSVC)
-#define CS_FORCE_INLINE __forceinline
-#else
-#define CS_FORCE_INLINE inline __attribute__((always_inline))
-#endif
-
 #define CS_CCAST(t,x) const_cast<t>(x)
 #define CS_DCAST(t,x) dynamic_cast<t>(x)
 #define CS_RCAST(t,x) reinterpret_cast<t>(x)

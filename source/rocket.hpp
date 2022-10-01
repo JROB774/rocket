@@ -1,5 +1,7 @@
 #pragma once
 
+#define SDL_MAIN_HANDLED
+
 #include "cs_application.hpp"
 #include "cs_assets.hpp"
 #include "cs_audio.hpp"
