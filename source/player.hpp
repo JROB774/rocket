@@ -28,7 +28,7 @@ struct Rocket
     bool dead;
     Collider collider;
     Collider collector;
-    sfx::SoundRef thruster;
+    SoundRef thruster;
     bool random;
     // Save data.
     Costume costume;

@@ -11,7 +11,7 @@ static void PauseMenuActionSettings(MenuOption& option)
 static void PauseMenuActionMenu(MenuOption& option)
 {
     ResetGame(GameState_MainMenu);
-    sfx::ResumeMusic();
+    ResumeMusic();
 }
 
 static MenuOption s_pauseMenuOptions[PauseMenuOption_TOTAL]
@@ -24,8 +24,8 @@ static MenuOption s_pauseMenuOptions[PauseMenuOption_TOTAL]
 static void PauseGame()
 {
     s_gamePaused = true;
-    sfx::PlaySound("pause");
-    sfx::PauseMusic();
+    PlaySound("pause");
+    PauseMusic();
     StopThruster();
     GoToPauseMenu();
 }
@@ -33,8 +33,8 @@ static void PauseGame()
 static void ResumeGame()
 {
     s_gamePaused = false;
-    sfx::PlaySound("pause");
-    sfx::ResumeMusic();
+    PlaySound("pause");
+    ResumeMusic();
     StartThruster();
 }
 

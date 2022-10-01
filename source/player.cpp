@@ -1,6 +1,6 @@
 static void StartThruster()
 {
-    if(s_rocket.thruster != sfx::k_invalidSoundRef) return;
+    if(s_rocket.thruster != k_invalidSoundRef) return;
     std::string thruster;
     thruster = "thruster";
     switch(s_rocket.costume)
@@ -10,13 +10,13 @@ static void StartThruster()
         case(Costume_Rainbow): thruster = "sparkle"; break;
         case(Costume_Glitch): thruster = "static"; break;
     }
-    s_rocket.thruster = sfx::PlaySound(thruster, -1);
+    s_rocket.thruster = PlaySound(thruster, -1);
 }
 
 static void StopThruster()
 {
-    sfx::StopSound(s_rocket.thruster);
-    s_rocket.thruster = sfx::k_invalidSoundRef;
+    StopSound(s_rocket.thruster);
+    s_rocket.thruster = k_invalidSoundRef;
 }
 
 static void CreateRocket()
@@ -33,7 +33,7 @@ static void CreateRocket()
     s_rocket.collider = { Vec2(0,-8), 8.0f };
     s_rocket.collector = { Vec2(0,-8), 40.0f };
     s_rocket.costume = Costume_Red;
-    s_rocket.thruster = sfx::k_invalidSoundRef;
+    s_rocket.thruster = k_invalidSoundRef;
     s_rocket.random = (s_rocket.costume == Costume_Random);
     LoadGame();
 }
@@ -61,7 +61,7 @@ static void HitRocket()
         case(Costume_Rainbow): explosion = "ignite"; break;
         case(Costume_Glitch): explosion = "glitch"; break;
     }
-    sfx::PlaySound(explosion);
+    PlaySound(explosion);
 
     s_rocket.timer = 0.0f;
     s_rocket.dead = true;
@@ -140,7 +140,7 @@ static void UpdateRocket(f32 dt)
                         case(Costume_Rainbow): whoosh = "magic"; break;
                         case(Costume_Glitch): whoosh = "fuzz"; break;
                     }
-                    sfx::PlaySound(whoosh);
+                    PlaySound(whoosh);
                     s_whooshVel = s_rocket.vel.x;
                     s_canPlayWhoosh = false;
                 }
@@ -199,7 +199,7 @@ static void UpdateRocket(f32 dt)
             if(s_rocket.score > 999999)
                 s_rocket.score = 999999;
             if(s_rocket.highscores[0] != 0 && oldScore <= s_rocket.highscores[0] && s_rocket.score > s_rocket.highscores[0])
-                sfx::PlaySound("highscore");
+                PlaySound("highscore");
         }
     }
 }

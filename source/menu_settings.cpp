@@ -1,11 +1,11 @@
 static void SettingsMenuActionSound(MenuOption& option)
 {
-    sfx::SetSoundVolume(option.slider);
+    SetSoundVolume(option.slider);
 }
 
 static void SettingsMenuActionMusic(MenuOption& option)
 {
-    sfx::SetMusicVolume(option.slider);
+    SetMusicVolume(option.slider);
 }
 
 static void SettingsMenuActionFullscreen(MenuOption& option)
@@ -24,7 +24,7 @@ static void SettingsMenuActionResetSave(MenuOption& option)
     if(s_resetSaveCounter >= 3)
     {
         s_resetSaveCounter = 0;
-        sfx::PlaySound("reset");
+        PlaySound("reset");
         ResetSave();
     }
 }
@@ -48,8 +48,8 @@ static MenuOption s_settingsMenuOptions[SettingsMenuOption_TOTAL]
 static void UpdateSettingsMenu(f32 dt)
 {
     if(s_gameState != GameState_SettingsMenu) return;
-    s_settingsMenuOptions[SettingsMenuOption_Sound].slider = sfx::GetSoundVolume();
-    s_settingsMenuOptions[SettingsMenuOption_Music].slider = sfx::GetMusicVolume();
+    s_settingsMenuOptions[SettingsMenuOption_Sound].slider = GetSoundVolume();
+    s_settingsMenuOptions[SettingsMenuOption_Music].slider = GetMusicVolume();
     s_settingsMenuOptions[SettingsMenuOption_Fullscreen].toggle = IsFullscreen();
     s_settingsMenuOptions[SettingsMenuOption_VSync].toggle = IsVSyncOn();
     s_settingsMenuOptions[SettingsMenuOption_ResetSave].clip.y = 504+(CS_CAST(f32,s_resetSaveCounter)*24.0f);

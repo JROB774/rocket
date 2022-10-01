@@ -11,7 +11,7 @@ static void UpdateMenuOptions(MenuOption* options, size_t count, f32 dt)
 
         // If the option went from non-selected to selected then play a sound.
         if(option.selected && (oldSelected != option.selected))
-            sfx::PlaySound("click");
+            PlaySound("click");
     }
 
     // Handle the interaction logic based on what type of option it is.
@@ -28,7 +28,7 @@ static void UpdateMenuOptions(MenuOption* options, size_t count, f32 dt)
                 {
                     if(leftPressed)
                     {
-                        sfx::PlaySound("select");
+                        PlaySound("select");
                         option.scale = 2.0f;
                         option.toggle = !option.toggle;
                         if(option.action)
@@ -37,7 +37,7 @@ static void UpdateMenuOptions(MenuOption* options, size_t count, f32 dt)
                 }
                 else if(option.type == MenuOptionType_Slider)
                 {
-                    sfx::PlaySound("select");
+                    PlaySound("select");
                     option.scale = 2.0f;
                     if(leftPressed)
                     {

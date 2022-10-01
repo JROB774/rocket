@@ -1,6 +1,5 @@
 #include "cs_platform.hpp"
 #include "cs_graphics.hpp"
-#include "cs_audio.hpp"
 
 #include <filesystem>
 #include <fstream>
@@ -600,8 +599,8 @@ int main(int argc, char** argv)
     gfx::InitGraphics();
     DEFER { gfx::QuitGraphics(); };
 
-    sfx::InitAudio();
-    DEFER { sfx::QuitAudio(); };
+    InitAudio();
+    DEFER { QuitAudio(); };
 
     s_appConfig.app->OnInit();
     s_appConfig.app->m_running = true;
