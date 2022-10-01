@@ -18,19 +18,19 @@ using namespace imm;
 
 CS_PUBLIC_SCOPE::gfx
 {
-    CS_DEFINE_PRIVATE_STRUCT(VertexBuffer)
+    DEFINE_PRIVATE_STRUCT(VertexBuffer)
     {
         GLuint vao, vbo;
         std::vector<Vertex> verts;
     };
 
-    CS_DEFINE_PRIVATE_STRUCT(Shader)
+    DEFINE_PRIVATE_STRUCT(Shader)
     {
         std::string source;
         GLuint program;
     };
 
-    CS_DEFINE_PRIVATE_STRUCT(Texture)
+    DEFINE_PRIVATE_STRUCT(Texture)
     {
         GLuint handle;
         f32 w, h;
@@ -38,7 +38,7 @@ CS_PUBLIC_SCOPE::gfx
         Wrap wrap;
     };
 
-    CS_DEFINE_PRIVATE_STRUCT(Framebuffer)
+    DEFINE_PRIVATE_STRUCT(Framebuffer)
     {
         GLuint handle = GL_NONE; // Framebuffer
         Texture texture = NULL; // Color Attachment
@@ -175,7 +175,7 @@ CS_PRIVATE_SCOPE
             case(4): return GL_RGBA; break;
             default:
             {
-                CS_ASSERT(false, "Unsupported BPP that has no appropriate format.");
+                ASSERT(false, "Unsupported BPP that has no appropriate format.");
             } break;
         }
         return GL_NONE;
@@ -185,7 +185,7 @@ CS_PRIVATE_SCOPE
     {
         if(str == "nearest") return Filter_Nearest;
         if(str == "linear") return Filter_Linear;
-        CS_ASSERT(false, "No filter found for the specified name.");
+        ASSERT(false, "No filter found for the specified name.");
         return Filter_TOTAL;
     }
 
@@ -197,7 +197,7 @@ CS_PRIVATE_SCOPE
             case(Filter_Linear): return GL_LINEAR; break;
             default:
             {
-                CS_ASSERT(false, "Unsupported texture filter.");
+                ASSERT(false, "Unsupported texture filter.");
             } break;
         }
         return GL_NONE;
@@ -207,7 +207,7 @@ CS_PRIVATE_SCOPE
     {
         if(str == "repeat") return Wrap_Repeat;
         if(str == "clamp") return Wrap_Clamp;
-        CS_ASSERT(false, "No wrap found for the specified name.");
+        ASSERT(false, "No wrap found for the specified name.");
         return Wrap_TOTAL;
     }
 
@@ -219,7 +219,7 @@ CS_PRIVATE_SCOPE
             case(Wrap_Clamp): return GL_CLAMP_TO_EDGE; break;
             default:
             {
-                CS_ASSERT(false, "Unsupported texture wrap.");
+                ASSERT(false, "Unsupported texture wrap.");
             } break;
         }
         return GL_NONE;
@@ -524,7 +524,7 @@ CS_PUBLIC_SCOPE::gfx
             } break;
             default:
             {
-                CS_ASSERT(false, "Unknown scaling mode applied to the screen.");
+                ASSERT(false, "Unknown scaling mode applied to the screen.");
             } break;
         }
 
@@ -730,7 +730,7 @@ CS_PUBLIC_SCOPE::gfx
     // These operate on the currently bound shader.
     CS_API void SetShaderBool(std::string name, bool val)
     {
-        CS_ASSERT(s_renderer.boundShader, "No shader is currently bound!");
+        ASSERT(s_renderer.boundShader, "No shader is currently bound!");
         if(!s_renderer.boundShader) return;
         GLint location = glGetUniformLocation(s_renderer.boundShader->program, name.c_str());
         if(location == -1) printf("No shader uniform found: %s\n", name.c_str());
@@ -738,7 +738,7 @@ CS_PUBLIC_SCOPE::gfx
     }
     CS_API void SetShaderInt(std::string name, s32 val)
     {
-        CS_ASSERT(s_renderer.boundShader, "No shader is currently bound!");
+        ASSERT(s_renderer.boundShader, "No shader is currently bound!");
         if(!s_renderer.boundShader) return;
         GLint location = glGetUniformLocation(s_renderer.boundShader->program, name.c_str());
         if(location == -1) printf("No shader uniform found: %s\n", name.c_str());
@@ -746,7 +746,7 @@ CS_PUBLIC_SCOPE::gfx
     }
     CS_API void SetShaderFloat(std::string name, f32 val)
     {
-        CS_ASSERT(s_renderer.boundShader, "No shader is currently bound!");
+        ASSERT(s_renderer.boundShader, "No shader is currently bound!");
         if(!s_renderer.boundShader) return;
         GLint location = glGetUniformLocation(s_renderer.boundShader->program, name.c_str());
         if(location == -1) printf("No shader uniform found: %s\n", name.c_str());
@@ -754,7 +754,7 @@ CS_PUBLIC_SCOPE::gfx
     }
     CS_API void SetShaderVec2(std::string name, Vec2 vec)
     {
-        CS_ASSERT(s_renderer.boundShader, "No shader is currently bound!");
+        ASSERT(s_renderer.boundShader, "No shader is currently bound!");
         if(!s_renderer.boundShader) return;
         GLint location = glGetUniformLocation(s_renderer.boundShader->program, name.c_str());
         if(location == -1) printf("No shader uniform found: %s\n", name.c_str());
@@ -762,7 +762,7 @@ CS_PUBLIC_SCOPE::gfx
     }
     CS_API void SetShaderVec3(std::string name, Vec3 vec)
     {
-        CS_ASSERT(s_renderer.boundShader, "No shader is currently bound!");
+        ASSERT(s_renderer.boundShader, "No shader is currently bound!");
         if(!s_renderer.boundShader) return;
         GLint location = glGetUniformLocation(s_renderer.boundShader->program, name.c_str());
         if(location == -1) printf("No shader uniform found: %s\n", name.c_str());
@@ -770,7 +770,7 @@ CS_PUBLIC_SCOPE::gfx
     }
     CS_API void SetShaderVec4(std::string name, Vec4 vec)
     {
-        CS_ASSERT(s_renderer.boundShader, "No shader is currently bound!");
+        ASSERT(s_renderer.boundShader, "No shader is currently bound!");
         if(!s_renderer.boundShader) return;
         GLint location = glGetUniformLocation(s_renderer.boundShader->program, name.c_str());
         if(location == -1) printf("No shader uniform found: %s\n", name.c_str());
@@ -778,7 +778,7 @@ CS_PUBLIC_SCOPE::gfx
     }
     CS_API void SetShaderMat2(std::string name, Mat2 mat)
     {
-        CS_ASSERT(s_renderer.boundShader, "No shader is currently bound!");
+        ASSERT(s_renderer.boundShader, "No shader is currently bound!");
         if(!s_renderer.boundShader) return;
         GLint location = glGetUniformLocation(s_renderer.boundShader->program, name.c_str());
         if(location == -1) printf("No shader uniform found: %s\n", name.c_str());
@@ -786,7 +786,7 @@ CS_PUBLIC_SCOPE::gfx
     }
     CS_API void SetShaderMat3(std::string name, Mat3 mat)
     {
-        CS_ASSERT(s_renderer.boundShader, "No shader is currently bound!");
+        ASSERT(s_renderer.boundShader, "No shader is currently bound!");
         if(!s_renderer.boundShader) return;
         GLint location = glGetUniformLocation(s_renderer.boundShader->program, name.c_str());
         if(location == -1) printf("No shader uniform found: %s\n", name.c_str());
@@ -794,7 +794,7 @@ CS_PUBLIC_SCOPE::gfx
     }
     CS_API void SetShaderMat4(std::string name, Mat4 mat)
     {
-        CS_ASSERT(s_renderer.boundShader, "No shader is currently bound!");
+        ASSERT(s_renderer.boundShader, "No shader is currently bound!");
         if(!s_renderer.boundShader) return;
         GLint location = glGetUniformLocation(s_renderer.boundShader->program, name.c_str());
         if(location == -1) printf("No shader uniform found: %s\n", name.c_str());
@@ -1024,8 +1024,8 @@ CS_PUBLIC_SCOPE::imm
         s2 /= texture->w;
         t2 /= texture->h;
 
-        if(CS_CHECK_FLAGS(flip, Flip_Horizontal)) sx = -sx;
-        if(CS_CHECK_FLAGS(flip, Flip_Vertical)) sy = -sy;
+        if(CHECK_FLAGS(flip, Flip_Horizontal)) sx = -sx;
+        if(CHECK_FLAGS(flip, Flip_Vertical)) sy = -sy;
 
         Mat4& modelMatrix = GetModelMatrix();
         Mat4 cachedMatrix = modelMatrix;

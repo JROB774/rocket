@@ -1,6 +1,5 @@
 #pragma once
 
-#include "cs_define.hpp"
 #include "cs_utility.hpp"
 
 CS_PUBLIC_SCOPE

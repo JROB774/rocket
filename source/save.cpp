@@ -18,13 +18,13 @@ static void SaveGame()
         u8 currentCostume = (s_rocket.random) ? CS_CAST(u8, Costume_Random) : CS_CAST(u8, s_rocket.costume);
         u8 unlockFlags = UnlockFlags_None;
 
-        if(s_rocket.unlocks[Costume_Happy  ]) CS_SET_FLAGS(unlockFlags, UnlockFlags_Happy);
-        if(s_rocket.unlocks[Costume_Sad    ]) CS_SET_FLAGS(unlockFlags, UnlockFlags_Sad);
-        if(s_rocket.unlocks[Costume_Sick   ]) CS_SET_FLAGS(unlockFlags, UnlockFlags_Sick);
-        if(s_rocket.unlocks[Costume_Meat   ]) CS_SET_FLAGS(unlockFlags, UnlockFlags_Meat);
-        if(s_rocket.unlocks[Costume_Doodle ]) CS_SET_FLAGS(unlockFlags, UnlockFlags_Doodle);
-        if(s_rocket.unlocks[Costume_Rainbow]) CS_SET_FLAGS(unlockFlags, UnlockFlags_Rainbow);
-        if(s_rocket.unlocks[Costume_Glitch ]) CS_SET_FLAGS(unlockFlags, UnlockFlags_Glitch);
+        if(s_rocket.unlocks[Costume_Happy  ]) SET_FLAGS(unlockFlags, UnlockFlags_Happy);
+        if(s_rocket.unlocks[Costume_Sad    ]) SET_FLAGS(unlockFlags, UnlockFlags_Sad);
+        if(s_rocket.unlocks[Costume_Sick   ]) SET_FLAGS(unlockFlags, UnlockFlags_Sick);
+        if(s_rocket.unlocks[Costume_Meat   ]) SET_FLAGS(unlockFlags, UnlockFlags_Meat);
+        if(s_rocket.unlocks[Costume_Doodle ]) SET_FLAGS(unlockFlags, UnlockFlags_Doodle);
+        if(s_rocket.unlocks[Costume_Rainbow]) SET_FLAGS(unlockFlags, UnlockFlags_Rainbow);
+        if(s_rocket.unlocks[Costume_Glitch ]) SET_FLAGS(unlockFlags, UnlockFlags_Glitch);
 
         fwrite(&k_saveVersion, sizeof(k_saveVersion), 1, file);
         fwrite(&currentCostume, sizeof(currentCostume), 1, file);
@@ -68,13 +68,13 @@ static void LoadGame()
                 s_rocket.costume = CS_CAST(Costume, currentCostume);
                 s_rocket.random = (s_rocket.costume == Costume_Random);
 
-                s_rocket.unlocks[Costume_Happy  ] = CS_CHECK_FLAGS(unlockFlags, UnlockFlags_Happy);
-                s_rocket.unlocks[Costume_Sad    ] = CS_CHECK_FLAGS(unlockFlags, UnlockFlags_Sad);
-                s_rocket.unlocks[Costume_Sick   ] = CS_CHECK_FLAGS(unlockFlags, UnlockFlags_Sick);
-                s_rocket.unlocks[Costume_Meat   ] = CS_CHECK_FLAGS(unlockFlags, UnlockFlags_Meat);
-                s_rocket.unlocks[Costume_Doodle ] = CS_CHECK_FLAGS(unlockFlags, UnlockFlags_Doodle);
-                s_rocket.unlocks[Costume_Rainbow] = CS_CHECK_FLAGS(unlockFlags, UnlockFlags_Rainbow);
-                s_rocket.unlocks[Costume_Glitch ] = CS_CHECK_FLAGS(unlockFlags, UnlockFlags_Glitch);
+                s_rocket.unlocks[Costume_Happy  ] = CHECK_FLAGS(unlockFlags, UnlockFlags_Happy);
+                s_rocket.unlocks[Costume_Sad    ] = CHECK_FLAGS(unlockFlags, UnlockFlags_Sad);
+                s_rocket.unlocks[Costume_Sick   ] = CHECK_FLAGS(unlockFlags, UnlockFlags_Sick);
+                s_rocket.unlocks[Costume_Meat   ] = CHECK_FLAGS(unlockFlags, UnlockFlags_Meat);
+                s_rocket.unlocks[Costume_Doodle ] = CHECK_FLAGS(unlockFlags, UnlockFlags_Doodle);
+                s_rocket.unlocks[Costume_Rainbow] = CHECK_FLAGS(unlockFlags, UnlockFlags_Rainbow);
+                s_rocket.unlocks[Costume_Glitch ] = CHECK_FLAGS(unlockFlags, UnlockFlags_Glitch);
             }
         }
     }

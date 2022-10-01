@@ -1,7 +1,5 @@
 #pragma once
 
-#include "cs_define.hpp"
-
 #include <sstream>
 #include <string>
 #include <iomanip>
@@ -16,7 +14,7 @@ CS_PUBLIC_SCOPE
 
     CS_API MD5 HashMD5(const u8* msg, size_t length);
 
-    CS_API CS_INLINE std::string MD5ToString(const MD5& md5)
+    CS_API inline std::string MD5ToString(const MD5& md5)
     {
         std::stringstream stream;
         stream << std::hex;

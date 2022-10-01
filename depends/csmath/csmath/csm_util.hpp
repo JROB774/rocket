@@ -18,41 +18,41 @@ CSM_PUBLIC_SCOPE
     //
 
     template<typename T>
-    CSM_API CSM_INLINE constexpr T Min(const T& a, const T& b)
+    inline constexpr T Min(const T& a, const T& b)
     {
         return (a < b) ? a : b;
     }
     template<typename T>
-    CSM_API CSM_INLINE constexpr T Max(const T& a, const T& b)
+    inline constexpr T Max(const T& a, const T& b)
     {
         return (a < b) ? b : a;
     }
 
     template<typename T>
-    CSM_API CSM_INLINE constexpr T Clamp(const T& x, const T& min, const T& max)
+    inline constexpr T Clamp(const T& x, const T& min, const T& max)
     {
         return (x < min ? min : max < x ? max : x);
     }
 
     template<typename T>
-    CSM_API CSM_INLINE T Lerp(const T& a, const T& b, const T& t)
+    inline T Lerp(const T& a, const T& b, const T& t)
     {
         return (a + t * (b - a));
     }
 
     template<typename T>
-    CSM_API CSM_INLINE constexpr T MapRange(const T& x, const T& aMin, const T& aMax, const T& bMin, const T& bMax)
+    inline constexpr T MapRange(const T& x, const T& aMin, const T& aMax, const T& bMin, const T& bMax)
     {
         return bMin + (bMax - bMin) * ((x - aMin) / (aMax - aMin));
     }
 
     template<typename T>
-    CSM_API CSM_INLINE constexpr T ToRad(const T& deg)
+    inline constexpr T ToRad(const T& deg)
     {
         return deg * CSM_CAST(T, k_pi64) / CSM_CAST(T, 180);
     }
     template<typename T>
-    CSM_API CSM_INLINE constexpr T ToDeg(const T& rad)
+    inline constexpr T ToDeg(const T& rad)
     {
         return rad * CSM_CAST(T, 180) / CSM_CAST(T, k_pi64);
     }

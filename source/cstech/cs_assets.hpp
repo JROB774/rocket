@@ -1,6 +1,5 @@
 #pragma once
 
-#include "cs_define.hpp"
 #include "cs_memory.hpp"
 
 #include <string>
@@ -79,7 +78,7 @@ CS_PUBLIC_SCOPE
 
         // Don't load the asset if it already exists.
         std::string lookup = name + dummy.GetExt();
-        AssetType* asset = CS_DCAST(AssetType*, s_assetManager.assetMap[lookup]);
+        AssetType* asset = dynamic_cast<AssetType*>(s_assetManager.assetMap[lookup]);
         if(asset && asset->m_loaded) return true;
         // Load the asset is we need to.
         printf("Loading %s: %s\n", dummy.GetType(), name.c_str());
@@ -114,11 +113,11 @@ CS_PUBLIC_SCOPE
 
         // Get the asset if it is already loaded, otherwise load it now.
         std::string lookup = name + dummy.GetExt();
-        AssetType* asset = CS_DCAST(AssetType*, s_assetManager.assetMap[lookup]);
+        AssetType* asset = dynamic_cast<AssetType*>(s_assetManager.assetMap[lookup]);
         if(!asset)
         {
             if(!LoadAsset<T>(name)) return NULL;
-            asset = CS_DCAST(AssetType*, s_assetManager.assetMap[lookup]);
+            asset = dynamic_cast<AssetType*>(s_assetManager.assetMap[lookup]);
             if(!asset) return NULL;
         }
         return ((asset->m_loaded) ? &asset->m_data : NULL);

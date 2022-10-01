@@ -1,6 +1,5 @@
 #pragma once
 
-#include "cs_define.hpp"
 #include "cs_math.hpp"
 #include "cs_assets.hpp"
 
@@ -12,10 +11,10 @@
 
 CS_PUBLIC_SCOPE::gfx
 {
-    CS_DECLARE_PRIVATE_STRUCT(VertexBuffer);
-    CS_DECLARE_PRIVATE_STRUCT(Shader);
-    CS_DECLARE_PRIVATE_STRUCT(Texture);
-    CS_DECLARE_PRIVATE_STRUCT(Framebuffer);
+    DECLARE_PRIVATE_STRUCT(VertexBuffer);
+    DECLARE_PRIVATE_STRUCT(Shader);
+    DECLARE_PRIVATE_STRUCT(Texture);
+    DECLARE_PRIVATE_STRUCT(Framebuffer);
 
     struct Vertex
     {

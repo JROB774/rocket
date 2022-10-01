@@ -1,6 +1,6 @@
 #pragma once
 
-#include "cs_define.hpp"
+#include "define.hpp"
 
 #define CSM_API CS_API
 #define CSM_INLINE CS_INLINE

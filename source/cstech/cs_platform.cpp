@@ -518,7 +518,7 @@ int main(int argc, char** argv)
     CS_DEFER { CheckTrackedMemory(); };
 
     s_appConfig = csMain(argc, argv);
-    CS_ASSERT(s_appConfig.app, "Need to define an application for the engine to run!");
+    ASSERT(s_appConfig.app, "Need to define an application for the engine to run!");
     CS_DEFER { Deallocate(s_appConfig.app); };
 
     // Cache useful paths.
@@ -730,7 +730,7 @@ int main(int argc, char** argv)
         #endif // CS_DEBUG
 
         // The window starts out hidden, after the first draw we unhide the window as this looks quite clean.
-        if(CS_CHECK_FLAGS(SDL_GetWindowFlags(s_context.window), SDL_WINDOW_HIDDEN))
+        if(CHECK_FLAGS(SDL_GetWindowFlags(s_context.window), SDL_WINDOW_HIDDEN))
         {
             SDL_ShowWindow(s_context.window);
         }

@@ -9,12 +9,12 @@ using namespace sfx;
 
 CS_PUBLIC_SCOPE::sfx
 {
-    CS_DEFINE_PRIVATE_STRUCT(Sound)
+    DEFINE_PRIVATE_STRUCT(Sound)
     {
         Mix_Chunk* chunk;
     };
 
-    CS_DEFINE_PRIVATE_STRUCT(Music)
+    DEFINE_PRIVATE_STRUCT(Music)
     {
         Mix_Music* music;
     };

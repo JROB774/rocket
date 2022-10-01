@@ -2,10 +2,13 @@
 
 #define SDL_MAIN_HANDLED
 
+#include <stdint.h>
+
+#include "define.hpp"
+
 #include "cs_application.hpp"
 #include "cs_assets.hpp"
 #include "cs_audio.hpp"
-#include "cs_define.hpp"
 #include "cs_graphics.hpp"
 #include "cs_hash.hpp"
 #include "cs_input.hpp"
@@ -39,11 +42,6 @@ enum GameState
     GameState_TOTAL
 };
 
-static GameState s_gameState;
-static u64 s_gameFrame;
-static bool s_gamePaused;
-static bool s_gameResetting;
-
 #include "utility.hpp"
 #include "collision.hpp"
 #include "bitmap_font.hpp"
@@ -60,6 +58,11 @@ static bool s_gameResetting;
 #include "menu_settings.hpp"
 #include "menu_gameover.hpp"
 #include "menu_pause.hpp"
+
+static GameState s_gameState;
+static u64       s_gameFrame;
+static bool      s_gamePaused;
+static bool      s_gameResetting;
 
 #include "utility.cpp"
 #include "collision.cpp"

@@ -1,14 +1,13 @@
 #pragma once
 
-#include "cs_define.hpp"
 #include "cs_assets.hpp"
 
 CS_PUBLIC_SCOPE::sfx
 {
     typedef u32 SoundRef;
 
-    CS_DECLARE_PRIVATE_STRUCT(Sound);
-    CS_DECLARE_PRIVATE_STRUCT(Music);
+    DECLARE_PRIVATE_STRUCT(Sound);
+    DECLARE_PRIVATE_STRUCT(Music);
 
     static const SoundRef k_invalidSoundRef = 0xFFFFFFFF;
 

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "cs_define.hpp"
 #include "cs_math.hpp"
 
 #include <typeinfo>
@@ -25,14 +24,14 @@ CS_PUBLIC_SCOPE
     CS_API void CheckTrackedMemory();
 
     template<typename T>
-    CS_API CS_INLINE T* Allocate(const MemoryTag& tag, size_t count = 1)
+    CS_API inline T* Allocate(const MemoryTag& tag, size_t count = 1)
     {
         T* data = new T[count]; // Need to use new because some of are stuff uses STL and needs constructors...
         TrackMemory(tag, typeid(T).name(), sizeof(T), count, CS_CAST(void*, data));
         return data;
     }
     template<typename T>
-    CS_API CS_INLINE void Deallocate(T* data)
+    CS_API inline void Deallocate(T* data)
     {
         UntrackMemory(CS_CAST(void*, data));
         delete[] data;

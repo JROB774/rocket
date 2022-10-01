@@ -1,6 +1,5 @@
 #pragma once
 
-#include "cs_define.hpp"
 #include "cs_application.hpp"
 #include "cs_input.hpp"
 
