@@ -63,6 +63,8 @@ static ImmContext s_immContext;
 
 static GLuint CompileShader(std::string& source, GLenum type)
 {
+    printf("%s\n", source.c_str());
+
     GLuint shader = glCreateShader(type);
     const char* cSource = source.c_str();
     glShaderSource(shader, 1, &cSource, NULL);
@@ -109,8 +111,8 @@ static bool CreateShader(Shader& shader, std::stringstream& stream)
         line.erase(0,line.find_first_not_of(" \t\n\r\f\v"));
 
         // Handle our attributes.
-        if     (line == "[VertProgram]") inVertProgram = true, inFragProgram = false;
-        else if(line == "[FragProgram]") inVertProgram = false, inFragProgram = true;
+        if     (line.find("[VertProgram]") != std::string::npos) inVertProgram = true, inFragProgram = false;
+        else if(line.find("[FragProgram]") != std::string::npos) inVertProgram = false, inFragProgram = true;
         else
         {
             // Add lines to the appropriate shader sources.
