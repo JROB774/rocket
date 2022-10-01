@@ -540,6 +540,11 @@ static void BeginRenderFrame()
 
 static void EndRenderFrame()
 {
+    glColorMask(false,false,false,true);
+    glClearColor(0,0,0,1);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glColorMask(true,true,true,true);
+
     glBindFramebuffer(GL_FRAMEBUFFER, GL_NONE);
 
     Rect viewport = { 0,0,CAST(f32,GetWindowWidth()),CAST(f32,GetWindowHeight()) };
