@@ -2,7 +2,7 @@
 setlocal
 
 pushd binary\win32
-start rocket.exe
+rocket.exe
 popd
 
 endlocal
