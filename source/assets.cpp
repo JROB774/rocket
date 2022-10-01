@@ -2,6 +2,7 @@ static void InitAssetManager()
 {
     // The executable's location is the highest priority location for assets.
     s_assetManager.assetPaths.push_back(GetExecPath());
+    s_assetManager.assetPaths.push_back(GetExecPath() + "assets/");
 
     // If there's other asset locations add them with descending priority.
     std::ifstream file("asset_paths.txt", std::ios::in);

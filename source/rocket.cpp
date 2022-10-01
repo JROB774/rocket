@@ -1,5 +1,3 @@
-#define SDL_MAIN_HANDLED
-
 #define GLEW_STATIC
 
 #define STB_IMAGE_STATIC

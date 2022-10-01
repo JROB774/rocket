@@ -173,12 +173,11 @@ int main(int argc, char** argv)
 
         updateTimer += elapsedTime;
 
-        if(BUILD_DEBUG)
-        {
-            f32 currentFPS = CAST(f32,perfFrequency) / CAST(f32,elapsedCounter);
-            std::string title = s_appConfig.title + " (FPS: " + std::to_string(currentFPS) + ")";
-            SDL_SetWindowTitle(s_context.window, title.c_str());
-        }
+        #ifdef BUILD_DEBUG
+        f32 currentFPS = CAST(f32,perfFrequency) / CAST(f32,elapsedCounter);
+        std::string title = s_appConfig.title + " (FPS: " + std::to_string(currentFPS) + ")";
+        SDL_SetWindowTitle(s_context.window, title.c_str());
+        #endif // BUILD_DEBUG
 
         // The window starts out hidden, after the first draw we unhide the window as this looks quite clean.
         if(CHECK_FLAGS(SDL_GetWindowFlags(s_context.window), SDL_WINDOW_HIDDEN))

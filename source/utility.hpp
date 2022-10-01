@@ -6,7 +6,7 @@
 
 #define ARRAY_SIZE(arr) (sizeof(arr)/sizeof((arr)[0]))
 
-#if BUILD_DEBUG
+#ifdef BUILD_DEBUG
 #include <assert.h>
 #define ASSERT(e,msg) assert(e)
 #else
