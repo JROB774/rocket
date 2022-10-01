@@ -21,13 +21,12 @@
 
 #include <nk_math.hpp>
 
-#include <gon.cpp>
-
 #ifndef __EMSCRIPTEN__
 #include <glew.c>
+#include <gon.cpp>
 #else
-#include <emscripten.h>
 #include <GLES2/gl2.h>
+#include <emscripten.h>
 #endif
 
 enum GameState
