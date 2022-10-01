@@ -16,12 +16,8 @@ struct InputState
 
 static const AppConfig& GetAppConfig();
 
-static f32 GetCurrentFPS();
-
 static std::string GetExecPath();
 static std::string GetDataPath();
-
-static void ResetWindow();
 
 static void PositionWindow(s32 x, s32 y);
 static void ResizeWindow(s32 w, s32 h);

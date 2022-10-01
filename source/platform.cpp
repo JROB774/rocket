@@ -12,7 +12,6 @@ struct PlatformContext
     std::string execPath;
     std::string dataPath;
     InputState input;
-    f32 currentFPS;
 };
 
 static PlatformContext s_context;
@@ -242,11 +241,6 @@ static const AppConfig& GetAppConfig()
     return s_appConfig;
 }
 
-static f32 GetCurrentFPS()
-{
-    return s_context.currentFPS;
-}
-
 static std::string GetExecPath()
 {
     return s_context.execPath;
@@ -260,16 +254,6 @@ static std::string GetDataPath()
 //
 // Window
 //
-
-static void ResetWindow()
-{
-    WindowConfig& config = s_appConfig.window;
-    EnableVSync(config.vSync);
-    MaximizeWindow(config.maximized);
-    FullscreenWindow(config.fullscreen);
-    ResizeWindow(config.size.x, config.size.y);
-    PositionWindow(SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
-}
 
 static void PositionWindow(s32 x, s32 y)
 {
@@ -310,17 +294,6 @@ static void FullscreenWindow(bool enable)
 static bool IsFullscreen()
 {
     return s_context.fullscreen;
-}
-
-static void EnableVSync(bool enable)
-{
-    if(SDL_GL_SetSwapInterval((enable) ? 1 : 0))
-        printf("Failed to set the swap interval!\n");
-}
-
-static bool IsVSyncOn()
-{
-    return (SDL_GL_GetSwapInterval() == 1);
 }
 
 static s32 GetWindowX()
@@ -528,7 +501,6 @@ int main(int argc, char** argv)
     s32 windowY = SDL_WINDOWPOS_CENTERED;
     s32 windowW = s_appConfig.window.size.x;
     s32 windowH = s_appConfig.window.size.y;
-    bool windowVSync = s_appConfig.window.vSync;
     bool windowMaximized = s_appConfig.window.maximized;
     bool windowFullscreen = s_appConfig.window.fullscreen;
     s32 windowDisplay = 0;
@@ -547,7 +519,6 @@ int main(int argc, char** argv)
             windowW = GetJSONValueWithDefault<s32>(windowState["bounds"], "w", windowW);
             windowH = GetJSONValueWithDefault<s32>(windowState["bounds"], "h", windowH);
         }
-        windowVSync = GetJSONValueWithDefault<bool>(windowState, "vsync", windowVSync);
         windowMaximized = GetJSONValueWithDefault<bool>(windowState, "maximized", windowMaximized);
         windowFullscreen = GetJSONValueWithDefault<bool>(windowState, "fullscreen", windowFullscreen);
         windowDisplay = GetJSONValueWithDefault<s32>(windowState, "display", windowDisplay);
@@ -579,8 +550,6 @@ int main(int argc, char** argv)
 
     glewInit();
 
-    // Needs to happen after initializing the GL context as it's needed for VSync.
-    EnableVSync(windowVSync);
     MaximizeWindow(windowMaximized);
     FullscreenWindow(windowFullscreen);
 
@@ -596,48 +565,22 @@ int main(int argc, char** argv)
     s_appConfig.app->OnInit();
     s_appConfig.app->m_running = true;
 
-    // Frame timing variables.
-    s64  desiredFrametime  = SDL_GetPerformanceFrequency() / CS_CAST(s32, s_appConfig.tickrate);
-    s64  vSyncMaxError     = CS_CAST(s32, SDL_GetPerformanceFrequency() * 0.0002);
-    s64  time60Hz          = SDL_GetPerformanceFrequency() / 60;
-    s64  snapFrequencies[] = { time60Hz, time60Hz*2, time60Hz*3, time60Hz*4, (time60Hz+1)/2 };
-    s64  timeAverager[]    = { desiredFrametime, desiredFrametime, desiredFrametime, desiredFrametime };
-    s64  currFrameTime     = 0;
-    s64  prevFrameTime     = SDL_GetPerformanceCounter();
-    s64  deltaTime         = 0;
-    s64  frameAccumulator  = 0;
-    f32  fixedDeltaTime    = 1.0f / s_appConfig.tickrate;
-    f32  consumedDeltaTime = 0.0f;
-    bool resync            = true;
+    u64 perfFrequency = SDL_GetPerformanceFrequency();
+    u64 lastCounter = SDL_GetPerformanceCounter();
+    u64 endCounter = 0;
+    u64 elapsedCounter = 0;
+    f32 updateTimer = 0.0f;
+
+    f32 deltaTime = 1.0f / s_appConfig.tickrate; // We use a fixed update rate to keep things deterministic.
+
+    // Enable VSync by default, if we don't get it then oh well.
+    if(SDL_GL_SetSwapInterval(1) == 0)
+    {
+        printf("VSync Enabled!");
+    }
 
     while(s_appConfig.app->m_running)
     {
-        currFrameTime = SDL_GetPerformanceCounter();
-        deltaTime = currFrameTime - prevFrameTime;
-        prevFrameTime = currFrameTime;
-
-        if(deltaTime > desiredFrametime*8)
-            deltaTime = desiredFrametime;
-        if(deltaTime < 0)
-            deltaTime = 0;
-
-        for(s64 snap: snapFrequencies)
-        {
-            if(abs(deltaTime - snap) < vSyncMaxError)
-            {
-                deltaTime = snap;
-                break;
-            }
-        }
-
-        for(s32 i=0; i<CS_ARRAY_SIZE(timeAverager)-1; ++i)
-            timeAverager[i] = timeAverager[i+1];
-        timeAverager[CS_ARRAY_SIZE(timeAverager)-1] = deltaTime;
-        deltaTime = 0;
-        for(s32 i=0; i<CS_ARRAY_SIZE(timeAverager); ++i)
-            deltaTime += timeAverager[i];
-        deltaTime /= CS_ARRAY_SIZE(timeAverager);
-
         SDL_Event event;
         while(SDL_PollEvent(&event))
         {
@@ -677,43 +620,37 @@ int main(int argc, char** argv)
             }
         }
 
-        frameAccumulator += deltaTime;
-        if(frameAccumulator > desiredFrametime*8)
-            resync = true;
-
-        if(resync)
-        {
-            frameAccumulator = 0;
-            deltaTime = desiredFrametime;
-            resync = false;
-            for(s32 i=0; i<CS_ARRAY_SIZE(timeAverager); ++i)
-                timeAverager[i] = desiredFrametime;
-        }
-
         bool didUpdate = false;
-        while(frameAccumulator >= desiredFrametime)
+        while(updateTimer >= deltaTime)
         {
             UpdateInputState();
-            s_appConfig.app->OnUpdate(fixedDeltaTime);
-            frameAccumulator -= desiredFrametime;
+            s_appConfig.app->OnUpdate(deltaTime);
+            updateTimer -= deltaTime;
             didUpdate = true;
         }
-
         if(didUpdate)
         {
             SetViewport(NULL);
             Clear(s_appConfig.clearColor);
             BeginRenderFrame();
-            s_appConfig.app->OnRender(fixedDeltaTime);
+            s_appConfig.app->OnRender(deltaTime);
         }
         EndRenderFrame();
 
         SDL_GL_SwapWindow(s_context.window);
 
+        endCounter = SDL_GetPerformanceCounter();
+        elapsedCounter = endCounter - lastCounter;
+        lastCounter = SDL_GetPerformanceCounter();
+
+        f32 elapsedTime = CS_CAST(f32,elapsedCounter) / CS_CAST(f32,perfFrequency);
+
+        updateTimer += elapsedTime;
+
         if(CS_DEBUG)
         {
-            s_context.currentFPS = CS_CAST(f32, SDL_GetPerformanceFrequency()) / deltaTime;
-            std::string title = s_appConfig.title + " (FPS: " + std::to_string(s_context.currentFPS) + ")";
+            f32 currentFPS = CS_CAST(f32,perfFrequency) / CS_CAST(f32,elapsedCounter);
+            std::string title = s_appConfig.title + " (FPS: " + std::to_string(currentFPS) + ")";
             SDL_SetWindowTitle(s_context.window, title.c_str());
         }
 
@@ -744,7 +681,6 @@ int main(int argc, char** argv)
             windowH = s_context.cachedWindowHeight;
         }
 
-        windowVSync = IsVSyncOn();
         windowMaximized = s_context.maximized;
         windowFullscreen = s_context.fullscreen;
 
@@ -759,7 +695,6 @@ int main(int argc, char** argv)
         windowState["bounds"]["y"] = windowY;
         windowState["bounds"]["w"] = windowW;
         windowState["bounds"]["h"] = windowH;
-        windowState["vsync"] = windowVSync;
         windowState["maximized"] = windowMaximized;
         windowState["fullscreen"] = windowFullscreen;
         windowState["display"] = windowDisplay;

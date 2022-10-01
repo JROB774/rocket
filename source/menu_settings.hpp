@@ -7,7 +7,6 @@ enum SettingsMenuOption
     SettingsMenuOption_Sound,
     SettingsMenuOption_Music,
     SettingsMenuOption_Fullscreen,
-    SettingsMenuOption_VSync,
     SettingsMenuOption_ResetSave,
     SettingsMenuOption_Back,
     SettingsMenuOption_TOTAL

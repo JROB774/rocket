@@ -13,11 +13,6 @@ static void SettingsMenuActionFullscreen(MenuOption& option)
     FullscreenWindow(option.toggle);
 }
 
-static void SettingsMenuActionVSync(MenuOption& option)
-{
-    EnableVSync(option.toggle);
-}
-
 static void SettingsMenuActionResetSave(MenuOption& option)
 {
     s_resetSaveCounter++;
@@ -40,8 +35,7 @@ static MenuOption s_settingsMenuOptions[SettingsMenuOption_TOTAL]
 { SettingsMenuActionSound,      MenuOptionType_Slider, { 0.0f,128.0f,      180.0f,24.0f }, { 0,1128,128,24 } },
 { SettingsMenuActionMusic,      MenuOptionType_Slider, { 0.0f,128.0f+24.0f,180.0f,24.0f }, { 0,1392,128,24 } },
 { SettingsMenuActionFullscreen, MenuOptionType_Toggle, { 0.0f,128.0f+48.0f,180.0f,24.0f }, { 0, 408,128,24 } },
-{ SettingsMenuActionVSync,      MenuOptionType_Toggle, { 0.0f,128.0f+72.0f,180.0f,24.0f }, { 0, 456,128,24 } },
-{ SettingsMenuActionResetSave,  MenuOptionType_Button, { 0.0f,128.0f+96.0f,180.0f,24.0f }, { 0, 504,128,24 } },
+{ SettingsMenuActionResetSave,  MenuOptionType_Button, { 0.0f,128.0f+72.0f,180.0f,24.0f }, { 0, 504,128,24 } },
 { SettingsMenuActionBack,       MenuOptionType_Button, { 0.0f,288.0f,      180.0f,24.0f }, { 0, 576,128,24 } }
 };
 
@@ -51,7 +45,6 @@ static void UpdateSettingsMenu(f32 dt)
     s_settingsMenuOptions[SettingsMenuOption_Sound].slider = GetSoundVolume();
     s_settingsMenuOptions[SettingsMenuOption_Music].slider = GetMusicVolume();
     s_settingsMenuOptions[SettingsMenuOption_Fullscreen].toggle = IsFullscreen();
-    s_settingsMenuOptions[SettingsMenuOption_VSync].toggle = IsVSyncOn();
     s_settingsMenuOptions[SettingsMenuOption_ResetSave].clip.y = 504+(CS_CAST(f32,s_resetSaveCounter)*24.0f);
     UpdateMenuOptions(s_settingsMenuOptions, SettingsMenuOption_TOTAL, dt);
     if(IsKeyPressed(KeyCode_Escape))
