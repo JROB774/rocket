@@ -42,7 +42,6 @@ static size_t s_gameFrame;
 static bool s_gamePaused;
 static bool s_gameResetting;
 
-#include "define.hpp"
 #include "utility.hpp"
 #include "application.hpp"
 #include "memory.hpp"
