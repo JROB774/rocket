@@ -7,7 +7,7 @@
 
 static void SaveGame()
 {
-    std::string fileName = GetDataPath() + k_saveFileName;
+    std::string fileName = GetExecPath() + k_saveFileName;
     FILE* file = fopen(fileName.c_str(), "wb");
     if(!file)
         printf("Failed to save game data!\n");
@@ -43,7 +43,7 @@ static void LoadGame()
     s_rocket.unlocks[Costume_Random] = true;
 
     // Load data if available.
-    std::string fileName = GetDataPath() + k_saveFileName;
+    std::string fileName = GetExecPath() + k_saveFileName;
     if(DoesFileExist(fileName))
     {
         FILE* file = fopen(fileName.c_str(), "rb");

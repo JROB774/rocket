@@ -10,7 +10,6 @@ struct PlatformContext
     bool maximized;
     bool fullscreen;
     std::string execPath;
-    std::string dataPath;
     InputState input;
 };
 
@@ -246,11 +245,6 @@ static std::string GetExecPath()
     return s_context.execPath;
 }
 
-static std::string GetDataPath()
-{
-    return s_context.dataPath;
-}
-
 //
 // Window
 //
@@ -483,7 +477,6 @@ int main(int argc, char** argv)
 
     // Cache useful paths.
     s_context.execPath = ValidatePath(SDL_GetBasePath());
-    s_context.dataPath = ValidatePath(SDL_GetPrefPath("ChromoStudio", s_appConfig.title.c_str()));
 
     printf("Starting Application %s...\n", s_appConfig.title.c_str());
 
