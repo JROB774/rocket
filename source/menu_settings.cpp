@@ -32,11 +32,11 @@ static void SettingsMenuActionBack(MenuOption& option)
 
 static MenuOption s_settingsMenuOptions[SettingsMenuOption_TOTAL]
 {
-{ SettingsMenuActionSound,      MenuOptionType_Slider, { 0.0f,128.0f,      180.0f,24.0f }, { 0,1128,128,24 } },
-{ SettingsMenuActionMusic,      MenuOptionType_Slider, { 0.0f,128.0f+24.0f,180.0f,24.0f }, { 0,1392,128,24 } },
-{ SettingsMenuActionFullscreen, MenuOptionType_Toggle, { 0.0f,128.0f+48.0f,180.0f,24.0f }, { 0, 408,128,24 } },
-{ SettingsMenuActionResetSave,  MenuOptionType_Button, { 0.0f,128.0f+72.0f,180.0f,24.0f }, { 0, 504,128,24 } },
-{ SettingsMenuActionBack,       MenuOptionType_Button, { 0.0f,288.0f,      180.0f,24.0f }, { 0, 576,128,24 } }
+MenuOption(SettingsMenuActionSound,      MenuOptionType_Slider, { 0.0f,128.0f,      180.0f,24.0f }, { 0,1128,128,24 }),
+MenuOption(SettingsMenuActionMusic,      MenuOptionType_Slider, { 0.0f,128.0f+24.0f,180.0f,24.0f }, { 0,1392,128,24 }),
+MenuOption(SettingsMenuActionFullscreen, MenuOptionType_Toggle, { 0.0f,128.0f+48.0f,180.0f,24.0f }, { 0, 408,128,24 }),
+MenuOption(SettingsMenuActionResetSave,  MenuOptionType_Button, { 0.0f,128.0f+72.0f,180.0f,24.0f }, { 0, 504,128,24 }),
+MenuOption(SettingsMenuActionBack,       MenuOptionType_Button, { 0.0f,288.0f,      180.0f,24.0f }, { 0, 576,128,24 })
 };
 
 static void UpdateSettingsMenu(f32 dt)

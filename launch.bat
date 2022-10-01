@@ -1,7 +1,7 @@
 @echo off
 setlocal
 
-pushd binary
+pushd binary\win32
 start rocket.exe
 popd
 

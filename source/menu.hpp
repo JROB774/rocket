@@ -13,15 +13,28 @@ enum MenuOptionType
 
 struct MenuOption
 {
-    MenuOptionAction action = NULL;
-    MenuOptionType type = MenuOptionType_Button;
-    Rect bounds = {};
-    Rect clip = {};
-    bool selected = false;
-    f32 scale = 1.0f;
-    f32 targetScale = 1.0f;
-    bool toggle = false;
-    f32 slider = 1.0f;
+    MenuOption(MenuOptionAction iAction, MenuOptionType iType, Rect iBounds, Rect iClip)
+    {
+        action = iAction;
+        type = iType;
+        bounds = iBounds;
+        clip = iClip;
+        selected = false;
+        scale = 1.0f;
+        targetScale = 1.0f;
+        toggle = false;
+        slider = 1.0f;
+    }
+
+    MenuOptionAction action;
+    MenuOptionType type;
+    Rect bounds;
+    Rect clip;
+    bool selected;
+    f32 scale;
+    f32 targetScale;
+    bool toggle;
+    f32 slider;
 };
 
 static void UpdateMenuOptions(MenuOption* options, size_t count, f32 dt);

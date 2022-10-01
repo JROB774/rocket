@@ -26,9 +26,9 @@ static void CostumesMenuActionBack(MenuOption& option)
 
 static MenuOption s_costumesMenuOptions[CostumesMenuOption_TOTAL]
 {
-{ CostumesMenuActionLeft,  MenuOptionType_Button, {   8.0f,136.0f, 48.0f,48.0f }, { 0,1080,128,24 } },
-{ CostumesMenuActionRight, MenuOptionType_Button, { 124.0f,136.0f, 48.0f,48.0f }, { 0,1104,128,24 } },
-{ CostumesMenuActionBack,  MenuOptionType_Button, {   0.0f,288.0f,180.0f,24.0f }, { 0, 576,128,24 } }
+MenuOption(CostumesMenuActionLeft,  MenuOptionType_Button, {   8.0f,136.0f, 48.0f,48.0f }, { 0,1080,128,24 }),
+MenuOption(CostumesMenuActionRight, MenuOptionType_Button, { 124.0f,136.0f, 48.0f,48.0f }, { 0,1104,128,24 }),
+MenuOption(CostumesMenuActionBack,  MenuOptionType_Button, {   0.0f,288.0f,180.0f,24.0f }, { 0, 576,128,24 })
 };
 
 static void UpdateCostumesMenu(f32 dt)

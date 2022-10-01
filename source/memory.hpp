@@ -16,6 +16,6 @@ static void UntrackMemory(const void* data);
 static void CheckTrackedMemory();
 
 template<typename T>
-static T* Allocate(const MemoryTag& tag, size_t count = 1);
+static T* Allocate(const MemoryTag& tag);
 template<typename T>
 static void Deallocate(T* data);

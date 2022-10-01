@@ -16,9 +16,9 @@ static void PauseMenuActionMenu(MenuOption& option)
 
 static MenuOption s_pauseMenuOptions[PauseMenuOption_TOTAL]
 {
-{ PauseMenuActionResume,   MenuOptionType_Button, { 0.0f,200.0f,180.0f,24.0f }, { 0,312,128,24 } },
-{ MainMenuActionSettings,  MenuOptionType_Button, { 0.0f,224.0f,180.0f,24.0f }, { 0,264,128,24 } },
-{ PauseMenuActionMenu,     MenuOptionType_Button, { 0.0f,248.0f,180.0f,24.0f }, { 0,336,128,24 } }
+MenuOption(PauseMenuActionResume,   MenuOptionType_Button, { 0.0f,200.0f,180.0f,24.0f }, { 0,312,128,24 }),
+MenuOption(MainMenuActionSettings,  MenuOptionType_Button, { 0.0f,224.0f,180.0f,24.0f }, { 0,264,128,24 }),
+MenuOption(PauseMenuActionMenu,     MenuOptionType_Button, { 0.0f,248.0f,180.0f,24.0f }, { 0,336,128,24 })
 };
 
 static void PauseGame()

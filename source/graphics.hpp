@@ -123,11 +123,11 @@ DECLARE_ASSET(Shader)
 public:
     Shader m_data;
 
-    bool        Load(std::string fileName) override;
-    void        Free() override;
-    const char* GetPath() const override;
-    const char* GetExt() const override;
-    const char* GetType() const override;
+    bool Load(std::string fileName) override { return LoadShader(m_data, fileName); }
+    void Free() override { FreeShader(m_data); }
+    const char* GetPath() const override { return "shaders/"; }
+    const char* GetExt() const override { return ".shader"; }
+    const char* GetType() const override { return "Shader"; }
 };
 
 DECLARE_ASSET(Texture)
@@ -135,11 +135,11 @@ DECLARE_ASSET(Texture)
 public:
     Texture m_data;
 
-    bool        Load(std::string fileName) override;
-    void        Free() override;
-    const char* GetPath() const override;
-    const char* GetExt() const override;
-    const char* GetType() const override;
+    bool Load(std::string fileName) override { return LoadTexture(m_data, fileName); }
+    void Free() override { FreeTexture(m_data); }
+    const char* GetPath() const override { return "textures/"; }
+    const char* GetExt() const override { return ".png"; }
+    const char* GetType() const override { return "Texture"; }
 };
 
 namespace imm

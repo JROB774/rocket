@@ -459,11 +459,15 @@ static void ListPathFiles(std::string pathName, std::vector<std::string>& files,
 {
     if(!DoesPathExist(pathName)) return;
     if(recursive)
+    {
         for(auto& p: std::filesystem::recursive_directory_iterator(pathName))
             if(IsFile(p.path().string())) files.push_back(p.path().string());
+    }
     else
+    {
         for(auto& p: std::filesystem::directory_iterator(pathName))
             if(IsFile(p.path().string())) files.push_back(p.path().string());
+    }
 }
 
 //

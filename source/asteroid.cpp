@@ -11,6 +11,10 @@ static void SpawnAsteroid()
         case(AsteroidType_Large): asteroid.collider.radius = 12.0f; break;
         case(AsteroidType_Medium): asteroid.collider.radius = 8.0f; break;
         case(AsteroidType_Small): asteroid.collider.radius = 4.0f; break;
+        default:
+        {
+            // Nothing...
+        } break;
     }
     s_asteroids.push_back(asteroid);
 }

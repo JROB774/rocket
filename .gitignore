@@ -1,12 +1,1 @@
-.vs/
-
-**/binary/*.exe
-**/binary/*.exp
-**/binary/*.ilk
-**/binary/*.lib
-**/binary/*.pdb
-**/binary/*.dll
-**/binary/*.obj
-**/binary/*.dat
-
-imgui.ini
+binary/

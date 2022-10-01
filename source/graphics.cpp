@@ -1,6 +1,6 @@
 DEFINE_PRIVATE_STRUCT(VertexBuffer)
 {
-    GLuint vao, vbo;
+    GLuint vbo;
     std::vector<Vertex> verts;
 };
 
@@ -39,6 +39,7 @@ struct Renderer
     Framebuffer boundTarget;
     Shader boundShader;
     Texture boundTexture[64];
+    GLuint vao;
 };
 
 struct ImmContext
@@ -152,8 +153,6 @@ static GLenum BPPToGLFormat(s32 bpp)
 {
     switch(bpp)
     {
-        case(1): return GL_RED; break;
-        case(2): return GL_RG; break;
         case(3): return GL_RGB; break;
         case(4): return GL_RGBA; break;
         default:
@@ -320,9 +319,6 @@ static void CreateVertexBuffer(VertexBuffer& buffer)
         FatalError("Failed to allocate vertex buffer!\n");
     }
 
-    glGenVertexArrays(1, &buffer->vao);
-    glBindVertexArray(buffer->vao);
-
     glGenBuffers(1, &buffer->vbo);
     glBindBuffer(GL_ARRAY_BUFFER, buffer->vbo);
 
@@ -338,7 +334,6 @@ static void CreateVertexBuffer(VertexBuffer& buffer)
 static void FreeVertexBuffer(VertexBuffer& buffer)
 {
     if(!buffer) return;
-    glDeleteVertexArrays(1, &buffer->vao);
     glDeleteBuffers(1, &buffer->vbo);
     buffer->verts.clear();
     Deallocate(buffer);
@@ -361,7 +356,6 @@ static void DrawVertexBuffer(VertexBuffer& buffer, DrawMode drawMode)
         case(DrawMode_Triangles): primitive = GL_TRIANGLES; break;
     }
 
-    glBindVertexArray(buffer->vao);
     glBindBuffer(GL_ARRAY_BUFFER, buffer->vbo);
     GLsizeiptr size = buffer->verts.size() * sizeof(Vertex);
     glBufferData(GL_ARRAY_BUFFER, size, &buffer->verts[0], GL_DYNAMIC_DRAW);
@@ -436,6 +430,11 @@ static void InitGraphics()
     s32 width = GetAppConfig().screenSize.x;
     s32 height = GetAppConfig().screenSize.y;
 
+    #ifndef __EMSCRIPTEN__
+    glGenVertexArrays(1, &s_renderer.vao);
+    glBindVertexArray(s_renderer.vao);
+    #endif // __EMSCRIPTEN__
+
     s_renderer.screen.scaleMode = ScaleMode_Letterbox;
     s_renderer.screen.filter = Filter_Linear;
     CreateFramebuffer(s_renderer.screen.buffer, width,height, s_renderer.screen.filter);
@@ -446,6 +445,10 @@ static void QuitGraphics()
 {
     imm::FreeContext();
     FreeFramebuffer(s_renderer.screen.buffer);
+
+    #ifndef __EMSCRIPTEN__
+    glDeleteVertexArrays(1, &s_renderer.vao);
+    #endif // __EMSCRIPTEN
 }
 
 static void BeginRenderFrame()
@@ -537,10 +540,8 @@ static void BeginRenderFrame()
 
 static void EndRenderFrame()
 {
-    // @NOTE: This is kind of a hack so that we don't have any transparency in the screen render target when we blit it.
-    // Whilst this doesn't matter for blittingh to the actual window it does matter when we draw to ImGui in debug mode
-    // as it means the semi-transparent pixels in the target are actually see-through. Whilst this is fine for now we
-    // should, in the future, look into improving our render target creation so we can specify the number of components.
+    // @Incomplete: Implement this using an actual draw as framebuffer blit isn't supported in GLES!
+    #ifndef __EMSCRIPTEN__
     glColorMask(false,false,false,true);
     glClearColor(0,0,0,1);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -564,6 +565,7 @@ static void EndRenderFrame()
     glBindFramebuffer(GL_READ_FRAMEBUFFER, s_renderer.screen.buffer->handle);
 
     glBlitFramebuffer(srcX0,srcY0,srcX1,srcY1, dstX0,dstY0,dstX1,dstY1, GL_COLOR_BUFFER_BIT, FilterToGLFilter(s_renderer.screen.filter));
+    #endif // __EMSCRIPTEN__
 }
 
 static void Clear(f32 r, f32 g, f32 b, f32 a)
@@ -785,52 +787,6 @@ static void SetShaderMat4(std::string name, nkMat4 mat)
     GLint location = glGetUniformLocation(s_renderer.boundShader->program, name.c_str());
     if(location == -1) printf("No shader uniform found: %s\n", name.c_str());
     glUniformMatrix4fv(location, 1, GL_FALSE, mat.raw);
-}
-
-//
-// Assets
-//
-
-bool Asset<Shader>::Load(std::string fileName)
-{
-    return LoadShader(m_data, fileName);
-}
-void Asset<Shader>::Free()
-{
-    FreeShader(m_data);
-}
-const char* Asset<Shader>::GetPath() const
-{
-    return "shaders/";
-}
-const char* Asset<Shader>::GetExt() const
-{
-    return ".shader";
-}
-const char* Asset<Shader>::GetType() const
-{
-    return "Shader";
-}
-
-bool Asset<Texture>::Load(std::string fileName)
-{
-    return LoadTexture(m_data, fileName);
-}
-void Asset<Texture>::Free()
-{
-    FreeTexture(m_data);
-}
-const char* Asset<Texture>::GetPath() const
-{
-    return "textures/";
-}
-const char* Asset<Texture>::GetExt() const
-{
-    return ".png";
-}
-const char* Asset<Texture>::GetType() const
-{
-    return "Texture";
 }
 
 //

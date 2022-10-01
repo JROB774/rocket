@@ -75,7 +75,7 @@ static bool LoadAsset(std::string name)
 
     // Add it to the asset containers.
     s_assetManager.assetMap[lookup] = asset;
-    auto& loc = std::find(s_assetManager.assetList.begin(), s_assetManager.assetList.end(), asset);
+    auto loc = std::find(s_assetManager.assetList.begin(), s_assetManager.assetList.end(), asset);
     if(loc != s_assetManager.assetList.end()) s_assetManager.assetList.erase(loc);
     s_assetManager.assetList.push_back(asset);
 
@@ -90,7 +90,7 @@ template<typename T>
 static T* GetAsset(std::string name)
 {
     typedef Asset<T> AssetType;
-    if(name.empty()) return false;
+    if(name.empty()) return NULL;
     name = ValidatePath(name);
 
     AssetType dummy; // @Cleanup @Hack: Kind of hacky...

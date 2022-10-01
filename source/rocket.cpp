@@ -17,11 +17,15 @@
 #include <SDL.h>
 #include <SDL_mixer.h>
 
-#include <glew.c>
-
 #include <stb_image.h>
 
 #include <nk_math.hpp>
+
+#ifndef __EMSCRIPTEN__
+#include <glew.c>
+#else
+#include <GLES2/gl2.h>
+#endif
 
 enum GameState
 {
@@ -101,7 +105,7 @@ public:
         LoadAllAssetsOfType<Sound>();
         LoadAllAssetsOfType<Music>();
 
-        auto& textures = GetAllAssetsOfType<Texture>();
+        auto textures = GetAllAssetsOfType<Texture>();
         for(auto& texture: textures)
         {
             SetTextureFilter(*texture, Filter_Nearest);
@@ -145,6 +149,10 @@ public:
             case(GameState_ScoresMenu): UpdateScoresMenu(dt); break;
             case(GameState_CostumesMenu): UpdateCostumesMenu(dt); break;
             case(GameState_SettingsMenu): UpdateSettingsMenu(dt); break;
+            default:
+            {
+                // Nothing...
+            } break;
         }
 
         UpdateGameOverMenu(dt);

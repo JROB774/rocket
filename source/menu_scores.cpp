@@ -5,7 +5,7 @@ static void ScoresMenuActionBack(MenuOption& option)
 
 static MenuOption s_scoresMenuOptions[ScoresMenuOption_TOTAL]
 {
-{ ScoresMenuActionBack, MenuOptionType_Button, { 0.0f,288.0f,180.0f,24.0f }, { 0,576,128,24 } }
+MenuOption(ScoresMenuActionBack, MenuOptionType_Button, { 0.0f,288.0f,180.0f,24.0f }, { 0,576,128,24 })
 };
 
 static void UpdateScoresMenu(f32 dt)

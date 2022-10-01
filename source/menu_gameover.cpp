@@ -10,8 +10,8 @@ static void GameOverMenuActionMenu(MenuOption& option)
 
 static MenuOption s_gameOverMenuOptions[GameOverMenuOption_TOTAL]
 {
-{ GameOverMenuActionRetry, MenuOptionType_Button, { 0.0f,248.0f,180.0f,24.0f }, { 0,1656,128,24 } },
-{ GameOverMenuActionMenu,  MenuOptionType_Button, { 0.0f,272.0f,180.0f,24.0f }, { 0, 336,128,24 } }
+MenuOption(GameOverMenuActionRetry, MenuOptionType_Button, { 0.0f,248.0f,180.0f,24.0f }, { 0,1656,128,24 }),
+MenuOption(GameOverMenuActionMenu,  MenuOptionType_Button, { 0.0f,272.0f,180.0f,24.0f }, { 0, 336,128,24 })
 };
 
 static void UpdateGameOverMenu(f32 dt)

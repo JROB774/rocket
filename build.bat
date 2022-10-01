@@ -10,15 +10,20 @@ goto end
 :build_win32
 echo ----------------------------------------
 
-if not exist binary\SDL2.dll copy depends\sdl\bin\win32\SDL2.dll binary\SDL2.dll > NUL
-if not exist binary\SDL2_mixer.dll copy depends\sdl_mixer\bin\win32\SDL2_mixer.dll binary\SDL2_mixer.dll > NUL
-if not exist binary\libogg-0.dll copy depends\sdl_mixer\bin\win32\libogg-0.dll binary\libogg-0.dll > NUL
-if not exist binary\libvorbis-0.dll copy depends\sdl_mixer\bin\win32\libvorbis-0.dll binary\libvorbis-0.dll > NUL
-if not exist binary\libvorbisfile-3.dll copy depends\sdl_mixer\bin\win32\libvorbisfile-3.dll binary\libvorbisfile-3.dll > NUL
+if not exist binary\win32 mkdir binary\win32
+
+if not exist binary\win32\SDL2.dll copy depends\sdl\bin\win32\SDL2.dll binary\win32\SDL2.dll > NUL
+if not exist binary\win32\SDL2_mixer.dll copy depends\sdl_mixer\bin\win32\SDL2_mixer.dll binary\win32\SDL2_mixer.dll > NUL
+if not exist binary\win32\libogg-0.dll copy depends\sdl_mixer\bin\win32\libogg-0.dll binary\win32\libogg-0.dll > NUL
+if not exist binary\win32\libvorbis-0.dll copy depends\sdl_mixer\bin\win32\libvorbis-0.dll binary\win32\libvorbis-0.dll > NUL
+if not exist binary\win32\libvorbisfile-3.dll copy depends\sdl_mixer\bin\win32\libvorbisfile-3.dll binary\win32\libvorbisfile-3.dll > NUL
+
+if not exist binary\win32\asset_paths.txt copy docs\asset_paths.txt binary\win32\asset_paths.txt > NUL
+if not exist binary\win32\credits.txt copy docs\credits.txt binary\win32\credits.txt > NUL
 
 set defs=-D BUILD_DEBUG -D SDL_MAIN_HANDLED
-set idir=-I ../source -I ../depends/sdl/include -I ../depends/sdl_mixer/include -I ../depends/glew/include -I ../depends/glew/source -I ../depends/stb -I ../depends/nksdk/nklibs
-set ldir=-libpath:../depends/sdl/lib/win32 -libpath:../depends/sdl_mixer/lib/win32
+set idir=-I ../../depends/sdl/include -I ../../depends/sdl_mixer/include -I ../../depends/glew/include -I ../../depends/glew/source -I ../../depends/stb -I ../../depends/nksdk/nklibs
+set ldir=-libpath:../../depends/sdl/lib/win32 -libpath:../../depends/sdl_mixer/lib/win32
 set libs=SDL2main.lib SDL2.lib SDL2_mixer.lib opengl32.lib shell32.lib
 set cflg=-EHsc -std:c++17
 set lflg=-incremental:no
@@ -29,15 +34,31 @@ if "%~2"=="release" (
     set lflg=%lflg% -release -subsystem:windows
 )
 
-pushd binary
-cl ../source/rocket.cpp %cflg% %defs% %idir% -Fe:rocket.exe -link %lflg% %ldir% %libs%
+pushd binary\win32
+cl ../../source/rocket.cpp %cflg% %defs% %idir% -Fe:rocket.exe -link %lflg% %ldir% %libs%
 popd
 
 goto end
 
 :build_web
 echo ----------------------------------------
-:: @Incomplete: ...
+
+call depends\emsdk\emsdk install latest
+call depends\emsdk\emsdk activate latest
+call depends\emsdk\emsdk_env.bat
+
+set defs=
+set idir=-I ../../depends/stb -I ../../depends/nksdk/nklibs
+set libs=-s WASM=1 -s USE_SDL=2 -s USE_SDL_MIXER=2 -s USE_OGG=1 -s USE_VORBIS=1 -s MAX_WEBGL_VERSION=2
+set cflg=-std=c++17
+set lflg=--preload-file ../../assets
+
+if not exist binary\web mkdir binary\web
+
+pushd binary\web
+emcc %libs% %idir% %cflg% %lflg% ../../source/rocket.cpp -o rocket.html
+popd
+
 goto end
 
 :end

@@ -9,6 +9,10 @@ static void StartThruster()
         case(Costume_Doodle): thruster = "mouth0"; break;
         case(Costume_Rainbow): thruster = "sparkle"; break;
         case(Costume_Glitch): thruster = "static"; break;
+        default:
+        {
+            // Nothing...
+        } break;
     }
     s_rocket.thruster = PlaySound(thruster, -1);
 }
@@ -60,6 +64,10 @@ static void HitRocket()
         case(Costume_Doodle): explosion = "mouth2"; break;
         case(Costume_Rainbow): explosion = "ignite"; break;
         case(Costume_Glitch): explosion = "glitch"; break;
+        default:
+        {
+            // Nothing...
+        } break;
     }
     PlaySound(explosion);
 
@@ -139,6 +147,10 @@ static void UpdateRocket(f32 dt)
                         case(Costume_Doodle): whoosh = "mouth1"; break;
                         case(Costume_Rainbow): whoosh = "magic"; break;
                         case(Costume_Glitch): whoosh = "fuzz"; break;
+                        default:
+                        {
+                            // Nothing...
+                        } break;
                     }
                     PlaySound(whoosh);
                     s_whooshVel = s_rocket.vel.x;

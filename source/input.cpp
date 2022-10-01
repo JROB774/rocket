@@ -122,6 +122,10 @@ static nkVec2 GetScreenMousePos()
             screenMouse.x = (screenMouse.x - screenBounds.x) / floorf(s);
             screenMouse.y = (screenMouse.y - screenBounds.y) / floorf(s);
         } break;
+        default:
+        {
+            // Nothing...
+        } break;
     }
 
     return screenMouse;

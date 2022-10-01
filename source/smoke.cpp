@@ -81,6 +81,10 @@ static void UpdateSmoke(f32 dt)
                     }
                 }
             } break;
+            default:
+            {
+                // Nothing...
+            } break;
         }
     }
 
