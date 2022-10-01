@@ -20,13 +20,13 @@
 #include "cs_math.hpp"
 using namespace csm;
 #include "utility.hpp"
+#include "application.hpp"
 #include "memory.hpp"
 #include "input.hpp"
 #include "assets.hpp"
 #include "audio.hpp"
 #include "graphics.hpp"
 
-#include "cs_application.hpp"
 #include "cs_platform.hpp"
 
 #include "cs_platform.cpp"

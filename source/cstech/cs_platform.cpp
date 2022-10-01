@@ -511,7 +511,7 @@ int main(int argc, char** argv)
 {
     DEFER { CheckTrackedMemory(); };
 
-    s_appConfig = csMain(argc, argv);
+    s_appConfig = AppMain(argc, argv);
     ASSERT(s_appConfig.app, "Need to define an application for the engine to run!");
     DEFER { Deallocate(s_appConfig.app); };
 

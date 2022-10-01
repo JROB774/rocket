@@ -95,7 +95,7 @@ public:
     }
 };
 
-AppConfig csMain(int argc, char** argv)
+AppConfig AppMain(int argc, char** argv)
 {
     AppConfig appConfig;
     appConfig.title = "Rocket";
