@@ -10,7 +10,7 @@ enum AsteroidType
 
 struct Asteroid
 {
-    Vec2 pos;
+    nkVec2 pos;
     bool dead;
     imm::Flip flip;
     Collider collider;

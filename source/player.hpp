@@ -18,8 +18,8 @@ enum Costume
 
 struct Rocket
 {
-    Vec2 pos;
-    Vec2 vel;
+    nkVec2 pos;
+    nkVec2 vel;
     f32 angle;
     f32 shake;
     f32 timer;

@@ -47,12 +47,15 @@ struct ImmContext
     VertexBuffer buffer;
     Shader shader;
     Texture texture[64];
-    Mat4 projectionMatrix;
-    Mat4 viewMatrix;
-    Mat4 modelMatrix;
+    nkMat4 projectionMatrix;
+    nkMat4 viewMatrix;
+    nkMat4 modelMatrix;
     bool alphaBlending;
     bool textureMapping;
 };
+
+static constexpr f32 k_pi32 = 3.141592653590f;
+static constexpr f32 k_tau32 = 6.283185307180f;
 
 static Renderer s_renderer;
 static ImmContext s_immContext;
@@ -366,7 +369,7 @@ static void ClearVertexBuffer(VertexBuffer& buffer)
 // Framebuffer
 //
 
-static void CreateFramebuffer(Framebuffer& framebuffer, s32 w, s32 h, Filter filter, Wrap wrap, Vec4 clear)
+static void CreateFramebuffer(Framebuffer& framebuffer, s32 w, s32 h, Filter filter, Wrap wrap, nkVec4 clear)
 {
     framebuffer = Allocate<GET_PTR_TYPE(framebuffer)>(MEM_SYSTEM);
     ResizeFramebuffer(framebuffer, w, h, filter, wrap);
@@ -520,7 +523,7 @@ static void BeginRenderFrame()
     Rect viewport = { 0,0,screenWidth,screenHeight };
     SetRenderTarget(s_renderer.screen.buffer);
     SetViewport(&viewport);
-    s_immContext.projectionMatrix = csm::Orthographic(0.0f,screenWidth,screenHeight,0.0f);
+    s_immContext.projectionMatrix = nk::orthographic(0.0f,screenWidth,screenHeight,0.0f,0.0f,1.0f);
 }
 
 static void EndRenderFrame()
@@ -560,7 +563,7 @@ static void Clear(f32 r, f32 g, f32 b, f32 a)
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
-static void Clear(Vec4 color)
+static void Clear(nkVec4 color)
 {
     glClearColor(color.r,color.g,color.b,color.a);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -726,7 +729,7 @@ static void SetShaderFloat(std::string name, f32 val)
     if(location == -1) printf("No shader uniform found: %s\n", name.c_str());
     glUniform1f(location, val);
 }
-static void SetShaderVec2(std::string name, Vec2 vec)
+static void SetShaderVec2(std::string name, nkVec2 vec)
 {
     ASSERT(s_renderer.boundShader, "No shader is currently bound!");
     if(!s_renderer.boundShader) return;
@@ -734,7 +737,7 @@ static void SetShaderVec2(std::string name, Vec2 vec)
     if(location == -1) printf("No shader uniform found: %s\n", name.c_str());
     glUniform2fv(location, 1, vec.raw);
 }
-static void SetShaderVec3(std::string name, Vec3 vec)
+static void SetShaderVec3(std::string name, nkVec3 vec)
 {
     ASSERT(s_renderer.boundShader, "No shader is currently bound!");
     if(!s_renderer.boundShader) return;
@@ -742,7 +745,7 @@ static void SetShaderVec3(std::string name, Vec3 vec)
     if(location == -1) printf("No shader uniform found: %s\n", name.c_str());
     glUniform3fv(location, 1, vec.raw);
 }
-static void SetShaderVec4(std::string name, Vec4 vec)
+static void SetShaderVec4(std::string name, nkVec4 vec)
 {
     ASSERT(s_renderer.boundShader, "No shader is currently bound!");
     if(!s_renderer.boundShader) return;
@@ -750,7 +753,7 @@ static void SetShaderVec4(std::string name, Vec4 vec)
     if(location == -1) printf("No shader uniform found: %s\n", name.c_str());
     glUniform4fv(location, 1, vec.raw);
 }
-static void SetShaderMat2(std::string name, Mat2 mat)
+static void SetShaderMat2(std::string name, nkMat2 mat)
 {
     ASSERT(s_renderer.boundShader, "No shader is currently bound!");
     if(!s_renderer.boundShader) return;
@@ -758,7 +761,7 @@ static void SetShaderMat2(std::string name, Mat2 mat)
     if(location == -1) printf("No shader uniform found: %s\n", name.c_str());
     glUniformMatrix2fv(location, 1, GL_FALSE, mat.raw);
 }
-static void SetShaderMat3(std::string name, Mat3 mat)
+static void SetShaderMat3(std::string name, nkMat3 mat)
 {
     ASSERT(s_renderer.boundShader, "No shader is currently bound!");
     if(!s_renderer.boundShader) return;
@@ -766,7 +769,7 @@ static void SetShaderMat3(std::string name, Mat3 mat)
     if(location == -1) printf("No shader uniform found: %s\n", name.c_str());
     glUniformMatrix3fv(location, 1, GL_FALSE, mat.raw);
 }
-static void SetShaderMat4(std::string name, Mat4 mat)
+static void SetShaderMat4(std::string name, nkMat4 mat)
 {
     ASSERT(s_renderer.boundShader, "No shader is currently bound!");
     if(!s_renderer.boundShader) return;
@@ -837,9 +840,9 @@ namespace imm
         s_immContext.alphaBlending = true;
         s_immContext.textureMapping = false;
 
-        s_immContext.projectionMatrix = csm::Orthographic(0.0f,w,h,0.0f);
-        s_immContext.viewMatrix.Identity();
-        s_immContext.modelMatrix.Identity();
+        s_immContext.projectionMatrix = nk::orthographic(0.0f,w,h,0.0f,0.0f,1.0f);
+        s_immContext.viewMatrix = nk::mat4_identity();
+        s_immContext.modelMatrix = nk::mat4_identity();
     }
 
     static void FreeContext()
@@ -847,14 +850,14 @@ namespace imm
         FreeVertexBuffer(s_immContext.buffer);
     }
 
-    static void DrawPoint(f32 x, f32 y, Vec4 color)
+    static void DrawPoint(f32 x, f32 y, nkVec4 color)
     {
         BeginDraw(DrawMode_Points);
         PutVertex({ {x,y}, color, {0,0} });
         EndDraw();
     }
 
-    static void DrawLine(f32 x1, f32 y1, f32 x2, f32 y2, Vec4 color)
+    static void DrawLine(f32 x1, f32 y1, f32 x2, f32 y2, nkVec4 color)
     {
         BeginDraw(DrawMode_Lines);
         PutVertex({ {x1,y1}, color, {0,0} });
@@ -862,7 +865,7 @@ namespace imm
         EndDraw();
     }
 
-    static void DrawRectOutline(f32 x1, f32 y1, f32 x2, f32 y2, Vec4 color)
+    static void DrawRectOutline(f32 x1, f32 y1, f32 x2, f32 y2, nkVec4 color)
     {
         x1 += 0.5f;
         y1 += 0.5f;
@@ -875,7 +878,7 @@ namespace imm
         EndDraw();
     }
 
-    static void DrawRectFilled(f32 x1, f32 y1, f32 x2, f32 y2, Vec4 color)
+    static void DrawRectFilled(f32 x1, f32 y1, f32 x2, f32 y2, nkVec4 color)
     {
         BeginDraw(DrawMode_TriangleStrip);
         PutVertex({ {x1,y2}, color, {0,1} });
@@ -885,12 +888,12 @@ namespace imm
         EndDraw();
     }
 
-    static void DrawCircleOutline(f32 x, f32 y, f32 r, Vec4 color, s32 segments)
+    static void DrawCircleOutline(f32 x, f32 y, f32 r, nkVec4 color, s32 segments)
     {
         BeginDraw(DrawMode_LineLoop);
         for(s32 i=0; i<segments; ++i)
         {
-            f32 theta = 2 * csm::k_tau32 * CS_CAST(f32,i) / CS_CAST(f32,segments);
+            f32 theta = 2 * k_tau32 * CS_CAST(f32,i) / CS_CAST(f32,segments);
             f32 xx = r * cosf(theta);
             f32 yy = r * sinf(theta);
             PutVertex({ {xx+x,yy+y}, color, {0,0} });
@@ -898,13 +901,13 @@ namespace imm
         EndDraw();
     }
 
-    static void DrawCircleFilled(f32 x, f32 y, f32 r, Vec4 color, s32 segments)
+    static void DrawCircleFilled(f32 x, f32 y, f32 r, nkVec4 color, s32 segments)
     {
         BeginDraw(DrawMode_TriangleFan);
         PutVertex({ {x,y}, color, {0,0} });
         for(s32 i=0; i<=segments; ++i)
         {
-            f32 theta = 2 * csm::k_tau32 * CS_CAST(f32,i) / CS_CAST(f32,segments);
+            f32 theta = 2 * k_tau32 * CS_CAST(f32,i) / CS_CAST(f32,segments);
             f32 xx = r * cosf(theta);
             f32 yy = r * sinf(theta);
             PutVertex({ {xx+x,yy+y}, color, {0,0} });
@@ -912,21 +915,21 @@ namespace imm
         EndDraw();
     }
 
-    static void DrawTexture(std::string textureName, f32 x, f32 y, const Rect* clip, Vec4 color)
+    static void DrawTexture(std::string textureName, f32 x, f32 y, const Rect* clip, nkVec4 color)
     {
         Texture texture = *GetAsset<Texture>(textureName);
         if(!texture) return;
         DrawTexture(texture, x, y, clip, color);
     }
 
-    static void DrawTexture(std::string textureName, f32 x, f32 y, f32 sx, f32 sy, f32 angle, Flip flip, const Vec2* anchor, const Rect* clip, Vec4 color)
+    static void DrawTexture(std::string textureName, f32 x, f32 y, f32 sx, f32 sy, f32 angle, Flip flip, const nkVec2* anchor, const Rect* clip, nkVec4 color)
     {
         Texture texture = *GetAsset<Texture>(textureName);
         if(!texture) return;
         DrawTexture(texture, x, y, sx, sy, angle, flip, anchor, clip, color);
     }
 
-    static void DrawTexture(Texture& texture, f32 x, f32 y, const Rect* clip, Vec4 color)
+    static void DrawTexture(Texture& texture, f32 x, f32 y, const Rect* clip, nkVec4 color)
     {
         f32 s1 = 0;
         f32 t1 = 0;
@@ -967,7 +970,7 @@ namespace imm
         s_immContext.textureMapping = textureMapping;
     }
 
-    static void DrawTexture(Texture& texture, f32 x, f32 y, f32 sx, f32 sy, f32 angle, Flip flip, const Vec2* anchor, const Rect* clip, Vec4 color)
+    static void DrawTexture(Texture& texture, f32 x, f32 y, f32 sx, f32 sy, f32 angle, Flip flip, const nkVec2* anchor, const Rect* clip, nkVec4 color)
     {
         f32 s1 = 0;
         f32 t1 = 0;
@@ -1005,15 +1008,15 @@ namespace imm
         if(CHECK_FLAGS(flip, Flip_Horizontal)) sx = -sx;
         if(CHECK_FLAGS(flip, Flip_Vertical)) sy = -sy;
 
-        Mat4& modelMatrix = GetModelMatrix();
-        Mat4 cachedMatrix = modelMatrix;
+        nkMat4& modelMatrix = GetModelMatrix();
+        nkMat4 cachedMatrix = modelMatrix;
 
-        modelMatrix.Identity();
-        modelMatrix = csm::Translate(modelMatrix, ox,oy);
-        modelMatrix = csm::Scale(modelMatrix, sx,sy);
-        modelMatrix = csm::Rotate(modelMatrix, angle, 0.0f,0.0f,1.0f);
-        modelMatrix = csm::Translate(modelMatrix, -ox,-oy);
-        modelMatrix = csm::Translate(modelMatrix, x,y);
+        modelMatrix = nk::mat4_identity();
+        modelMatrix = nk::translate(modelMatrix, { ox,oy,0.0f });
+        modelMatrix = nk::scale(modelMatrix, { sx,sy,1.0f });
+        modelMatrix = nk::rotate(modelMatrix, { 0.0f,0.0f,1.0f }, angle);
+        modelMatrix = nk::translate(modelMatrix, { -ox,-oy,0.0f });
+        modelMatrix = nk::translate(modelMatrix, { x,y,0.0f });
 
         bool textureMapping = s_immContext.textureMapping;
         s_immContext.textureMapping = true;
@@ -1058,10 +1061,10 @@ namespace imm
         SetCurrentTexture(framebuffer->texture);
 
         BeginDraw(DrawMode_TriangleStrip);
-        PutVertex({ {x1,y2}, Vec4(1), {s1,t2} });
-        PutVertex({ {x1,y1}, Vec4(1), {s1,t1} });
-        PutVertex({ {x2,y2}, Vec4(1), {s2,t2} });
-        PutVertex({ {x2,y1}, Vec4(1), {s2,t1} });
+        PutVertex({ { x1,y2 }, { 1,1,1,1 }, { s1,t2 } });
+        PutVertex({ { x1,y1 }, { 1,1,1,1 }, { s1,t1 } });
+        PutVertex({ { x2,y2 }, { 1,1,1,1 }, { s2,t2 } });
+        PutVertex({ { x2,y1 }, { 1,1,1,1 }, { s2,t1 } });
         EndDraw();
 
         s_immContext.textureMapping = textureMapping;
@@ -1163,17 +1166,17 @@ namespace imm
         s_immContext.texture[unit] = texture;
     }
 
-    static Mat4& GetProjectionMatrix()
+    static nkMat4& GetProjectionMatrix()
     {
         return s_immContext.projectionMatrix;
     }
 
-    static Mat4& GetViewMatrix()
+    static nkMat4& GetViewMatrix()
     {
         return s_immContext.viewMatrix;
     }
 
-    static Mat4& GetModelMatrix()
+    static nkMat4& GetModelMatrix()
     {
         return s_immContext.modelMatrix;
     }

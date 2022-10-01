@@ -5,8 +5,6 @@
 #define STB_IMAGE_STATIC
 #define STB_IMAGE_IMPLEMENTATION
 
-#include <stdint.h>
-
 #include <fstream>
 #include <sstream>
 #include <filesystem>
@@ -24,6 +22,11 @@
 
 #include <stb_image.h>
 
+#undef min
+#undef max
+
+#include <nk_math.hpp>
+
 enum GameState
 {
     GameState_MainMenu,
@@ -40,8 +43,6 @@ static bool s_gamePaused;
 static bool s_gameResetting;
 
 #include "define.hpp"
-#include "cs_math.hpp" // @Incomplete!
-using namespace csm; // @Incomplete!
 #include "utility.hpp"
 #include "application.hpp"
 #include "memory.hpp"

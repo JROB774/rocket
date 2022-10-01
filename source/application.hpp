@@ -8,8 +8,8 @@ enum AppFlags: u32
 
 struct WindowConfig
 {
-    Vec2i size = Vec2i(1280,720);
-    Vec2i min = Vec2i(0,0);
+    nkVec2 size = { 1280,720 };
+    nkVec2 min = { 0,0 };
     bool vSync = true;
     bool maximized = false;
     bool fullscreen = false;
@@ -19,9 +19,9 @@ struct AppConfig
 {
     std::string title = "Unnamed";
     f32 tickrate = 60.0f;
-    Vec4 clearColor = Vec4(0,0,0,1);
+    nkVec4 clearColor = { 0,0,0,1 };
     WindowConfig window = WindowConfig();
-    Vec2i screenSize = Vec2i(1280,720);
+    nkVec2 screenSize = { 1280,720 };
     AppFlags flags = AppFlags_None;
     Application* app = NULL;
 };

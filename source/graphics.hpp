@@ -7,9 +7,9 @@ DECLARE_PRIVATE_STRUCT(Framebuffer);
 
 struct Vertex
 {
-    Vec2 position;
-    Vec4 color;
-    Vec2 texCoord;
+    nkVec2 position;
+    nkVec4 color;
+    nkVec2 texCoord;
 };
 
 enum DrawMode
@@ -55,7 +55,7 @@ static void BeginRenderFrame();
 static void EndRenderFrame();
 
 static void Clear(f32 r, f32 g, f32 b, f32 a = 1.0f);
-static void Clear(Vec4 color);
+static void Clear(nkVec4 color);
 
 static void SetRenderTarget(Framebuffer target = NULL); // NULL sets the screen as the target.
 static void SetViewport(Rect* viewport = NULL); // NULL sets the viewport to the whole target.
@@ -86,12 +86,12 @@ static void UseTexture(Texture texture, s32 unit = 0);
 static void SetShaderBool(std::string name, bool val);
 static void SetShaderInt(std::string name, s32 val);
 static void SetShaderFloat(std::string name, f32 val);
-static void SetShaderVec2(std::string name, Vec2 vec);
-static void SetShaderVec3(std::string name, Vec3 vec);
-static void SetShaderVec4(std::string name, Vec4 vec);
-static void SetShaderMat2(std::string name, Mat2 mat);
-static void SetShaderMat3(std::string name, Mat3 mat);
-static void SetShaderMat4(std::string name, Mat4 mat);
+static void SetShaderVec2(std::string name, nkVec2 vec);
+static void SetShaderVec3(std::string name, nkVec3 vec);
+static void SetShaderVec4(std::string name, nkVec4 vec);
+static void SetShaderMat2(std::string name, nkMat2 mat);
+static void SetShaderMat3(std::string name, nkMat3 mat);
+static void SetShaderMat4(std::string name, nkMat4 mat);
 
 // Shader
 static bool LoadShader(Shader& shader, std::string fileName);
@@ -113,7 +113,7 @@ static void DrawVertexBuffer(VertexBuffer& buffer, DrawMode drawMode);
 static void ClearVertexBuffer(VertexBuffer& buffer);
 
 // Framebuffer
-static void CreateFramebuffer(Framebuffer& framebuffer, s32 w, s32 h, Filter filter = Filter_Linear, Wrap wrap = Wrap_Clamp, Vec4 clear = Vec4(0,0,0,1));
+static void CreateFramebuffer(Framebuffer& framebuffer, s32 w, s32 h, Filter filter = Filter_Linear, Wrap wrap = Wrap_Clamp, nkVec4 clear = { 0,0,0,1 });
 static void FreeFramebuffer(Framebuffer& framebuffer);
 static void ResizeFramebuffer(Framebuffer& framebuffer, s32 w, s32 h, Filter filter = Filter_Linear, Wrap wrap = Wrap_Clamp);
 static Texture GetFramebufferTexture(Framebuffer& framebuffer);
@@ -155,16 +155,16 @@ namespace imm
     static void CreateContext();
     static void FreeContext();
 
-    static void DrawPoint(f32 x, f32 y, Vec4 color);
-    static void DrawLine(f32 x1, f32 y1, f32 x2, f32 y2, Vec4 color);
-    static void DrawRectOutline(f32 x1, f32 y1, f32 x2, f32 y2, Vec4 color);
-    static void DrawRectFilled(f32 x1, f32 y1, f32 x2, f32 y2, Vec4 color);
-    static void DrawCircleOutline(f32 x, f32 y, f32 r, Vec4 color, s32 segments = 64);
-    static void DrawCircleFilled(f32 x, f32 y, f32 r, Vec4 color, s32 segments = 64);
-    static void DrawTexture(std::string textureName, f32 x, f32 y, const Rect* clip = NULL, Vec4 color = Vec4(1));
-    static void DrawTexture(std::string textureName, f32 x, f32 y, f32 sx, f32 sy, f32 angle, Flip flip, const Vec2* anchor = NULL, const Rect* clip = NULL, Vec4 color = Vec4(1));
-    static void DrawTexture(Texture& texture, f32 x, f32 y, const Rect* clip = NULL, Vec4 color = Vec4(1));
-    static void DrawTexture(Texture& texture, f32 x, f32 y, f32 sx, f32 sy, f32 angle, Flip flip, const Vec2* anchor = NULL, const Rect* clip = NULL, Vec4 color = Vec4(1));
+    static void DrawPoint(f32 x, f32 y, nkVec4 color);
+    static void DrawLine(f32 x1, f32 y1, f32 x2, f32 y2, nkVec4 color);
+    static void DrawRectOutline(f32 x1, f32 y1, f32 x2, f32 y2, nkVec4 color);
+    static void DrawRectFilled(f32 x1, f32 y1, f32 x2, f32 y2, nkVec4 color);
+    static void DrawCircleOutline(f32 x, f32 y, f32 r, nkVec4 color, s32 segments = 64);
+    static void DrawCircleFilled(f32 x, f32 y, f32 r, nkVec4 color, s32 segments = 64);
+    static void DrawTexture(std::string textureName, f32 x, f32 y, const Rect* clip = NULL, nkVec4 color = { 1,1,1,1 });
+    static void DrawTexture(std::string textureName, f32 x, f32 y, f32 sx, f32 sy, f32 angle, Flip flip, const nkVec2* anchor = NULL, const Rect* clip = NULL, nkVec4 color = { 1,1,1,1 });
+    static void DrawTexture(Texture& texture, f32 x, f32 y, const Rect* clip = NULL, nkVec4 color = { 1,1,1,1 });
+    static void DrawTexture(Texture& texture, f32 x, f32 y, f32 sx, f32 sy, f32 angle, Flip flip, const nkVec2* anchor = NULL, const Rect* clip = NULL, nkVec4 color = { 1,1,1,1 });
     static void DrawFramebuffer(Framebuffer& framebuffer, f32 x, f32 y);
 
     static void BeginDraw(DrawMode drawMode);
@@ -182,7 +182,7 @@ namespace imm
     static void SetCurrentTexture(std::string textureName, s32 unit = 0);
     static void SetCurrentTexture(Texture texture, s32 unit = 0);
 
-    static Mat4& GetProjectionMatrix();
-    static Mat4& GetViewMatrix();
-    static Mat4& GetModelMatrix();
+    static nkMat4& GetProjectionMatrix();
+    static nkMat4& GetViewMatrix();
+    static nkMat4& GetModelMatrix();
 }

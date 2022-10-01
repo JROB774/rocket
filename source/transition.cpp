@@ -12,7 +12,8 @@ static void RenderTransition(f32 dt)
     f32 screenH = GetScreenHeight();
 
     f32 speed = 1400.0f;
-    Vec4 color = Vec4(0,0,0,1);
+
+    nkVec4 color = { 0,0,0,1 };
 
     if(s_fadeOut)
     {
@@ -24,8 +25,8 @@ static void RenderTransition(f32 dt)
         if(s_fadeHeight >= GetScreenHeight())
         {
             s_gameState = s_resetTarget;
-            s_rocket.pos = Vec2(screenW*0.5f, screenH-32.0f);
-            s_rocket.vel = Vec2(0);
+            s_rocket.pos = { screenW*0.5f, screenH-32.0f };
+            s_rocket.vel = { 0,0 };
             s_rocket.score = 0;
             s_rocket.timer = 0.0f;
             s_rocket.dead = false;

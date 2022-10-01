@@ -49,7 +49,7 @@ static void RenderCostumesMenu(f32 dt)
     f32 halfW   = screenW * 0.5f;
     f32 halfH   = screenH * 0.5f;
 
-    Vec2 mouse = GetScreenMousePos();
+    nkVec2 mouse = GetScreenMousePos();
 
     // Draw the title.
     Rect titleClip = { 0,96,256,32 };
@@ -68,7 +68,7 @@ static void RenderCostumesMenu(f32 dt)
         nameClip.y += k_costumeLockedTextOffset;
     }
 
-    s_costumeScale = csm::Lerp(s_costumeScale, 1.0f, 0.5f);
+    s_costumeScale = nk::lerp(s_costumeScale, 1.0f, 0.5f);
 
     imm::DrawTexture("costume", halfW,halfH, s_costumeScale,s_costumeScale, 0.0f, imm::Flip_None, NULL, &costumeClip);
     imm::DrawTexture("menu", halfW,halfH+48, &nameClip);

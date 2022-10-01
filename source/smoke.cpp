@@ -9,11 +9,11 @@ static void SpawnSmoke(SmokeType type, f32 x, f32 y, s32 count)
     {
         Smoke s = {};
         s.type = type;
-        s.pos = Vec2(x,y);
+        s.pos = { x,y };
         s.frame = 0;
         s.angle = RandomF32(0,360.0f);
-        s.vel = RotateVec2(Vec2(RandomF32(80,140),0), csm::ToRad(s.angle));
-        if(type == SmokeType_Blood) s.vel = RotateVec2(Vec2(180.0f,0), csm::ToRad(RandomF32(45.0f,135.0f)));
+        s.vel = RotateVec2({ RandomF32(80,140),0 }, nk::torad(s.angle));
+        if(type == SmokeType_Blood) s.vel = RotateVec2({ 180.0f,0 }, nk::torad(RandomF32(45.0f,135.0f)));
         s.spin = RandomF32(400,600);
         s.scale = (s.type == SmokeType_Small || s.type == SmokeType_SmallStationary) ? 0.5f : 1.0f;
         if(s.type == SmokeType_Thruster || s.type == SmokeType_Blood) s.scale *= 1.0f;
@@ -97,6 +97,6 @@ static void RenderSmoke(f32 dt)
     for(auto& s: s_smoke)
     {
         Rect clip = { CS_CAST(f32, 16*s.frame), 16*CS_CAST(f32, s_rocket.costume), 16, 16 };
-        imm::DrawTexture("smoke", s.pos.x, s.pos.y, s.scale,s.scale, csm::ToRad(s.angle), imm::Flip_None, NULL, &clip);
+        imm::DrawTexture("smoke", s.pos.x, s.pos.y, s.scale,s.scale, nk::torad(s.angle), imm::Flip_None, NULL, &clip);
     }
 }

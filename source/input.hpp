@@ -46,9 +46,9 @@ enum MouseButton
 static s32 GetMouseScrollHorizontal();
 static s32 GetMouseScrollVertical();
 
-static Vec2 GetWindowMousePos();
-static Vec2 GetRelativeMousePos();
-static Vec2 GetScreenMousePos();
+static nkVec2 GetWindowMousePos();
+static nkVec2 GetRelativeMousePos();
+static nkVec2 GetScreenMousePos();
 
 static bool IsMouseButtonDown(MouseButton button);
 static bool IsMouseButtonUp(MouseButton button);

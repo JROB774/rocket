@@ -26,7 +26,7 @@ static void RenderBackground(f32 dt)
     f32 screenWidth = GetScreenWidth();
     f32 screenHeight = GetScreenHeight();
     Rect clip = { 0, 0, 180, 320 };
-    Vec4 color = Vec4(1,1,1,0.4f);
+    nkVec4 color = { 1,1,1,0.4f };
     for(s32 i=0; i<k_backCount; ++i)
     {
         imm::DrawTexture("back", screenWidth*0.5f,s_backOffset[i], &clip, color);

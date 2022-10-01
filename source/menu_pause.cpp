@@ -67,7 +67,7 @@ static void RenderPauseMenu(f32 dt)
     f32 halfW   = screenW * 0.5f;
     f32 halfH   = screenH * 0.5f;
 
-    imm::DrawRectFilled(0,0,screenW,screenH, Vec4(0,0,0,0.5f));
+    imm::DrawRectFilled(0,0,screenW,screenH, { 0,0,0,0.5f });
 
     if(s_gameState != GameState_Game) return;
 

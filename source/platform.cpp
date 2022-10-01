@@ -177,10 +177,10 @@ static void UpdateInputState()
     // Update the mouse state.
     s32 mouseX,mouseY;
     SDL_GetMouseState(&mouseX,&mouseY);
-    s_context.input.mousePos = Vec2(CS_CAST(f32, mouseX), CS_CAST(f32, mouseY));
+    s_context.input.mousePos = { CS_CAST(f32, mouseX), CS_CAST(f32, mouseY) };
     SDL_GetRelativeMouseState(&mouseX,&mouseY);
-    s_context.input.relativeMousePos = Vec2(CS_CAST(f32, mouseX), CS_CAST(f32, mouseY));
-    s_context.input.mouseWheel = Vec2i(0,0);
+    s_context.input.relativeMousePos = { CS_CAST(f32, mouseX), CS_CAST(f32, mouseY) };
+    s_context.input.mouseWheel = { 0,0 };
 
     // Update the keyboard state.
     memcpy(s_context.input.previousKeyState, s_context.input.currentKeyState, sizeof(s_context.input.previousKeyState));

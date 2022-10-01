@@ -1,11 +1,11 @@
 static void SpawnAsteroid()
 {
     Asteroid asteroid = {};
-    asteroid.pos = Vec2(RandomF32(0, GetScreenWidth()), -48.0f);
+    asteroid.pos = { RandomF32(0, GetScreenWidth()), -48.0f };
     asteroid.dead = false;
     asteroid.flip = (RandomS32() % 2 == 0) ? imm::Flip_None : imm::Flip_Horizontal;
     asteroid.type = CS_CAST(AsteroidType, RandomS32(0,AsteroidType_TOTAL-1));
-    asteroid.collider.offset = Vec2(0,-2);
+    asteroid.collider.offset = { 0,-2 };
     switch(asteroid.type)
     {
         case(AsteroidType_Large): asteroid.collider.radius = 12.0f; break;

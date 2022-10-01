@@ -13,8 +13,8 @@ enum SmokeType
 struct Smoke
 {
     SmokeType type;
-    Vec2 pos;
-    Vec2 vel;
+    nkVec2 pos;
+    nkVec2 vel;
     s32 frame;
     f32 angle;
     f32 spin;

@@ -99,9 +99,9 @@ AppConfig AppMain(int argc, char** argv)
 {
     AppConfig appConfig;
     appConfig.title = "Rocket";
-    appConfig.window.size = Vec2i(360,640);
-    appConfig.window.min  = Vec2i(180,320);
-    appConfig.screenSize  = Vec2i(180,320);
+    appConfig.window.size = { 360,640 };
+    appConfig.window.min  = { 180,320 };
+    appConfig.screenSize  = { 180,320 };
     appConfig.app = Allocate<RocketApp>(MEM_GAME);
     return appConfig;
 }

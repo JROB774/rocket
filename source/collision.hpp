@@ -2,9 +2,9 @@
 
 struct Collider
 {
-    Vec2 offset;
+    nkVec2 offset;
     f32 radius;
 };
 
-static bool CheckCollision(Vec2 aPos, const Collider& a, Vec2 bPos, const Collider& b);
-static bool PointInRect(Vec2 p, Rect r);
+static bool CheckCollision(nkVec2 aPos, const Collider& a, nkVec2 bPos, const Collider& b);
+static bool PointInRect(nkVec2 p, Rect r);

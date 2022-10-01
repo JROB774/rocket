@@ -67,7 +67,7 @@ static f32 GetTextLineWidth(BitmapFont& font, std::string text, s32 line)
     return lineWidth;
 }
 
-static void DrawBitmapFont(BitmapFont& font, f32 x, f32 y, std::string text, Vec4 color)
+static void DrawBitmapFont(BitmapFont& font, f32 x, f32 y, std::string text, nkVec4 color)
 {
     // NOTE: We just assume the caller wants multi-line text to be center aligned.
 
@@ -76,7 +76,7 @@ static void DrawBitmapFont(BitmapFont& font, f32 x, f32 y, std::string text, Vec
 
     s32 line = 0;
 
-    Vec2 anchor(0.0f);
+    nkVec2 anchor = { 0,0 };
 
     for(size_t i=0; i<text.length(); ++i)
     {

@@ -1,13 +1,13 @@
 static void UpdateMenuOptions(MenuOption* options, size_t count, f32 dt)
 {
-    Vec2 mouse = GetScreenMousePos();
+    nkVec2 mouse = GetScreenMousePos();
     for(size_t i=0; i<count; ++i)
     {
         MenuOption& option = options[i];
         bool oldSelected = option.selected;
         option.selected = PointInRect(mouse, option.bounds);
         option.targetScale = (option.selected) ? 1.33f : 1.0f;
-        option.scale = csm::Lerp(option.scale, option.targetScale, 0.5f);
+        option.scale = nk::lerp(option.scale, option.targetScale, 0.5f);
 
         // If the option went from non-selected to selected then play a sound.
         if(option.selected && (oldSelected != option.selected))
@@ -51,7 +51,7 @@ static void UpdateMenuOptions(MenuOption* options, size_t count, f32 dt)
                         if(option.slider <= -0.1f)
                             option.slider = 1.0f;
                     }
-                    option.slider = csm::Clamp(option.slider, 0.0f, 1.0f);
+                    option.slider = nk::clamp(option.slider, 0.0f, 1.0f);
                     if(option.action)
                         option.action(option);
                 }
@@ -81,7 +81,7 @@ static void RenderMenuOption(MenuOption& option, f32 currAngle)
     {
         clip.y += (clip.h * roundf((option.slider*100.0f)/10.0f));
     }
-    imm::DrawTexture("menu", xPos,yPos, scale,scale, csm::ToRad(angle), imm::Flip_None, NULL, &clip);
+    imm::DrawTexture("menu", xPos,yPos, scale,scale, nk::torad(angle), imm::Flip_None, NULL, &clip);
 }
 
 static void RenderMenuOptions(MenuOption* options, size_t count, f32 dt)
@@ -116,7 +116,7 @@ static void RenderCursor(f32 dt)
 {
     if(s_gameState != GameState_Game || s_gamePaused || s_rocket.dead)
     {
-        Vec2 pos = GetScreenMousePos();
+        nkVec2 pos = GetScreenMousePos();
         f32 x = roundf(pos.x);
         f32 y = roundf(pos.y);
         imm::DrawTexture("cursor", x,y);

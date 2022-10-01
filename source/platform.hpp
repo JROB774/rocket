@@ -1,17 +1,17 @@
 struct InputState
 {
-    bool  hasGamepad;
-    Vec2i mouseWheel;
-    Vec2  mousePos;
-    Vec2  relativeMousePos;
-    bool  previousKeyState[KeyCode_TOTAL];
-    bool  currentKeyState[KeyCode_TOTAL];
-    bool  previousMouseButtonState[MouseButton_TOTAL];
-    bool  currentMouseButtonState[MouseButton_TOTAL];
-    bool  previousButtonState[GamepadButton_TOTAL];
-    bool  currentButtonState[GamepadButton_TOTAL];
-    s16   previousAxisState[GamepadAxis_TOTAL];
-    s16   currentAxisState[GamepadAxis_TOTAL];
+    bool   hasGamepad;
+    nkVec2 mouseWheel;
+    nkVec2 mousePos;
+    nkVec2 relativeMousePos;
+    bool   previousKeyState[KeyCode_TOTAL];
+    bool   currentKeyState[KeyCode_TOTAL];
+    bool   previousMouseButtonState[MouseButton_TOTAL];
+    bool   currentMouseButtonState[MouseButton_TOTAL];
+    bool   previousButtonState[GamepadButton_TOTAL];
+    bool   currentButtonState[GamepadButton_TOTAL];
+    s16    previousAxisState[GamepadAxis_TOTAL];
+    s16    currentAxisState[GamepadAxis_TOTAL];
 };
 
 static const AppConfig& GetAppConfig();

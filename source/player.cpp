@@ -23,15 +23,15 @@ static void CreateRocket()
 {
     s_rocket.pos.x = (GetScreenWidth()  *  0.5f);
     s_rocket.pos.y = (GetScreenHeight() - 32.0f);
-    s_rocket.vel   = Vec2(0);
+    s_rocket.vel   = { 0,0 };
     s_rocket.angle = 0.0f;
     s_rocket.shake = 0.0f;
     s_rocket.timer = 1000.0f; // Stop the explosion on start.
     s_rocket.score = 0;
     s_rocket.frame = 0;
     s_rocket.dead  = true;
-    s_rocket.collider = { Vec2(0,-8), 8.0f };
-    s_rocket.collector = { Vec2(0,-8), 40.0f };
+    s_rocket.collider = { { 0,-8 }, 8.0f };
+    s_rocket.collector = { { 0,-8 }, 40.0f };
     s_rocket.costume = Costume_Red;
     s_rocket.thruster = k_invalidSoundRef;
     s_rocket.random = (s_rocket.costume == Costume_Random);
@@ -156,17 +156,17 @@ static void UpdateRocket(f32 dt)
             }
         }
 
-        s_rocket.angle = csm::Clamp(s_rocket.vel.x, -k_rocketMaxAngle, k_rocketMaxAngle);
+        s_rocket.angle = nk::clamp(s_rocket.vel.x, -k_rocketMaxAngle, k_rocketMaxAngle);
         s_rocket.shake = RandomF32(-k_rocketMaxShake, k_rocketMaxShake);
 
-        s_rocket.vel.x = csm::Clamp(s_rocket.vel.x, -(k_rocketTerminalVelocity*1.5f), (k_rocketTerminalVelocity*1.5f));
-        s_rocket.vel.y = csm::Clamp(s_rocket.vel.y, -k_rocketTerminalVelocity, k_rocketTerminalVelocity);
+        s_rocket.vel.x = nk::clamp(s_rocket.vel.x, -(k_rocketTerminalVelocity*1.5f), (k_rocketTerminalVelocity*1.5f));
+        s_rocket.vel.y = nk::clamp(s_rocket.vel.y, -k_rocketTerminalVelocity, k_rocketTerminalVelocity);
 
         s_rocket.pos += (s_rocket.vel * k_rocketVelocityMultiplier) * dt;
-        s_rocket.pos.x = csm::Clamp(s_rocket.pos.x, 0.0f, GetScreenWidth());
-        s_rocket.pos.y = csm::Clamp(s_rocket.pos.y, 0.0f, GetScreenHeight());
+        s_rocket.pos.x = nk::clamp(s_rocket.pos.x, 0.0f, GetScreenWidth());
+        s_rocket.pos.y = nk::clamp(s_rocket.pos.y, 0.0f, GetScreenHeight());
 
-        s_rocket.vel = csm::Lerp(s_rocket.vel, Vec2(0), Vec2(0.1f));
+        s_rocket.vel = nk::lerp(s_rocket.vel, { 0,0 }, nkVec2 { 0.1f,0.1f });
 
         if(s_rocket.timer >= 0.05f)
         {
@@ -227,7 +227,7 @@ static void RenderRocket(f32 dt)
         {
             // Draw the rocket.
             Rect clip = { 48*CS_CAST(f32,s_rocket.frame), 96*CS_CAST(f32,s_rocket.costume), 48, 96 };
-            f32 angle = csm::ToRad(s_rocket.angle + s_rocket.shake);
+            f32 angle = nk::torad(s_rocket.angle + s_rocket.shake);
             imm::DrawTexture("rocket", s_rocket.pos.x, s_rocket.pos.y, 1.0f, 1.0f, angle, imm::Flip_None, NULL, &clip);
 
             // Draw the score.
