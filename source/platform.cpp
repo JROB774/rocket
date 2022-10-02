@@ -343,6 +343,14 @@ static bool IsCursorVisible()
 static void LockMouse(bool lock)
 {
     SDL_SetRelativeMouseMode((lock) ? SDL_TRUE : SDL_FALSE);
+    #ifndef __EMSCRIPTEN__
+    if(lock)
+    {
+        s32 halfW = GetWindowWidth() / 2;
+        s32 halfH = GetWindowHeight() / 2;
+        SDL_WarpMouseInWindow(s_context.window, halfW, halfH);
+    }
+    #endif // __EMSCRIPTEN__
 }
 
 static bool IsMouseLocked()
