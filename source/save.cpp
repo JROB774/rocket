@@ -7,14 +7,19 @@
 
 static void SaveGame()
 {
-    std::string fileName = GetExecPath() + k_saveFileName;
+    #ifdef __EMSCRIPTEN__
+    std::string fileName = "/ROCKET/";
+    #else
+    std::string fileName = GetExecPath();
+    #endif
+
+    fileName += k_saveFileName;
+
     FILE* file = fopen(fileName.c_str(), "wb");
     if(!file)
         printf("Failed to save game data!\n");
     else
     {
-        DEFER { fclose(file); };
-
         u8 currentCostume = (s_rocket.random) ? CAST(u8, Costume_Random) : CAST(u8, s_rocket.costume);
         u8 unlockFlags = UnlockFlags_None;
 
@@ -31,6 +36,12 @@ static void SaveGame()
         fwrite(&unlockFlags, sizeof(unlockFlags), 1, file);
         for(s32 i=0; i<10; ++i)
             fwrite(&s_rocket.highscores[i], sizeof(s_rocket.highscores[i]), 1, file);
+
+        fclose(file);
+
+        #ifdef __EMSCRIPTEN__
+        EM_ASM(FS.syncfs(function(err) { assert(!err); }));
+        #endif // __EMSCRIPTEN__
     }
 }
 
@@ -43,7 +54,14 @@ static void LoadGame()
     s_rocket.unlocks[Costume_Random] = true;
 
     // Load data if available.
-    std::string fileName = GetExecPath() + k_saveFileName;
+    #ifdef __EMSCRIPTEN__
+    std::string fileName = "/ROCKET/";
+    #else
+    std::string fileName = GetExecPath();
+    #endif
+
+    fileName += k_saveFileName;
+
     if(DoesFileExist(fileName))
     {
         FILE* file = fopen(fileName.c_str(), "rb");
@@ -51,8 +69,6 @@ static void LoadGame()
             printf("Failed to load game data!\n");
         else
         {
-            DEFER { fclose(file); };
-
             u16 version;
             u8 currentCostume;
             u8 unlockFlags;
@@ -75,6 +91,12 @@ static void LoadGame()
                 s_rocket.unlocks[Costume_Doodle ] = CHECK_FLAGS(unlockFlags, UnlockFlags_Doodle);
                 s_rocket.unlocks[Costume_Rainbow] = CHECK_FLAGS(unlockFlags, UnlockFlags_Rainbow);
                 s_rocket.unlocks[Costume_Glitch ] = CHECK_FLAGS(unlockFlags, UnlockFlags_Glitch);
+
+                fclose(file);
+
+                #ifdef __EMSCRIPTEN__
+                EM_ASM(FS.syncfs(function(err) { assert(!err); }));
+                #endif // __EMSCRIPTEN__
             }
         }
     }

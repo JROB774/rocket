@@ -58,9 +58,9 @@ void main_loop()
     #endif // BUILD_DEBUG
 }
 
-int main(int argc, char** argv)
+void actual_main_start()
 {
-    s_appConfig = AppMain(argc, argv);
+    s_appConfig = AppMain(0, NULL);
     ASSERT(s_appConfig.app, "Need to define an application for the engine to run!");
 
     // Cache useful paths.
@@ -102,6 +102,25 @@ int main(int argc, char** argv)
     s_appConfig.app->m_running = true;
 
     emscripten_set_main_loop(main_loop, -1, 1);
+}
+
+extern "C" void main_start()
+{
+    actual_main_start();
+}
+
+int main(int argc, char** argv)
+{
+    EM_ASM
+    (
+        FS.mkdir("/ROCKET");
+        FS.mount(IDBFS, {}, "/ROCKET");
+        FS.syncfs(true, function(err)
+        {
+            assert(!err);
+            ccall("main_start");
+        });
+    );
 
     return 0;
 }

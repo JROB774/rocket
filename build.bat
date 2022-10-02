@@ -45,9 +45,9 @@ call depends\emsdk\emsdk_env.bat
 
 set defs=
 set idir=-I ../../depends/stb -I ../../depends/nksdk/nklibs
-set libs=-s WASM=1 -s USE_SDL=2 -s USE_SDL_MIXER=2 -s USE_OGG=1 -s USE_VORBIS=1 -s MAX_WEBGL_VERSION=2
+set libs=-s WASM=1 -s USE_SDL=2 -s USE_SDL_MIXER=2 -s USE_OGG=1 -s USE_VORBIS=1 -s MIN_WEBGL_VERSION=2 -s MAX_WEBGL_VERSION=2 -lidbfs.js
 set cflg=-std=c++17
-set lflg=--preload-file ../../assets
+set lflg=--preload-file ../../assets -s EXPORTED_FUNCTIONS="['_main','_main_start']" -s EXPORTED_RUNTIME_METHODS="['ccall']"
 
 if not exist binary\web mkdir binary\web
 
