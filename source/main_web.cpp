@@ -95,6 +95,9 @@ int main(int argc, char** argv)
     InitGraphics();
     InitAudio();
 
+    SetSoundVolume(0.5f);
+    SetMusicVolume(0.5f);
+
     s_appConfig.app->OnInit();
     s_appConfig.app->m_running = true;
 
