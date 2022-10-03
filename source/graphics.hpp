@@ -5,13 +5,6 @@ DECLARE_PRIVATE_STRUCT(Shader);
 DECLARE_PRIVATE_STRUCT(Texture);
 DECLARE_PRIVATE_STRUCT(Framebuffer);
 
-struct Vertex
-{
-    nkVec2 position;
-    nkVec4 color;
-    nkVec2 texCoord;
-};
-
 enum DrawMode
 {
     DrawMode_Points,
@@ -46,6 +39,23 @@ enum Wrap
     Wrap_Repeat,
     Wrap_Clamp,
     Wrap_TOTAL
+};
+
+enum AttribType
+{
+    AttribType_SignedByte,
+    AttribType_UnsignedByte,
+    AttribType_SignedInt,
+    AttribType_UnsignedInt,
+    AttribType_Float,
+    AttribType_Double
+};
+
+enum BufferType
+{
+    BufferType_Static,
+    BufferType_Dynamic,
+    BufferType_Stream
 };
 
 static void InitGraphics();
@@ -109,8 +119,11 @@ static void SetTextureWrap(Texture& texture, Wrap wrap);
 // VertexBuffer
 static void CreateVertexBuffer(VertexBuffer& buffer);
 static void FreeVertexBuffer(VertexBuffer& buffer);
-static void DrawVertexBuffer(VertexBuffer& buffer, DrawMode drawMode);
-static void ClearVertexBuffer(VertexBuffer& buffer);
+static void SetVertexBufferStride(VertexBuffer& buffer, size_t byteStride);
+static void EnableVertexBufferAttrib(VertexBuffer& buffer, u32 index, AttribType type, u32 components, size_t byteOffset);
+static void DisableVertexBufferAttrib(VertexBuffer& buffer, u32 index);
+static void UpdateVertexBuffer(VertexBuffer& buffer, void* data, size_t bytes, BufferType type);
+static void DrawVertexBuffer(VertexBuffer& buffer, DrawMode drawMode, size_t vertexCount);
 
 // Framebuffer
 static void CreateFramebuffer(Framebuffer& framebuffer, s32 w, s32 h, Filter filter = Filter_Linear, Wrap wrap = Wrap_Clamp, nkVec4 clear = { 0,0,0,1 });
@@ -148,6 +161,13 @@ public:
 
 namespace imm
 {
+    struct Vertex
+    {
+        nkVec2 position;
+        nkVec4 color;
+        nkVec2 texCoord;
+    };
+
     enum Flip
     {
         Flip_None       = 0,

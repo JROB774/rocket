@@ -1,7 +1,16 @@
+struct VertexAttrib
+{
+    bool enabled = false;
+    AttribType type;
+    u32 components;
+    size_t byteOffset;
+};
+
 DEFINE_PRIVATE_STRUCT(VertexBuffer)
 {
-    GLuint vbo;
-    std::vector<Vertex> verts;
+    size_t byteStride;
+    GLuint handle;
+    VertexAttrib attribs[16];
 };
 
 DEFINE_PRIVATE_STRUCT(Shader)
@@ -44,6 +53,7 @@ struct Renderer
 
 struct ImmContext
 {
+    std::vector<imm::Vertex> verts;
     DrawMode drawMode;
     VertexBuffer buffer;
     Shader shader;
@@ -315,35 +325,55 @@ static void CreateVertexBuffer(VertexBuffer& buffer)
 {
     buffer = Allocate<GET_PTR_TYPE(buffer)>(MEM_SYSTEM);
     if(!buffer)
-    {
         FatalError("Failed to allocate vertex buffer!\n");
-    }
-
-    glGenBuffers(1, &buffer->vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, buffer->vbo);
-
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), CAST(void*, offsetof(Vertex, position)));
-    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), CAST(void*, offsetof(Vertex, color)));
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), CAST(void*, offsetof(Vertex, texCoord)));
-
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
-    glEnableVertexAttribArray(2);
+    glGenBuffers(1, &buffer->handle);
 }
 
 static void FreeVertexBuffer(VertexBuffer& buffer)
 {
     if(!buffer) return;
-    glDeleteBuffers(1, &buffer->vbo);
-    buffer->verts.clear();
+    glDeleteBuffers(1, &buffer->handle);
     Deallocate(buffer);
 }
 
-static void DrawVertexBuffer(VertexBuffer& buffer, DrawMode drawMode)
+static void SetVertexBufferStride(VertexBuffer& buffer, size_t byteStride)
 {
-    if(buffer->verts.empty())
-        return;
+    buffer->byteStride = byteStride;
+}
 
+static void EnableVertexBufferAttrib(VertexBuffer& buffer, u32 index, AttribType type, u32 components, size_t byteOffset)
+{
+    ASSERT(index < ARRAY_SIZE(buffer->attribs), "Invalid attribute index!");
+    buffer->attribs[index].enabled = true;
+    buffer->attribs[index].type = type;
+    buffer->attribs[index].components = components;
+    buffer->attribs[index].byteOffset = byteOffset;
+}
+
+static void DisableVertexBufferAttrib(VertexBuffer& buffer, u32 index)
+{
+    ASSERT(index < ARRAY_SIZE(buffer->attribs), "Invalid attribute index!");
+    buffer->attribs[index].enabled = false;
+}
+
+static void UpdateVertexBuffer(VertexBuffer& buffer, void* data, size_t bytes, BufferType type)
+{
+    GLenum glType;
+    switch(type)
+    {
+        case(BufferType_Static): glType = GL_STATIC_DRAW; break;
+        case(BufferType_Dynamic): glType = GL_DYNAMIC_DRAW; break;
+        case(BufferType_Stream): glType = GL_STREAM_DRAW; break;
+    }
+
+    glBindBuffer(GL_ARRAY_BUFFER, buffer->handle);
+    glBufferData(GL_ARRAY_BUFFER, bytes, data, glType);
+    glBindBuffer(GL_ARRAY_BUFFER, GL_NONE);
+}
+
+static void DrawVertexBuffer(VertexBuffer& buffer, DrawMode drawMode, size_t vertexCount)
+{
+    // Map the primitive type to the appropriate GL enum.
     GLenum primitive;
     switch(drawMode)
     {
@@ -356,15 +386,34 @@ static void DrawVertexBuffer(VertexBuffer& buffer, DrawMode drawMode)
         case(DrawMode_Triangles): primitive = GL_TRIANGLES; break;
     }
 
-    glBindBuffer(GL_ARRAY_BUFFER, buffer->vbo);
-    GLsizeiptr size = buffer->verts.size() * sizeof(Vertex);
-    glBufferData(GL_ARRAY_BUFFER, size, &buffer->verts[0], GL_DYNAMIC_DRAW);
-    glDrawArrays(primitive, 0, CAST(GLsizei, buffer->verts.size()));
-}
+    glBindBuffer(GL_ARRAY_BUFFER, buffer->handle);
 
-static void ClearVertexBuffer(VertexBuffer& buffer)
-{
-    buffer->verts.clear();
+    // Setup the attributes for the buffer.
+    for(size_t i=0; i<ARRAY_SIZE(buffer->attribs); ++i)
+    {
+        VertexAttrib& attrib = buffer->attribs[i];
+        if(attrib.enabled)
+        {
+            GLenum attribType;
+            switch(attrib.type)
+            {
+                case (AttribType_SignedByte): attribType = GL_BYTE; break;
+                case (AttribType_UnsignedByte): attribType = GL_UNSIGNED_BYTE; break;
+                case (AttribType_SignedInt): attribType = GL_INT; break;
+                case (AttribType_UnsignedInt): attribType = GL_UNSIGNED_INT; break;
+                case (AttribType_Float): attribType = GL_FLOAT; break;
+                case (AttribType_Double): attribType = GL_DOUBLE; break;
+            }
+
+            glVertexAttribPointer(i, attrib.components, attribType, GL_FALSE, buffer->byteStride, CAST(void*,attrib.byteOffset));
+            glEnableVertexAttribArray(i);
+        }
+    }
+
+    // Draw the buffer data using the provided primitive type.
+    glDrawArrays(primitive, 0, CAST(GLsizei, vertexCount));
+
+    glBindBuffer(GL_ARRAY_BUFFER, GL_NONE);
 }
 
 //
@@ -798,6 +847,10 @@ namespace imm
         f32 h = s_renderer.screen.buffer->texture->h;
 
         CreateVertexBuffer(s_immContext.buffer);
+        SetVertexBufferStride(s_immContext.buffer, sizeof(Vertex));
+        EnableVertexBufferAttrib(s_immContext.buffer, 0, AttribType_Float, 2, offsetof(Vertex, position));
+        EnableVertexBufferAttrib(s_immContext.buffer, 1, AttribType_Float, 4, offsetof(Vertex, color));
+        EnableVertexBufferAttrib(s_immContext.buffer, 2, AttribType_Float, 2, offsetof(Vertex, texCoord));
 
         s_immContext.alphaBlending = true;
         s_immContext.textureMapping = false;
@@ -1015,7 +1068,7 @@ namespace imm
 
     static void BeginDraw(DrawMode drawMode)
     {
-        ClearVertexBuffer(s_immContext.buffer);
+        s_immContext.verts.clear();
         s_immContext.drawMode = drawMode;
 
         // Set shader.
@@ -1049,12 +1102,13 @@ namespace imm
         SetShaderInt ("u_texture0", 0);
 
         // Draw stuff.
-        DrawVertexBuffer(s_immContext.buffer, s_immContext.drawMode);
+        UpdateVertexBuffer(s_immContext.buffer, &s_immContext.verts[0], s_immContext.verts.size()*sizeof(Vertex), BufferType_Dynamic);
+        DrawVertexBuffer(s_immContext.buffer, s_immContext.drawMode, s_immContext.verts.size());
     }
 
     static void PutVertex(Vertex v)
     {
-        s_immContext.buffer->verts.push_back(v);
+        s_immContext.verts.push_back(v);
     }
 
     static void BeginTextureBatch(std::string textureName)
