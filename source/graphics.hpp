@@ -175,6 +175,12 @@ namespace imm
     static void EndDraw();
     static void PutVertex(Vertex v);
 
+    static void BeginTextureBatch(std::string textureName);
+    static void BeginTextureBatch(Texture& texture);
+    static void EndTextureBatch();
+    static void DrawBatchedTexture(f32 x, f32 y, const Rect* clip = NULL, nkVec4 color = { 1,1,1,1 });
+    static void DrawBatchedTexture(f32 x, f32 y, f32 sx, f32 sy, f32 angle, Flip flip, const nkVec2* anchor = NULL, const Rect* clip = NULL, nkVec4 color = { 1,1,1,1 });
+
     static void EnableAlphaBlending(bool enable);
     static void EnableTextureMapping(bool enable);
 

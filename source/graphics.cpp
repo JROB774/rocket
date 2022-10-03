@@ -1057,6 +1057,31 @@ namespace imm
         s_immContext.buffer->verts.push_back(v);
     }
 
+    static void BeginTextureBatch(std::string textureName)
+    {
+        // @Incomplete: Texture batching...
+    }
+
+    static void BeginTextureBatch(Texture& texture)
+    {
+        // @Incomplete: Texture batching...
+    }
+
+    static void EndTextureBatch()
+    {
+        // @Incomplete: Texture batching...
+    }
+
+    static void DrawBatchedTexture(f32 x, f32 y, const Rect* clip, nkVec4 color)
+    {
+        // @Incomplete: Texture batching...
+    }
+
+    static void DrawBatchedTexture(f32 x, f32 y, f32 sx, f32 sy, f32 angle, Flip flip, const nkVec2* anchor, const Rect* clip, nkVec4 color)
+    {
+        // @Incomplete: Texture batching...
+    }
+
     static void EnableAlphaBlending(bool enable)
     {
         s_immContext.alphaBlending = enable;
