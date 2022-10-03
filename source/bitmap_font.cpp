@@ -82,6 +82,7 @@ static void DrawBitmapFont(BitmapFont& font, f32 x, f32 y, std::string text, nkV
 
     nkVec2 anchor = { 0,0 };
 
+    imm::BeginTextureBatch(font.texture);
     for(size_t i=0; i<text.length(); ++i)
     {
         if(text[i] == '\n')
@@ -93,8 +94,9 @@ static void DrawBitmapFont(BitmapFont& font, f32 x, f32 y, std::string text, nkV
         else
         {
             Rect bounds = font.bounds[CAST(u8,text.at(i))];
-            imm::DrawTexture(font.texture, ix,iy, 1.0f,1.0f, 0.0f, imm::Flip_None, &anchor, &bounds, color);
+            imm::DrawBatchedTexture(ix,iy, 1.0f,1.0f, 0.0f, imm::Flip_None, &anchor, &bounds, color);
             ix += roundf(GetCharWidth(font, text[i]));
         }
     }
+    imm::EndTextureBatch();
 }

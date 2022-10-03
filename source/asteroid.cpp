@@ -34,11 +34,13 @@ static void UpdateAsteroids(f32 dt)
 
 static void RenderAsteroids(f32 dt)
 {
+    imm::BeginTextureBatch("asteroid");
     for(auto& asteroid: s_asteroids)
     {
         Rect clip = { CAST(f32, 48*asteroid.type), 0, 48, 48 };
-        imm::DrawTexture("asteroid", asteroid.pos.x, asteroid.pos.y, 1.0f, 1.0f, 0.0f, asteroid.flip, NULL, &clip);
+        imm::DrawBatchedTexture(asteroid.pos.x, asteroid.pos.y, 1.0f, 1.0f, 0.0f, asteroid.flip, NULL, &clip);
     }
+    imm::EndTextureBatch();
 }
 
 static void MaybeSpawnEntity(f32 dt)

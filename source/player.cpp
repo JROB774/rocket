@@ -226,13 +226,15 @@ static void RenderRocket(f32 dt)
             f32 frame = floorf(s_rocket.timer / 0.04f);
             if(frame < 13)
             {
+                imm::BeginTextureBatch("explosion");
                 Rect clip = { 96*frame, 96*CAST(f32, s_rocket.costume), 96, 96 };
-                imm::DrawTexture("explosion", s_rocket.pos.x, s_rocket.pos.y, &clip);
+                imm::DrawBatchedTexture(s_rocket.pos.x, s_rocket.pos.y, &clip);
                 if(s_rocket.costume != Costume_Doodle)
                 {
-                    imm::DrawTexture("explosion", s_rocket.pos.x-20, s_rocket.pos.y-10, 0.5f,0.5f, 0.0f, imm::Flip_None, NULL, &clip);
-                    imm::DrawTexture("explosion", s_rocket.pos.x+10, s_rocket.pos.y+30, 0.5f,0.5f, 0.0f, imm::Flip_None, NULL, &clip);
+                    imm::DrawBatchedTexture(s_rocket.pos.x-20, s_rocket.pos.y-10, 0.5f,0.5f, 0.0f, imm::Flip_None, NULL, &clip);
+                    imm::DrawBatchedTexture(s_rocket.pos.x+10, s_rocket.pos.y+30, 0.5f,0.5f, 0.0f, imm::Flip_None, NULL, &clip);
                 }
+                imm::EndTextureBatch();
             }
         }
         else

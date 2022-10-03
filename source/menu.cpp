@@ -81,7 +81,7 @@ static void RenderMenuOption(MenuOption& option, f32 currAngle)
     {
         clip.y += (clip.h * roundf((option.slider*100.0f)/10.0f));
     }
-    imm::DrawTexture("menu", xPos,yPos, scale,scale, nk::torad(angle), imm::Flip_None, NULL, &clip);
+    imm::DrawBatchedTexture(xPos,yPos, scale,scale, nk::torad(angle), imm::Flip_None, NULL, &clip);
 }
 
 static void RenderMenuOptions(MenuOption* options, size_t count, f32 dt)
@@ -94,12 +94,14 @@ static void RenderMenuOptions(MenuOption* options, size_t count, f32 dt)
     s_timer += dt;
     s_angle = SinRange(-10.0f, 10.0f, s_timer*2.5f);
 
+    imm::BeginTextureBatch("menu");
     for(size_t i=0; i<count; ++i)
         if(!options[i].selected)
             RenderMenuOption(options[i], s_angle);
     for(size_t i=0; i<count; ++i)
         if(options[i].selected)
             RenderMenuOption(options[i], s_angle);
+    imm::EndTextureBatch();
 }
 
 static void ResetMenuOptions(MenuOption* options, size_t count)
