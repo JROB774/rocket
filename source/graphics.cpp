@@ -54,8 +54,10 @@ struct Renderer
 struct ImmContext
 {
     std::vector<imm::Vertex> verts;
+    std::vector<nkMat4> transforms;
+    Texture batchTexture;
     DrawMode drawMode;
-    VertexBuffer buffer;
+    VertexBuffer vertBuffer;
     Shader shader;
     Texture texture[64];
     nkMat4 projectionMatrix;
@@ -373,6 +375,10 @@ static void UpdateVertexBuffer(VertexBuffer& buffer, void* data, size_t bytes, B
 
 static void DrawVertexBuffer(VertexBuffer& buffer, DrawMode drawMode, size_t vertexCount)
 {
+    if(!vertexCount) return;
+
+    glBindBuffer(GL_ARRAY_BUFFER, buffer->handle);
+
     // Map the primitive type to the appropriate GL enum.
     GLenum primitive;
     switch(drawMode)
@@ -385,8 +391,6 @@ static void DrawVertexBuffer(VertexBuffer& buffer, DrawMode drawMode, size_t ver
         case(DrawMode_TriangleFan): primitive = GL_TRIANGLE_FAN; break;
         case(DrawMode_Triangles): primitive = GL_TRIANGLES; break;
     }
-
-    glBindBuffer(GL_ARRAY_BUFFER, buffer->handle);
 
     // Setup the attributes for the buffer.
     for(size_t i=0; i<ARRAY_SIZE(buffer->attribs); ++i)
@@ -411,7 +415,7 @@ static void DrawVertexBuffer(VertexBuffer& buffer, DrawMode drawMode, size_t ver
     }
 
     // Draw the buffer data using the provided primitive type.
-    glDrawArrays(primitive, 0, CAST(GLsizei, vertexCount));
+    glDrawArrays(primitive, 0, CAST(GLsizei,vertexCount));
 
     glBindBuffer(GL_ARRAY_BUFFER, GL_NONE);
 }
@@ -487,6 +491,9 @@ static void InitGraphics()
     s_renderer.screen.filter = Filter_Linear;
     CreateFramebuffer(s_renderer.screen.buffer, width,height, s_renderer.screen.filter);
     imm::CreateContext();
+
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
 }
 
 static void QuitGraphics()
@@ -846,11 +853,11 @@ namespace imm
         f32 w = s_renderer.screen.buffer->texture->w;
         f32 h = s_renderer.screen.buffer->texture->h;
 
-        CreateVertexBuffer(s_immContext.buffer);
-        SetVertexBufferStride(s_immContext.buffer, sizeof(Vertex));
-        EnableVertexBufferAttrib(s_immContext.buffer, 0, AttribType_Float, 2, offsetof(Vertex, position));
-        EnableVertexBufferAttrib(s_immContext.buffer, 1, AttribType_Float, 4, offsetof(Vertex, color));
-        EnableVertexBufferAttrib(s_immContext.buffer, 2, AttribType_Float, 2, offsetof(Vertex, texCoord));
+        CreateVertexBuffer(s_immContext.vertBuffer);
+        SetVertexBufferStride(s_immContext.vertBuffer, sizeof(Vertex));
+        EnableVertexBufferAttrib(s_immContext.vertBuffer, 0, AttribType_Float, 4, offsetof(Vertex, position));
+        EnableVertexBufferAttrib(s_immContext.vertBuffer, 1, AttribType_Float, 4, offsetof(Vertex, color));
+        EnableVertexBufferAttrib(s_immContext.vertBuffer, 2, AttribType_Float, 2, offsetof(Vertex, texCoord));
 
         s_immContext.alphaBlending = true;
         s_immContext.textureMapping = false;
@@ -862,21 +869,21 @@ namespace imm
 
     static void FreeContext()
     {
-        FreeVertexBuffer(s_immContext.buffer);
+        FreeVertexBuffer(s_immContext.vertBuffer);
     }
 
     static void DrawPoint(f32 x, f32 y, nkVec4 color)
     {
         BeginDraw(DrawMode_Points);
-        PutVertex({ {x,y}, color, {0,0} });
+        PutVertex({ {x,y,0,1}, color, {0,0} });
         EndDraw();
     }
 
     static void DrawLine(f32 x1, f32 y1, f32 x2, f32 y2, nkVec4 color)
     {
         BeginDraw(DrawMode_Lines);
-        PutVertex({ {x1,y1}, color, {0,0} });
-        PutVertex({ {x2,y2}, color, {1,1} });
+        PutVertex({ {x1,y1,0,1}, color, {0,0} });
+        PutVertex({ {x2,y2,0,1}, color, {1,1} });
         EndDraw();
     }
 
@@ -886,20 +893,20 @@ namespace imm
         y1 += 0.5f;
 
         BeginDraw(DrawMode_LineLoop);
-        PutVertex({ {x1,y1}, color, {0,0} });
-        PutVertex({ {x2,y1}, color, {1,0} });
-        PutVertex({ {x2,y2}, color, {1,1} });
-        PutVertex({ {x1,y2}, color, {0,1} });
+        PutVertex({ {x1,y1,0,1}, color, {0,0} });
+        PutVertex({ {x2,y1,0,1}, color, {1,0} });
+        PutVertex({ {x2,y2,0,1}, color, {1,1} });
+        PutVertex({ {x1,y2,0,1}, color, {0,1} });
         EndDraw();
     }
 
     static void DrawRectFilled(f32 x1, f32 y1, f32 x2, f32 y2, nkVec4 color)
     {
         BeginDraw(DrawMode_TriangleStrip);
-        PutVertex({ {x1,y2}, color, {0,1} });
-        PutVertex({ {x1,y1}, color, {0,0} });
-        PutVertex({ {x2,y2}, color, {1,1} });
-        PutVertex({ {x2,y1}, color, {1,0} });
+        PutVertex({ {x1,y2,0,1}, color, {0,1} });
+        PutVertex({ {x1,y1,0,1}, color, {0,0} });
+        PutVertex({ {x2,y2,0,1}, color, {1,1} });
+        PutVertex({ {x2,y1,0,1}, color, {1,0} });
         EndDraw();
     }
 
@@ -911,7 +918,7 @@ namespace imm
             f32 theta = 2 * k_tau32 * CAST(f32,i) / CAST(f32,segments);
             f32 xx = r * cosf(theta);
             f32 yy = r * sinf(theta);
-            PutVertex({ {xx+x,yy+y}, color, {0,0} });
+            PutVertex({ {xx+x,yy+y,0,1}, color, {0,0} });
         }
         EndDraw();
     }
@@ -919,13 +926,13 @@ namespace imm
     static void DrawCircleFilled(f32 x, f32 y, f32 r, nkVec4 color, s32 segments)
     {
         BeginDraw(DrawMode_TriangleFan);
-        PutVertex({ {x,y}, color, {0,0} });
+        PutVertex({ {x,y,0,1}, color, {0,0} });
         for(s32 i=0; i<=segments; ++i)
         {
             f32 theta = 2 * k_tau32 * CAST(f32,i) / CAST(f32,segments);
             f32 xx = r * cosf(theta);
             f32 yy = r * sinf(theta);
-            PutVertex({ {xx+x,yy+y}, color, {0,0} });
+            PutVertex({ {xx+x,yy+y,0,1}, color, {0,0} });
         }
         EndDraw();
     }
@@ -976,10 +983,10 @@ namespace imm
         SetCurrentTexture(texture);
 
         BeginDraw(DrawMode_TriangleStrip);
-        PutVertex({ {x1,y2}, color, {s1,t2} });
-        PutVertex({ {x1,y1}, color, {s1,t1} });
-        PutVertex({ {x2,y2}, color, {s2,t2} });
-        PutVertex({ {x2,y1}, color, {s2,t1} });
+        PutVertex({ {x1,y2,0,1}, color, {s1,t2} });
+        PutVertex({ {x1,y1,0,1}, color, {s1,t1} });
+        PutVertex({ {x2,y2,0,1}, color, {s2,t2} });
+        PutVertex({ {x2,y1,0,1}, color, {s2,t1} });
         EndDraw();
 
         s_immContext.textureMapping = textureMapping;
@@ -1039,10 +1046,10 @@ namespace imm
         SetCurrentTexture(texture);
 
         BeginDraw(DrawMode_TriangleStrip);
-        PutVertex({ {x1,y2}, color, {s1,t2} });
-        PutVertex({ {x1,y1}, color, {s1,t1} });
-        PutVertex({ {x2,y2}, color, {s2,t2} });
-        PutVertex({ {x2,y1}, color, {s2,t1} });
+        PutVertex({ {x1,y2,0,1}, color, {s1,t2} });
+        PutVertex({ {x1,y1,0,1}, color, {s1,t1} });
+        PutVertex({ {x2,y2,0,1}, color, {s2,t2} });
+        PutVertex({ {x2,y1,0,1}, color, {s2,t1} });
         EndDraw();
 
         s_immContext.textureMapping = textureMapping;
@@ -1057,10 +1064,10 @@ namespace imm
         SetCurrentTexture(framebuffer->texture);
 
         BeginDraw(DrawMode_TriangleStrip);
-        PutVertex({ { dstX0,dstY1 }, { 1,1,1,1 }, { 0,0 } });
-        PutVertex({ { dstX0,dstY0 }, { 1,1,1,1 }, { 0,1 } });
-        PutVertex({ { dstX1,dstY1 }, { 1,1,1,1 }, { 1,0 } });
-        PutVertex({ { dstX1,dstY0 }, { 1,1,1,1 }, { 1,1 } });
+        PutVertex({ { dstX0,dstY1,0,1 }, { 1,1,1,1 }, { 0,0 } });
+        PutVertex({ { dstX0,dstY0,0,1 }, { 1,1,1,1 }, { 0,1 } });
+        PutVertex({ { dstX1,dstY1,0,1 }, { 1,1,1,1 }, { 1,0 } });
+        PutVertex({ { dstX1,dstY0,0,1 }, { 1,1,1,1 }, { 1,1 } });
         EndDraw();
 
         s_immContext.textureMapping = textureMapping;
@@ -1077,23 +1084,12 @@ namespace imm
 
         // Set texture.
         for(s32 i=0; i<64; ++i)
-            UseTexture(s_immContext.texture[i], i);
+            if(s_immContext.texture[i])
+                UseTexture(s_immContext.texture[i], i);
     }
 
     static void EndDraw()
     {
-        // Set state.
-        if(!s_immContext.alphaBlending)
-            glDisable(GL_BLEND);
-        else
-        {
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            glEnable(GL_BLEND);
-        }
-
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glEnable(GL_BLEND);
-
         // Set uniforms.
         SetShaderMat4("u_projectionMatrix", s_immContext.projectionMatrix);
         SetShaderMat4("u_viewMatrix", s_immContext.viewMatrix);
@@ -1102,8 +1098,8 @@ namespace imm
         SetShaderInt ("u_texture0", 0);
 
         // Draw stuff.
-        UpdateVertexBuffer(s_immContext.buffer, &s_immContext.verts[0], s_immContext.verts.size()*sizeof(Vertex), BufferType_Dynamic);
-        DrawVertexBuffer(s_immContext.buffer, s_immContext.drawMode, s_immContext.verts.size());
+        UpdateVertexBuffer(s_immContext.vertBuffer, &s_immContext.verts[0], s_immContext.verts.size()*sizeof(Vertex), BufferType_Dynamic);
+        DrawVertexBuffer(s_immContext.vertBuffer, s_immContext.drawMode, s_immContext.verts.size());
     }
 
     static void PutVertex(Vertex v)
@@ -1113,27 +1109,122 @@ namespace imm
 
     static void BeginTextureBatch(std::string textureName)
     {
-        // @Incomplete: Texture batching...
+        Texture texture = *GetAsset<Texture>(textureName);
+        if(!texture) return;
+        BeginTextureBatch(texture);
     }
 
     static void BeginTextureBatch(Texture& texture)
     {
-        // @Incomplete: Texture batching...
+        s_immContext.batchTexture = texture;
+        SetCurrentTexture(texture);
+        BeginDraw(DrawMode_Triangles);
     }
 
     static void EndTextureBatch()
     {
-        // @Incomplete: Texture batching...
+        bool textureMapping = s_immContext.textureMapping;
+        s_immContext.textureMapping = true;
+        EndDraw();
+        SetCurrentTexture(NULL);
+        s_immContext.textureMapping = textureMapping;
     }
 
     static void DrawBatchedTexture(f32 x, f32 y, const Rect* clip, nkVec4 color)
     {
-        // @Incomplete: Texture batching...
+        f32 s1 = 0;
+        f32 t1 = 0;
+        f32 s2 = s_immContext.batchTexture->w;
+        f32 t2 = s_immContext.batchTexture->h;
+
+        if(clip)
+        {
+            s1 = clip->x;
+            t1 = clip->y;
+            s2 = s1+clip->w;
+            t2 = t1+clip->h;
+        }
+
+        f32 x1 = x - ((s2-s1)*0.5f);
+        f32 y1 = y - ((t2-t1)*0.5f);
+        f32 x2 = x1+(s2-s1);
+        f32 y2 = y1+(t2-t1);
+
+        // Normalize the texture coords.
+        s1 /= s_immContext.batchTexture->w;
+        t1 /= s_immContext.batchTexture->h;
+        s2 /= s_immContext.batchTexture->w;
+        t2 /= s_immContext.batchTexture->h;
+
+        PutVertex({ {x1,y2,0,1}, color, {s1,t2} }); // BL
+        PutVertex({ {x1,y1,0,1}, color, {s1,t1} }); // TL
+        PutVertex({ {x2,y1,0,1}, color, {s2,t1} }); // TR
+        PutVertex({ {x2,y1,0,1}, color, {s2,t1} }); // TR
+        PutVertex({ {x2,y2,0,1}, color, {s2,t2} }); // BR
+        PutVertex({ {x1,y2,0,1}, color, {s1,t2} }); // BL
     }
 
     static void DrawBatchedTexture(f32 x, f32 y, f32 sx, f32 sy, f32 angle, Flip flip, const nkVec2* anchor, const Rect* clip, nkVec4 color)
     {
-        // @Incomplete: Texture batching...
+        f32 s1 = 0;
+        f32 t1 = 0;
+        f32 s2 = s_immContext.batchTexture->w;
+        f32 t2 = s_immContext.batchTexture->h;
+
+        if(clip)
+        {
+            s1 = clip->x;
+            t1 = clip->y;
+            s2 = s1+clip->w;
+            t2 = t1+clip->h;
+        }
+
+        f32 ox = x;
+        f32 oy = y;
+
+        f32 ax = ((anchor) ? anchor->x : (s2-s1)*0.5f);
+        f32 ay = ((anchor) ? anchor->y : (t2-t1)*0.5f);
+
+        x -= ax;
+        y -= ay;
+
+        f32 x1 = 0.0f;
+        f32 y1 = 0.0f;
+        f32 x2 = (s2-s1);
+        f32 y2 = (t2-t1);
+
+        // Normalize the texture coords.
+        s1 /= s_immContext.batchTexture->w;
+        t1 /= s_immContext.batchTexture->h;
+        s2 /= s_immContext.batchTexture->w;
+        t2 /= s_immContext.batchTexture->h;
+
+        if(CHECK_FLAGS(flip, Flip_Horizontal)) sx = -sx;
+        if(CHECK_FLAGS(flip, Flip_Vertical)) sy = -sy;
+
+        nkMat4 modelMatrix = nk::mat4_identity();
+        modelMatrix = nk::translate(modelMatrix, { ox,oy,0.0f });
+        modelMatrix = nk::scale(modelMatrix, { sx,sy,1.0f });
+        modelMatrix = nk::rotate(modelMatrix, { 0.0f,0.0f,1.0f }, angle);
+        modelMatrix = nk::translate(modelMatrix, { -ox,-oy,0.0f });
+        modelMatrix = nk::translate(modelMatrix, { x,y,0.0f });
+
+        nkVec4 tl = {x1,y1,0.0f,1.0f};
+        nkVec4 tr = {x2,y1,0.0f,1.0f};
+        nkVec4 bl = {x1,y2,0.0f,1.0f};
+        nkVec4 br = {x2,y2,0.0f,1.0f};
+
+        tl = modelMatrix * tl;
+        tr = modelMatrix * tr;
+        bl = modelMatrix * bl;
+        br = modelMatrix * br;
+
+        PutVertex({ bl, color, {s1,t2} });
+        PutVertex({ tl, color, {s1,t1} });
+        PutVertex({ tr, color, {s2,t1} });
+        PutVertex({ tr, color, {s2,t1} });
+        PutVertex({ br, color, {s2,t2} });
+        PutVertex({ bl, color, {s1,t2} });
     }
 
     static void EnableAlphaBlending(bool enable)

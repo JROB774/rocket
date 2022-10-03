@@ -98,9 +98,11 @@ static void UpdateSmoke(f32 dt)
 
 static void RenderSmoke(f32 dt)
 {
+    imm::BeginTextureBatch("smoke");
     for(auto& s: s_smoke)
     {
         Rect clip = { CAST(f32, 16*s.frame), 16*CAST(f32, s_rocket.costume), 16, 16 };
-        imm::DrawTexture("smoke", s.pos.x, s.pos.y, s.scale,s.scale, nk::torad(s.angle), imm::Flip_None, NULL, &clip);
+        imm::DrawBatchedTexture(s.pos.x, s.pos.y, s.scale,s.scale, nk::torad(s.angle), imm::Flip_None, NULL, &clip);
     }
+    imm::EndTextureBatch();
 }

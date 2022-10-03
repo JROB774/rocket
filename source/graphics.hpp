@@ -1,5 +1,3 @@
-// @Incomplete: Add texture batch rendering...
-
 DECLARE_PRIVATE_STRUCT(VertexBuffer);
 DECLARE_PRIVATE_STRUCT(Shader);
 DECLARE_PRIVATE_STRUCT(Texture);
@@ -163,7 +161,7 @@ namespace imm
 {
     struct Vertex
     {
-        nkVec2 position;
+        nkVec4 position;
         nkVec4 color;
         nkVec2 texCoord;
     };

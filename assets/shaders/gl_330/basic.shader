@@ -10,7 +10,7 @@ uniform sampler2D u_texture0;
 
 [VertProgram]
 
-layout (location = 0) in vec2 i_position;
+layout (location = 0) in vec4 i_position;
 layout (location = 1) in vec4 i_color;
 layout (location = 2) in vec2 i_texCoord;
 
@@ -19,7 +19,7 @@ out vec2 v_texCoord;
 
 void main()
 {
-    gl_Position = u_projectionMatrix * u_viewMatrix * u_modelMatrix * vec4(i_position,0,1);
+    gl_Position = u_projectionMatrix * u_viewMatrix * u_modelMatrix * i_position;
     v_color = i_color;
     v_texCoord = i_texCoord;
 }
