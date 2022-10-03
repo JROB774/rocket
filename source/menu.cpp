@@ -113,14 +113,3 @@ static void ResetMenuOptions(MenuOption* options, size_t count)
         options[i].scale = 1.0f;
     }
 }
-
-static void RenderCursor(f32 dt)
-{
-    if(s_gameState != GameState_Game || s_gamePaused || s_rocket.dead)
-    {
-        nkVec2 pos = GetScreenMousePos();
-        f32 x = roundf(pos.x);
-        f32 y = roundf(pos.y);
-        imm::DrawTexture("cursor", x,y);
-    }
-}

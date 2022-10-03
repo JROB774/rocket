@@ -101,6 +101,8 @@ void actual_main_start()
     s_appConfig.app->OnInit();
     s_appConfig.app->m_running = true;
 
+    LockMouse(true);
+
     emscripten_set_main_loop(main_loop, -1, 1);
 }
 

@@ -12,8 +12,10 @@ static void UpdateScoresMenu(f32 dt)
 {
     if(s_gameState != GameState_ScoresMenu) return;
     UpdateMenuOptions(s_scoresMenuOptions, ScoresMenuOption_TOTAL, dt);
+    #ifndef __EMSCRIPTEN__
     if(IsKeyPressed(KeyCode_Escape))
         ScoresMenuActionBack(s_scoresMenuOptions[ScoresMenuOption_Back]);
+    #endif // __EMSCRIPTEN__
 }
 
 static void RenderScoresMenu(f32 dt)

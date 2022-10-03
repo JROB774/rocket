@@ -42,6 +42,7 @@ enum GameState
 static GameState s_gameState;
 static size_t s_gameFrame;
 static bool s_gamePaused;
+static bool s_gameUnfocused;
 static bool s_gameResetting;
 
 #include "utility.hpp"
@@ -60,6 +61,7 @@ static bool s_gameResetting;
 #include "player.hpp"
 #include "transition.hpp"
 #include "background.hpp"
+#include "cursor.hpp"
 #include "menu.hpp"
 #include "menu_main.hpp"
 #include "menu_scores.hpp"
@@ -83,6 +85,7 @@ static bool s_gameResetting;
 #include "player.cpp"
 #include "transition.cpp"
 #include "background.cpp"
+#include "cursor.cpp"
 #include "menu.cpp"
 #include "menu_main.cpp"
 #include "menu_scores.cpp"
@@ -90,9 +93,6 @@ static bool s_gameResetting;
 #include "menu_settings.cpp"
 #include "menu_gameover.cpp"
 #include "menu_pause.cpp"
-
-static bool s_lockMouse = true;
-static bool s_showMouse = false;
 
 class RocketApp: public Application
 {
@@ -138,36 +138,34 @@ public:
 
     void OnUpdate(f32 dt) override
     {
-        // Handle locking/unlocking and showing/hiding the mouse with debug mode.
-        s_lockMouse = (!s_gamePaused && !s_rocket.dead && (s_gameState == GameState_Game));
-        s_showMouse = false;
+        UpdateCursor(dt);
 
-        LockMouse(s_lockMouse);
-        ShowCursor(s_showMouse);
-
-        switch(s_gameState)
+        if(!s_gameUnfocused)
         {
-            case(GameState_MainMenu): UpdateMainMenu(dt); break;
-            case(GameState_ScoresMenu): UpdateScoresMenu(dt); break;
-            case(GameState_CostumesMenu): UpdateCostumesMenu(dt); break;
-            case(GameState_SettingsMenu): UpdateSettingsMenu(dt); break;
-            default:
+            switch(s_gameState)
             {
-                // Nothing...
-            } break;
-        }
+                case(GameState_MainMenu): UpdateMainMenu(dt); break;
+                case(GameState_ScoresMenu): UpdateScoresMenu(dt); break;
+                case(GameState_CostumesMenu): UpdateCostumesMenu(dt); break;
+                case(GameState_SettingsMenu): UpdateSettingsMenu(dt); break;
+                default:
+                {
+                    // Nothing...
+                } break;
+            }
 
-        UpdateGameOverMenu(dt);
-        UpdatePauseMenu(dt);
+            UpdateGameOverMenu(dt);
+            UpdatePauseMenu(dt);
 
-        if(!s_gamePaused)
-        {
-            if((s_gameState == GameState_Game) && !s_gameResetting)
-                MaybeSpawnEntity(dt);
-            UpdateBackground(dt);
-            UpdateAsteroids(dt);
-            UpdateSmoke(dt);
-            UpdateRocket(dt);
+            if(!s_gamePaused)
+            {
+                if((s_gameState == GameState_Game) && !s_gameResetting)
+                    MaybeSpawnEntity(dt);
+                UpdateBackground(dt);
+                UpdateAsteroids(dt);
+                UpdateSmoke(dt);
+                UpdateRocket(dt);
+            }
         }
 
         s_gameFrame++;
@@ -187,6 +185,7 @@ public:
         RenderGameOverMenu(dt);
         RenderCursor(dt);
         RenderTransition(dt);
+        RenderUnfocused(dt);
     }
 };
 

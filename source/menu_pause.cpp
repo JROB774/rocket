@@ -27,6 +27,7 @@ static void PauseGame()
     PlaySound("pause");
     PauseMusic();
     StopThruster();
+    ResetCursor();
     GoToPauseMenu();
 }
 
@@ -43,8 +44,14 @@ static void UpdatePauseMenu(f32 dt)
     if(s_gameState != GameState_Game) return;
     if(s_gameResetting || s_rocket.dead) return;
 
+    #ifndef __EMSCRIPTEN__
+    auto pauseKey = KeyCode_Escpae;
+    #else
+    auto pauseKey = KeyCode_Space;
+    #endif // __EMSCRIPTEN__
+
     // Toggle pause menu.
-    if(IsKeyPressed(KeyCode_Escape))
+    if(IsKeyPressed(pauseKey))
     {
         s_gamePaused = !s_gamePaused;
         if(!s_gamePaused) PauseMenuActionResume(s_pauseMenuOptions[PauseMenuOption_Resume]);

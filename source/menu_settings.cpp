@@ -47,8 +47,10 @@ static void UpdateSettingsMenu(f32 dt)
     s_settingsMenuOptions[SettingsMenuOption_Fullscreen].toggle = IsFullscreen();
     s_settingsMenuOptions[SettingsMenuOption_ResetSave].clip.y = 504+(CAST(f32,s_resetSaveCounter)*24.0f);
     UpdateMenuOptions(s_settingsMenuOptions, SettingsMenuOption_TOTAL, dt);
+    #ifndef __EMSCRIPTEN__
     if(IsKeyPressed(KeyCode_Escape))
         SettingsMenuActionBack(s_settingsMenuOptions[SettingsMenuOption_Back]);
+    #endif // __EMSCRIPTEN__
 }
 
 static void RenderSettingsMenu(f32 dt)

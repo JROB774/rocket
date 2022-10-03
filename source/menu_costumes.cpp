@@ -36,8 +36,10 @@ static void UpdateCostumesMenu(f32 dt)
 {
     if(s_gameState != GameState_CostumesMenu) return;
     UpdateMenuOptions(s_costumesMenuOptions, CostumesMenuOption_TOTAL, dt);
+    #ifndef __EMSCRIPTEN__
     if(IsKeyPressed(KeyCode_Escape))
         CostumesMenuActionBack(s_costumesMenuOptions[CostumesMenuOption_Back]);
+    #endif // __EMSCRIPTEN__
 }
 
 static void RenderCostumesMenu(f32 dt)
