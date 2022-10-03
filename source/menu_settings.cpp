@@ -11,6 +11,7 @@ static void SettingsMenuActionMusic(MenuOption& option)
 static void SettingsMenuActionFullscreen(MenuOption& option)
 {
     FullscreenWindow(option.toggle);
+    ResetCursor();
 }
 
 static void SettingsMenuActionResetSave(MenuOption& option)

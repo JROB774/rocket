@@ -124,7 +124,11 @@ int main(int argc, char** argv)
                     switch(event.key.keysym.sym)
                     {
                         case(SDLK_RETURN): if(!(SDL_GetModState()&KMOD_ALT)) break;
-                        case(SDLK_F11): FullscreenWindow(!IsFullscreen()); break;
+                        case(SDLK_F11):
+                        {
+                            FullscreenWindow(!IsFullscreen());
+                            ResetCursor();
+                        } break;
                     }
                 } break;
                 case(SDL_QUIT):
