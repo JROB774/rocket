@@ -31,7 +31,8 @@ if "%~2"=="release" (
 )
 
 pushd binary\win32
-cl ../../source/rocket.cpp %cflg% %defs% %idir% -Fe:rocket.exe -link %lflg% %ldir% %libs%
+rc -i ../../docs/icon/win32 ../../docs/icon/win32/icon.rc
+cl ../../source/rocket.cpp %cflg% %defs% %idir% -Fe:rocket.exe -link %lflg% %ldir% %libs% ../../docs/icon/win32/icon.res
 popd
 
 goto end
