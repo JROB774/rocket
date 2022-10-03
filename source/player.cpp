@@ -83,7 +83,7 @@ static void HitRocket()
             if(!s_rocket.unlocks[unlock.costume]) // Not already unlocked.
             {
                 s_rocket.unlocks[unlock.costume] = true;
-                s_gameOverUnlocks.push(unlock.costume);
+                s_gameOverUnlocks.push_back(unlock.costume);
             }
         }
     }

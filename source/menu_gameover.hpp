@@ -7,7 +7,7 @@ enum GameOverMenuOption
     GameOverMenuOption_TOTAL
 };
 
-static std::stack<Costume> s_gameOverUnlocks;
+static std::vector<Costume> s_gameOverUnlocks;
 
 static void UpdateGameOverMenu(f32 dt);
 static void RenderGameOverMenu(f32 dt);

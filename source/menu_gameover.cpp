@@ -1,3 +1,5 @@
+static bool s_hasDoneInitialGameOverUnlockClick;
+
 static void GameOverMenuActionRetry(MenuOption& option)
 {
     ResetGame(GameState_Game);
@@ -18,42 +20,72 @@ static void UpdateGameOverMenu(f32 dt)
 {
     if(s_gameState != GameState_Game) return;
     if(s_gameResetting || !s_rocket.dead) return;
-    UpdateMenuOptions(s_gameOverMenuOptions, GameOverMenuOption_TOTAL, dt);
-    if(IsKeyPressed(KeyCode_R))
-        GameOverMenuActionRetry(s_gameOverMenuOptions[GameOverMenuOption_Retry]);
+
+    // If we have unlocked stuff display that first before the actual game over menu.
+    if(!s_gameOverUnlocks.empty())
+    {
+        if(!s_hasDoneInitialGameOverUnlockClick)
+            s_hasDoneInitialGameOverUnlockClick = IsMouseButtonPressed(MouseButton_Left);
+        else
+        {
+            // @Incomplete: ...
+
+            // Move on to the next unlock, or the game over menu.
+            if(IsMouseButtonPressed(MouseButton_Left))
+            {
+                s_gameOverUnlocks.erase(s_gameOverUnlocks.begin());
+            }
+        }
+    }
+    else
+    {
+        UpdateMenuOptions(s_gameOverMenuOptions, GameOverMenuOption_TOTAL, dt);
+        if(IsKeyPressed(KeyCode_R))
+            GameOverMenuActionRetry(s_gameOverMenuOptions[GameOverMenuOption_Retry]);
+    }
 }
 
 static void RenderGameOverMenu(f32 dt)
 {
     if(s_gameState != GameState_Game) return;
     if(s_gameResetting || !s_rocket.dead) return;
-    RenderMenuOptions(s_gameOverMenuOptions, GameOverMenuOption_TOTAL, dt);
-    Rect titleClip = { 0,1704,256,32 };
-    imm::DrawTexture("menu", GetScreenWidth()*0.5f,24.0f, &titleClip);
 
-    // Draw the score achieved.
-    bool newHighscore = (s_rocket.score >= s_rocket.highscores[0]);
-    std::string scoreStr = std::to_string(s_rocket.score) + "!";
-    f32 textWidth = GetTextLineWidth(s_bigFont0, scoreStr);
-    f32 screenWidth = GetScreenWidth();
-    f32 screenHeight = GetScreenHeight();
-    f32 textHeight = screenHeight*0.33f;
-    DrawBitmapFont(s_bigFont0, roundf((screenWidth-textWidth)*0.5f),textHeight, scoreStr);
+    // If we have unlocked stuff display that first before the actual game over menu.
+    if(!s_gameOverUnlocks.empty())
+    {
+        // @Incomplete: ...
+    }
+    else
+    {
+        RenderMenuOptions(s_gameOverMenuOptions, GameOverMenuOption_TOTAL, dt);
+        Rect titleClip = { 0,1704,256,32 };
+        imm::DrawTexture("menu", GetScreenWidth()*0.5f,24.0f, &titleClip);
 
-    // Draw a message depending on what the score was.
-    Rect newHighClip  = { 0,1680,256,24 };
-    Rect wellDoneClip = { 0,1760,256,24 };
-    Rect niceTryClip  = { 0,1736,256,24 };
+        // Draw the score achieved.
+        bool newHighscore = (s_rocket.score >= s_rocket.highscores[0]);
+        std::string scoreStr = std::to_string(s_rocket.score) + "!";
+        f32 textWidth = GetTextLineWidth(s_bigFont0, scoreStr);
+        f32 screenWidth = GetScreenWidth();
+        f32 screenHeight = GetScreenHeight();
+        f32 textHeight = screenHeight*0.33f;
+        DrawBitmapFont(s_bigFont0, roundf((screenWidth-textWidth)*0.5f),textHeight, scoreStr);
 
-    Rect clip = niceTryClip;
-    if(s_rocket.score >= s_rocket.highscores[9]) clip = wellDoneClip;
-    if(s_rocket.score >= s_rocket.highscores[0]) clip = newHighClip;
+        // Draw a message depending on what the score was.
+        Rect newHighClip  = { 0,1680,256,24 };
+        Rect wellDoneClip = { 0,1760,256,24 };
+        Rect niceTryClip  = { 0,1736,256,24 };
 
-    imm::DrawTexture("menu", screenWidth*0.5f,textHeight+64.0f, &clip);
+        Rect clip = niceTryClip;
+        if(s_rocket.score >= s_rocket.highscores[9]) clip = wellDoneClip;
+        if(s_rocket.score >= s_rocket.highscores[0]) clip = newHighClip;
+
+        imm::DrawTexture("menu", screenWidth*0.5f,textHeight+64.0f, &clip);
+    }
 }
 
 static void GoToGameOverMenu()
 {
     s_gameState = GameState_Game;
     ResetMenuOptions(s_gameOverMenuOptions, GameOverMenuOption_TOTAL);
+    s_hasDoneInitialGameOverUnlockClick = false;
 }
