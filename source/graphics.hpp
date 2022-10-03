@@ -45,8 +45,7 @@ enum AttribType
     AttribType_UnsignedByte,
     AttribType_SignedInt,
     AttribType_UnsignedInt,
-    AttribType_Float,
-    AttribType_Double
+    AttribType_Float
 };
 
 enum BufferType

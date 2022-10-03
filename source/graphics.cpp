@@ -406,7 +406,6 @@ static void DrawVertexBuffer(VertexBuffer& buffer, DrawMode drawMode, size_t ver
                 case (AttribType_SignedInt): attribType = GL_INT; break;
                 case (AttribType_UnsignedInt): attribType = GL_UNSIGNED_INT; break;
                 case (AttribType_Float): attribType = GL_FLOAT; break;
-                case (AttribType_Double): attribType = GL_DOUBLE; break;
             }
 
             glVertexAttribPointer(i, attrib.components, attribType, GL_FALSE, buffer->byteStride, CAST(void*,attrib.byteOffset));
