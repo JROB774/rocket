@@ -21,6 +21,7 @@ static void CostumesMenuActionBack(MenuOption& option)
     if(!s_rocket.unlocks[s_rocket.costume]) // If the selected costume is locked reset to the last costume.
         s_rocket.costume = s_currentCostume;
     s_rocket.random = (s_rocket.costume == Costume_Random);
+    SaveGame();
     GoToMainMenu();
 }
 
