@@ -1,6 +1,12 @@
 static void UpdateMenuOptions(MenuOption* options, size_t count, f32 dt)
 {
     nkVec2 mouse = GetScreenMousePos();
+    if(!CanvasHasFocus())
+    {
+        mouse.x = -20.0f;
+        mouse.y = -20.0f;
+    }
+
     for(size_t i=0; i<count; ++i)
     {
         MenuOption& option = options[i];
