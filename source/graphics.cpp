@@ -360,7 +360,6 @@ static void DrawVertexBuffer(VertexBuffer& buffer, DrawMode drawMode)
     GLsizeiptr size = buffer->verts.size() * sizeof(Vertex);
     glBufferData(GL_ARRAY_BUFFER, size, &buffer->verts[0], GL_DYNAMIC_DRAW);
     glDrawArrays(primitive, 0, CAST(GLsizei, buffer->verts.size()));
-    glFlush();
 }
 
 static void ClearVertexBuffer(VertexBuffer& buffer)
