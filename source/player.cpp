@@ -89,7 +89,7 @@ static void HitRocket()
     }
 
     // Determine if the new score is a highscore and then save.
-    if (s_rocket.score > s_rocket.highscores[9])
+    if(s_rocket.score > s_rocket.highscores[9])
     {
         s_rocket.highscores[9] = s_rocket.score;
         qsort(s_rocket.highscores,ARRAY_SIZE(s_rocket.highscores),sizeof(s_rocket.highscores[0]),ScoreCompare);
