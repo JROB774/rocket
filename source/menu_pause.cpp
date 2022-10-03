@@ -45,7 +45,7 @@ static void UpdatePauseMenu(f32 dt)
     if(s_gameResetting || s_rocket.dead) return;
 
     #ifndef __EMSCRIPTEN__
-    auto pauseKey = KeyCode_Escpae;
+    auto pauseKey = KeyCode_Escape;
     #else
     auto pauseKey = KeyCode_Space;
     #endif // __EMSCRIPTEN__
