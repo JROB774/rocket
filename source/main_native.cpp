@@ -109,7 +109,7 @@ int main(int argc, char** argv)
     // Enable VSync by default, if we don't get it then oh well.
     if(SDL_GL_SetSwapInterval(1) == 0)
     {
-        printf("VSync Enabled!");
+        printf("VSync Enabled!\n");
     }
 
     while(s_appConfig.app->m_running)
