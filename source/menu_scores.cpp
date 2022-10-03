@@ -31,7 +31,20 @@ static void RenderScoresMenu(f32 dt)
     {
         BitmapFont* font = (i == 0) ? &s_font1 : &s_font0;
         u32 score = s_rocket.highscores[i];
+
         std::string scoreStr = std::to_string(score);
+        if(score == 0)
+        {
+            scoreStr = "______";
+        }
+        else
+        {
+            while(scoreStr.length() < 6)
+            {
+                scoreStr = "_" + scoreStr;
+            }
+        }
+
         f32 textWidth = GetTextLineWidth(*font, scoreStr);
         DrawBitmapFont(*font, roundf((screenWidth-textWidth)*0.5f),yPos, scoreStr);
         yPos += 24.0f;

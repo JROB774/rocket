@@ -16,6 +16,7 @@ static f32 GetCharWidth(BitmapFont& font, char c)
         switch(c)
         {
             case('!'): return  6;
+            /*
             case('0'): return 13;
             case('1'): return 10;
             case('2'): return 13;
@@ -26,6 +27,7 @@ static f32 GetCharWidth(BitmapFont& font, char c)
             case('7'): return 13;
             case('8'): return 13;
             case('9'): return 13;
+            */
         }
     }
     if(font.charWidth == 24) // Big font.
@@ -33,6 +35,7 @@ static f32 GetCharWidth(BitmapFont& font, char c)
         switch(c)
         {
             case('!'): return  8;
+            /*
             case('0'): return 21;
             case('1'): return 14;
             case('2'): return 21;
@@ -43,6 +46,7 @@ static f32 GetCharWidth(BitmapFont& font, char c)
             case('7'): return 21;
             case('8'): return 21;
             case('9'): return 20;
+            */
         }
     }
     return font.charWidth;
