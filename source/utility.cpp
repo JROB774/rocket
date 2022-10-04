@@ -29,19 +29,6 @@ static f32 RandomF32(f32 min, f32 max)
     return distribution(s_randomGenerator);
 }
 
-static f32 SinRange(f32 min, f32 max, f32 t)
-{
-    f32 halfRange = (max - min) / 2;
-    return (min + halfRange + sinf(t) * halfRange);
-}
-
-static nkVec2 RotateVec2(nkVec2 vec, f32 rad)
-{
-    f32 x = vec.x * cosf(rad) - vec.y * sinf(rad);
-    f32 y = vec.x * sinf(rad) + vec.y * cosf(rad);
-    return { x,y };
-}
-
 template<typename T>
 static bool Contains(std::vector<T>& vec, const T& x)
 {

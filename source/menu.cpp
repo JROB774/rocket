@@ -98,7 +98,7 @@ static void RenderMenuOptions(MenuOption* options, size_t count, f32 dt)
     f32 halfW = GetScreenWidth() * 0.5f;
 
     s_timer += dt;
-    s_angle = SinRange(-10.0f, 10.0f, s_timer*2.5f);
+    s_angle = nk::sin_range(-10.0f, 10.0f, s_timer*2.5f);
 
     imm::BeginTextureBatch("menu");
     for(size_t i=0; i<count; ++i)

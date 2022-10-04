@@ -50,9 +50,6 @@ static s32 RandomS32(s32 min, s32 max);
 static f32 RandomF32();
 static f32 RandomF32(f32 min, f32 max);
 
-static f32 SinRange(f32 min, f32 max, f32 t);
-static nkVec2 RotateVec2(nkVec2 vec, f32 rad);
-
 template<typename T>
 static bool Contains(std::vector<T>& vec, const T& x);
 template<typename K, typename V>

@@ -69,7 +69,7 @@ static void RenderGameOverMenu(f32 dt)
 
     s_timer += dt;
 
-    s_unlockCostumeAngle = SinRange(-10.0f, 10.0f, s_timer*2.5f);
+    s_unlockCostumeAngle = nk::sin_range(-10.0f, 10.0f, s_timer*2.5f);
     s_unlockRadialAngle += (dt * 2.0f);
 
     // If we have unlocked stuff display that first before the actual game over menu.
