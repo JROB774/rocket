@@ -1,7 +1,3 @@
-#define JOIN( a, b) JOIN2(a, b)
-#define JOIN2(a, b) JOIN1(a, b)
-#define JOIN1(a, b) a##b
-
 #define CAST(t,x) ((t)(x))
 
 #define ARRAY_SIZE(arr) (sizeof(arr)/sizeof((arr)[0]))
