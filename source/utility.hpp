@@ -8,10 +8,6 @@
 #define DECLARE_PRIVATE_STRUCT(name) struct name##__Type; typedef name##__Type* name;
 #define DEFINE_PRIVATE_STRUCT(name) struct name##__Type
 
-#define CHECK_FLAGS(val, flags) (((val) & (flags)) != NK_CAST(decltype(val),0))
-#define SET_FLAGS(val, flags) ((val) |= (flags))
-#define UNSET_FLAGS(val, flags) ((val) &= ~(flags))
-
 #define GET_PTR_TYPE(ptr) RemovePtr<decltype(ptr)>::Type
 
 typedef  uint8_t  u8;

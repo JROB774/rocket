@@ -191,7 +191,7 @@ int main(int argc, char** argv)
         #endif // BUILD_DEBUG
 
         // The window starts out hidden, after the first draw we unhide the window as this looks quite clean.
-        if(CHECK_FLAGS(SDL_GetWindowFlags(s_context.window), SDL_WINDOW_HIDDEN))
+        if(NK_CHECK_FLAGS(SDL_GetWindowFlags(s_context.window), SDL_WINDOW_HIDDEN))
         {
             SDL_ShowWindow(s_context.window);
         }

@@ -1023,8 +1023,8 @@ namespace imm
         s2 /= texture->w;
         t2 /= texture->h;
 
-        if(CHECK_FLAGS(flip, Flip_Horizontal)) sx = -sx;
-        if(CHECK_FLAGS(flip, Flip_Vertical)) sy = -sy;
+        if(NK_CHECK_FLAGS(flip, Flip_Horizontal)) sx = -sx;
+        if(NK_CHECK_FLAGS(flip, Flip_Vertical)) sy = -sy;
 
         nkMat4& modelMatrix = GetModelMatrix();
         nkMat4 cachedMatrix = modelMatrix;
@@ -1195,8 +1195,8 @@ namespace imm
         s2 /= s_immContext.batchTexture->w;
         t2 /= s_immContext.batchTexture->h;
 
-        if(CHECK_FLAGS(flip, Flip_Horizontal)) sx = -sx;
-        if(CHECK_FLAGS(flip, Flip_Vertical)) sy = -sy;
+        if(NK_CHECK_FLAGS(flip, Flip_Horizontal)) sx = -sx;
+        if(NK_CHECK_FLAGS(flip, Flip_Vertical)) sy = -sy;
 
         nkMat4 modelMatrix = nk::mat4_identity();
         modelMatrix = nk::translate(modelMatrix, { ox,oy,0.0f });

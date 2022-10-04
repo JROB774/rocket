@@ -4,7 +4,7 @@ static bool s_wantLockCursor = true;
 bool CanvasHasFocus()
 {
     u32 windowFlags = SDL_GetWindowFlags(s_context.window);
-    return CHECK_FLAGS(windowFlags, SDL_WINDOW_INPUT_FOCUS);
+    return NK_CHECK_FLAGS(windowFlags, SDL_WINDOW_INPUT_FOCUS);
 }
 #else
 EM_JS(bool, CanvasHasFocus, (),
