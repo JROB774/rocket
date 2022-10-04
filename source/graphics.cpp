@@ -342,7 +342,7 @@ static void SetVertexBufferStride(VertexBuffer& buffer, size_t byteStride)
 
 static void EnableVertexBufferAttrib(VertexBuffer& buffer, u32 index, AttribType type, u32 components, size_t byteOffset)
 {
-    ASSERT(index < ARRAY_SIZE(buffer->attribs), "Invalid attribute index!");
+    ASSERT(index < NK_ARRAY_SIZE(buffer->attribs), "Invalid attribute index!");
     buffer->attribs[index].enabled = true;
     buffer->attribs[index].type = type;
     buffer->attribs[index].components = components;
@@ -351,7 +351,7 @@ static void EnableVertexBufferAttrib(VertexBuffer& buffer, u32 index, AttribType
 
 static void DisableVertexBufferAttrib(VertexBuffer& buffer, u32 index)
 {
-    ASSERT(index < ARRAY_SIZE(buffer->attribs), "Invalid attribute index!");
+    ASSERT(index < NK_ARRAY_SIZE(buffer->attribs), "Invalid attribute index!");
     buffer->attribs[index].enabled = false;
 }
 
@@ -390,7 +390,7 @@ static void DrawVertexBuffer(VertexBuffer& buffer, DrawMode drawMode, size_t ver
     }
 
     // Setup the attributes for the buffer.
-    for(size_t i=0; i<ARRAY_SIZE(buffer->attribs); ++i)
+    for(size_t i=0; i<NK_ARRAY_SIZE(buffer->attribs); ++i)
     {
         VertexAttrib& attrib = buffer->attribs[i];
         if(attrib.enabled)

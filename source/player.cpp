@@ -75,7 +75,7 @@ static void HitRocket()
     s_rocket.dead = true;
 
     // Check to see if any new costumes were unlocked.
-    for(s32 i=0; i<ARRAY_SIZE(k_unlocks); ++i)
+    for(s32 i=0; i<NK_ARRAY_SIZE(k_unlocks); ++i)
     {
         const Unlock& unlock = k_unlocks[i];
         if(s_rocket.score >= unlock.score)
@@ -92,7 +92,7 @@ static void HitRocket()
     if(s_rocket.score > s_rocket.highscores[9])
     {
         s_rocket.highscores[9] = s_rocket.score;
-        qsort(s_rocket.highscores,ARRAY_SIZE(s_rocket.highscores),sizeof(s_rocket.highscores[0]),ScoreCompare);
+        qsort(s_rocket.highscores,NK_ARRAY_SIZE(s_rocket.highscores),sizeof(s_rocket.highscores[0]),ScoreCompare);
     }
     SaveGame();
 

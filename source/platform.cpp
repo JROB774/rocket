@@ -250,7 +250,7 @@ static void FatalError(const char* format, ...)
     char message[1024] = {};
     va_list args;
     va_start(args, format);
-    vsnprintf(message, ARRAY_SIZE(message), format, args);
+    vsnprintf(message, NK_ARRAY_SIZE(message), format, args);
     va_end(args);
     fprintf(stderr, "%s\n", message);
     SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", message, s_context.window);
