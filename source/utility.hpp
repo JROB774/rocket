@@ -20,12 +20,6 @@
 #define SET_FLAGS(val, flags) ((val) |= (flags))
 #define UNSET_FLAGS(val, flags) ((val) &= ~(flags))
 
-#if defined(__COUNTER__)
-#define DEFER const auto& JOIN(defer, __COUNTER__) = DeferHelp() + [&]()
-#else
-#define DEFER const auto& JOIN(defer, __LINE__) = DeferHelp() + [&]()
-#endif
-
 #define GET_PTR_TYPE(ptr) RemovePtr<decltype(ptr)>::Type
 
 typedef  uint8_t  u8;

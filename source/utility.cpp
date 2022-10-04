@@ -40,22 +40,6 @@ static bool Contains(std::map<K,V>& map, const K& x)
     return (map.find(x) != map.end());
 }
 
-// Internal implementation details for DEFER.
-template<typename T>
-struct Defer
-{
-    T lambda;
-    Defer(T lambda): lambda(lambda) {}
-   ~Defer() { lambda(); }
-    Defer(const Defer&) = delete;
-    Defer& operator=(const Defer&) = delete;
-};
-struct DeferHelp
-{
-    template<typename T>
-    Defer<T> operator+(T type) { return type; }
-};
-
 // Internal implementation details for GET_PTR_TYPE.
 template<typename T>
 struct RemovePtr

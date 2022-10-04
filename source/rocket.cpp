@@ -19,6 +19,8 @@
 
 #include <stb_image.h>
 
+#include <nk_define.hpp>
+#include <nk_defer.hpp>
 #include <nk_math.hpp>
 
 #ifndef __EMSCRIPTEN__

@@ -134,11 +134,8 @@ static bool CreateShader(Shader& shader, std::stringstream& stream)
     GLuint vert = CompileShader(vertSource, GL_VERTEX_SHADER);
     GLuint frag = CompileShader(fragSource, GL_FRAGMENT_SHADER);
 
-    DEFER
-    {
-        glDeleteShader(vert);
-        glDeleteShader(frag);
-    };
+    NK_DEFER(glDeleteShader(vert));
+    NK_DEFER(glDeleteShader(frag));
 
     shader->program = glCreateProgram();
     glAttachShader(shader->program, vert);
@@ -286,7 +283,7 @@ static bool LoadTexture(Texture& texture, std::string fileName, Filter filter, W
         printf("Failed to load texture from file '%s'!\n", fileName.c_str());
     else
     {
-        DEFER { stbi_image_free(rawData); };
+        NK_DEFER(stbi_image_free(rawData));
         return CreateTexture(texture, width,height,k_bytesPerPixel, rawData, filter, wrap);
     }
     return false;

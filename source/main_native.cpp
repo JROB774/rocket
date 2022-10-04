@@ -1,10 +1,10 @@
 int main(int argc, char** argv)
 {
-    DEFER { CheckTrackedMemory(); };
+    NK_DEFER(CheckTrackedMemory());
 
     s_appConfig = AppMain(argc, argv);
     ASSERT(s_appConfig.app, "Need to define an application for the engine to run!");
-    DEFER { Deallocate(s_appConfig.app); };
+    NK_DEFER(Deallocate(s_appConfig.app));
 
     // Cache useful paths.
     s_context.execPath = ValidatePath(SDL_GetBasePath());
@@ -13,7 +13,7 @@ int main(int argc, char** argv)
 
     if(SDL_Init(SDL_INIT_EVERYTHING) < 0)
         FatalError("Failed to initialize SDL2!\n");
-    DEFER { SDL_Quit(); };
+    NK_DEFER(SDL_Quit());
 
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
@@ -70,13 +70,13 @@ int main(int argc, char** argv)
     s_context.window = SDL_CreateWindow(s_appConfig.title.c_str(), windowX,windowY,windowW,windowH, SDL_WINDOW_HIDDEN|SDL_WINDOW_RESIZABLE|SDL_WINDOW_OPENGL);
     if(!s_context.window)
         FatalError("Failed to create window!\n");
-    DEFER { SDL_DestroyWindow(s_context.window); };
+    NK_DEFER(SDL_DestroyWindow(s_context.window));
     SDL_SetWindowMinimumSize(s_context.window, s_appConfig.window.min.x, s_appConfig.window.min.y);
 
     s_context.glContext = SDL_GL_CreateContext(s_context.window);
     if(!s_context.glContext)
         FatalError("Failed to create OpenGL context!\n");
-    DEFER { SDL_GL_DeleteContext(s_context.glContext); };
+    NK_DEFER(SDL_GL_DeleteContext(s_context.glContext));
 
     glewInit();
 
@@ -84,13 +84,13 @@ int main(int argc, char** argv)
     FullscreenWindow(windowFullscreen);
 
     InitAssetManager();
-    DEFER { QuitAssetManager(); };
+    NK_DEFER(QuitAssetManager());
 
     InitGraphics();
-    DEFER { QuitGraphics(); };
+    NK_DEFER(QuitGraphics());
 
     InitAudio();
-    DEFER { QuitAudio(); };
+    NK_DEFER(QuitAudio());
 
     SetSoundVolume(soundVolume);
     SetMusicVolume(musicVolume);
