@@ -32,29 +32,29 @@ static bool IsKeyReleased(KeyCode code)
 
 static bool IsAnyKeyDown()
 {
-    for(s32 i=0; i<CAST(s32, KeyCode_TOTAL); ++i)
-        if(IsKeyDown(CAST(KeyCode, i))) return true;
+    for(s32 i=0; i<NK_CAST(s32, KeyCode_TOTAL); ++i)
+        if(IsKeyDown(NK_CAST(KeyCode, i))) return true;
     return false;
 }
 
 static bool IsAnyKeyUp()
 {
-    for(s32 i=0; i<CAST(s32, KeyCode_TOTAL); ++i)
-        if(IsKeyUp(CAST(KeyCode, i))) return true;
+    for(s32 i=0; i<NK_CAST(s32, KeyCode_TOTAL); ++i)
+        if(IsKeyUp(NK_CAST(KeyCode, i))) return true;
     return false;
 }
 
 static bool IsAnyKeyPressed()
 {
-    for(s32 i=0; i<CAST(s32, KeyCode_TOTAL); ++i)
-        if(IsKeyPressed(CAST(KeyCode, i))) return true;
+    for(s32 i=0; i<NK_CAST(s32, KeyCode_TOTAL); ++i)
+        if(IsKeyPressed(NK_CAST(KeyCode, i))) return true;
     return false;
 }
 
 static bool IsAnyKeyReleased()
 {
-    for(s32 i=0; i<CAST(s32, KeyCode_TOTAL); ++i)
-        if(IsKeyReleased(CAST(KeyCode, i))) return true;
+    for(s32 i=0; i<NK_CAST(s32, KeyCode_TOTAL); ++i)
+        if(IsKeyReleased(NK_CAST(KeyCode, i))) return true;
     return false;
 }
 
@@ -87,8 +87,8 @@ static nkVec2 GetScreenMousePos()
     nkVec2 screenMouse = GetWindowMousePos();
     Rect screenBounds = GetScreenBounds();
 
-    f32 windowWidth = CAST(f32, GetWindowWidth());
-    f32 windowHeight = CAST(f32, GetWindowHeight());
+    f32 windowWidth = NK_CAST(f32, GetWindowWidth());
+    f32 windowHeight = NK_CAST(f32, GetWindowHeight());
     f32 screenWidth = GetScreenWidth();
     f32 screenHeight = GetScreenHeight();
 

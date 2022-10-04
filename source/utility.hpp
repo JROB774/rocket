@@ -1,5 +1,3 @@
-#define CAST(t,x) ((t)(x))
-
 #define ARRAY_SIZE(arr) (sizeof(arr)/sizeof((arr)[0]))
 
 #ifdef BUILD_DEBUG
@@ -12,7 +10,7 @@
 #define DECLARE_PRIVATE_STRUCT(name) struct name##__Type; typedef name##__Type* name;
 #define DEFINE_PRIVATE_STRUCT(name) struct name##__Type
 
-#define CHECK_FLAGS(val, flags) (((val) & (flags)) != CAST(decltype(val),0))
+#define CHECK_FLAGS(val, flags) (((val) & (flags)) != NK_CAST(decltype(val),0))
 #define SET_FLAGS(val, flags) ((val) |= (flags))
 #define UNSET_FLAGS(val, flags) ((val) &= ~(flags))
 

@@ -175,22 +175,22 @@ static void UpdateInputState()
     // Update the mouse state.
     s32 mouseX,mouseY;
     SDL_GetMouseState(&mouseX,&mouseY);
-    s_context.input.mousePos = { CAST(f32, mouseX), CAST(f32, mouseY) };
+    s_context.input.mousePos = { NK_CAST(f32, mouseX), NK_CAST(f32, mouseY) };
     SDL_GetRelativeMouseState(&mouseX,&mouseY);
-    s_context.input.relativeMousePos = { CAST(f32, mouseX), CAST(f32, mouseY) };
+    s_context.input.relativeMousePos = { NK_CAST(f32, mouseX), NK_CAST(f32, mouseY) };
     s_context.input.mouseWheel = { 0,0 };
 
     // Update the keyboard state.
     memcpy(s_context.input.previousKeyState, s_context.input.currentKeyState, sizeof(s_context.input.previousKeyState));
     const u8* sdlKeyboardState = SDL_GetKeyboardState(NULL);
     for(s32 i=0; i<KeyCode_TOTAL; ++i)
-        s_context.input.currentKeyState[i] = (sdlKeyboardState[MapKeyCodeToSDLScancode(CAST(KeyCode, i))] != 0);
+        s_context.input.currentKeyState[i] = (sdlKeyboardState[MapKeyCodeToSDLScancode(NK_CAST(KeyCode, i))] != 0);
 
     // Update the mouse button state.
     u32 sdlMouse = SDL_GetMouseState(NULL,NULL);
     memcpy(s_context.input.previousMouseButtonState, s_context.input.currentMouseButtonState, sizeof(s_context.input.previousMouseButtonState));
     for(s32 i=0; i<MouseButton_TOTAL; ++i)
-        s_context.input.currentMouseButtonState[i] = ((sdlMouse & SDL_BUTTON(MapMouseButtonToSDLButton(CAST(MouseButton, i)))) != 0);
+        s_context.input.currentMouseButtonState[i] = ((sdlMouse & SDL_BUTTON(MapMouseButtonToSDLButton(NK_CAST(MouseButton, i)))) != 0);
 
     // Update the gamepad.
     if(s_context.gamepad)
@@ -199,13 +199,13 @@ static void UpdateInputState()
         memcpy(s_context.input.previousButtonState, s_context.input.currentButtonState, sizeof(s_context.input.previousButtonState));
         for(s32 i=0; i<GamepadButton_TOTAL; ++i)
         {
-            u8 sdlButton = SDL_GameControllerGetButton(s_context.gamepad, MapGamepadButtonToSDLGameControllerButton(CAST(GamepadButton, i)));
+            u8 sdlButton = SDL_GameControllerGetButton(s_context.gamepad, MapGamepadButtonToSDLGameControllerButton(NK_CAST(GamepadButton, i)));
             s_context.input.currentButtonState[i] = (sdlButton != 0);
         }
         // Axis state.
         for(s32 i=0; i<GamepadAxis_TOTAL; ++i)
         {
-            s16 sdlAxis = SDL_GameControllerGetAxis(s_context.gamepad, MapGamepadAxisToSDLGameControllerAxis(CAST(GamepadAxis, i)));
+            s16 sdlAxis = SDL_GameControllerGetAxis(s_context.gamepad, MapGamepadAxisToSDLGameControllerAxis(NK_CAST(GamepadAxis, i)));
             s_context.input.currentButtonState[i] = sdlAxis;
         }
     }
@@ -220,7 +220,7 @@ static void UpdateInputState()
 
 static f32 CounterToSeconds(u64 counter, u64 frequency)
 {
-    return (CAST(f32, counter) / CAST(f32, frequency));
+    return (NK_CAST(f32, counter) / NK_CAST(f32, frequency));
 }
 
 static void CacheWindowBounds()
@@ -444,7 +444,7 @@ static std::vector<u8> ReadBinaryFile(std::string fileName)
     std::ifstream file(fileName, std::ios::binary);
     if(!file.is_open()) return data;
     data.resize(GetSizeOfFile(fileName));
-    file.read(CAST(char*, &data[0]), data.size()*sizeof(u8));
+    file.read(NK_CAST(char*, &data[0]), data.size()*sizeof(u8));
     return data;
 }
 
@@ -452,7 +452,7 @@ static void WriteBinaryFile(std::string fileName, void* data, size_t size)
 {
     std::ofstream file(fileName, std::ios::binary);
     if(!file.is_open()) return;
-    file.write(CAST(const char*, data), size);
+    file.write(NK_CAST(const char*, data), size);
 }
 
 static void ListPathFiles(std::string pathName, std::vector<std::string>& files, bool recursive)

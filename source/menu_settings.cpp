@@ -46,7 +46,7 @@ static void UpdateSettingsMenu(f32 dt)
     s_settingsMenuOptions[SettingsMenuOption_Sound].slider = GetSoundVolume();
     s_settingsMenuOptions[SettingsMenuOption_Music].slider = GetMusicVolume();
     s_settingsMenuOptions[SettingsMenuOption_Fullscreen].toggle = IsFullscreen();
-    s_settingsMenuOptions[SettingsMenuOption_ResetSave].clip.y = 504+(CAST(f32,s_resetSaveCounter)*24.0f);
+    s_settingsMenuOptions[SettingsMenuOption_ResetSave].clip.y = 504+(NK_CAST(f32,s_resetSaveCounter)*24.0f);
     UpdateMenuOptions(s_settingsMenuOptions, SettingsMenuOption_TOTAL, dt);
     #ifndef __EMSCRIPTEN__
     if(IsKeyPressed(KeyCode_Escape))

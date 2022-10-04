@@ -86,8 +86,8 @@ static void RenderGameOverMenu(f32 dt)
             f32 halfW = GetScreenWidth() * 0.5f;
             f32 halfH = GetScreenHeight() * 0.5f;
 
-            f32 costumeOffset = 64 * CAST(f32, costume);
-            f32 nameOffset = 24 * CAST(f32, costume);
+            f32 costumeOffset = 64 * NK_CAST(f32, costume);
+            f32 nameOffset = 24 * NK_CAST(f32, costume);
 
             Rect costumeClip = { 64+costumeOffset,0,64,64 };
             Rect nameClip = { 0,624+nameOffset,256,24 };

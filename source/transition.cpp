@@ -43,7 +43,7 @@ static void RenderTransition(f32 dt)
                 // Pick a random costume.
                 Costume costume = Costume_Random;
                 while((!s_rocket.unlocks[costume]) || (costume == Costume_Random) || (costume == s_rocket.costume))
-                    costume = CAST(Costume, RandomS32(Costume_Red,Costume_Glitch));
+                    costume = NK_CAST(Costume, RandomS32(Costume_Red,Costume_Glitch));
                 s_rocket.costume = costume;
             }
             if(s_gameState == GameState_Game)

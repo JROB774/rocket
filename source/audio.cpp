@@ -38,14 +38,14 @@ static void QuitAudio()
 static void SetSoundVolume(f32 volume)
 {
     s_audioContext.soundVolume = nk::clamp(volume, 0.0f, 1.0f);
-    s32 iVolume = CAST(s32, CAST(f32, MIX_MAX_VOLUME) * s_audioContext.soundVolume);
+    s32 iVolume = NK_CAST(s32, NK_CAST(f32, MIX_MAX_VOLUME) * s_audioContext.soundVolume);
     Mix_Volume(-1, iVolume);
 }
 
 static void SetMusicVolume(f32 volume)
 {
     s_audioContext.musicVolume = nk::clamp(volume, 0.0f, 1.0f);
-    s32 iVolume = CAST(int, CAST(f32, MIX_MAX_VOLUME) * s_audioContext.musicVolume);
+    s32 iVolume = NK_CAST(int, NK_CAST(f32, MIX_MAX_VOLUME) * s_audioContext.musicVolume);
     Mix_VolumeMusic(iVolume);
 }
 
@@ -111,7 +111,7 @@ static SoundRef PlaySound(Sound sound, s32 loops)
         printf("Failed to play sound effect! (%s)\n", Mix_GetError());
         return k_invalidSoundRef;
     }
-    return CAST(SoundRef,channel);
+    return NK_CAST(SoundRef,channel);
 }
 
 static void StopSound(SoundRef soundRef)

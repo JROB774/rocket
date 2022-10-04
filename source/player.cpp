@@ -44,8 +44,8 @@ static void CreateRocket()
 
 static s32 ScoreCompare(const void* a, const void* b)
 {
-    u32* aa = CAST(u32*,a);
-    u32* bb = CAST(u32*,b);
+    u32* aa = NK_CAST(u32*,a);
+    u32* bb = NK_CAST(u32*,b);
     if(*aa > *bb) return -1;
     if(*aa < *bb) return  1;
     return 0;
@@ -186,7 +186,7 @@ static void UpdateRocket(f32 dt)
             s32 smokeCount = 1;
             if(s_rocket.costume == Costume_Meat) smokeCount = 2;
             if(s_rocket.costume == Costume_Rainbow) smokeCount = 2;
-            SpawnSmoke(smokeType, s_rocket.pos.x+RandomF32(-3.0f,3.0f), s_rocket.pos.y+20.0f, CAST(s32,smokeCount));
+            SpawnSmoke(smokeType, s_rocket.pos.x+RandomF32(-3.0f,3.0f), s_rocket.pos.y+20.0f, NK_CAST(s32,smokeCount));
             s_rocket.timer -= 0.05f;
         }
 
@@ -227,7 +227,7 @@ static void RenderRocket(f32 dt)
             if(frame < 13)
             {
                 imm::BeginTextureBatch("explosion");
-                Rect clip = { 96*frame, 96*CAST(f32, s_rocket.costume), 96, 96 };
+                Rect clip = { 96*frame, 96*NK_CAST(f32, s_rocket.costume), 96, 96 };
                 imm::DrawBatchedTexture(s_rocket.pos.x, s_rocket.pos.y, &clip);
                 if(s_rocket.costume != Costume_Doodle)
                 {
@@ -240,7 +240,7 @@ static void RenderRocket(f32 dt)
         else
         {
             // Draw the rocket.
-            Rect clip = { 48*CAST(f32,s_rocket.frame), 96*CAST(f32,s_rocket.costume), 48, 96 };
+            Rect clip = { 48*NK_CAST(f32,s_rocket.frame), 96*NK_CAST(f32,s_rocket.costume), 48, 96 };
             f32 angle = nk::torad(s_rocket.angle + s_rocket.shake);
             imm::DrawTexture("rocket", s_rocket.pos.x, s_rocket.pos.y, 1.0f, 1.0f, angle, imm::Flip_None, NULL, &clip);
 

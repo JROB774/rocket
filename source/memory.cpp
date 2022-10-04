@@ -36,13 +36,13 @@ template<typename T>
 static T* Allocate(const MemoryTag& tag)
 {
     T* data = new T; // Need to use new because some of our stuff uses STL and needs constructors...
-    TrackMemory(tag, typeid(T).name(), sizeof(T), 1, CAST(void*, data));
+    TrackMemory(tag, typeid(T).name(), sizeof(T), 1, NK_CAST(void*, data));
     return data;
 }
 
 template<typename T>
 static void Deallocate(T* data)
 {
-    UntrackMemory(CAST(void*, data));
+    UntrackMemory(NK_CAST(void*, data));
     delete data;
 }

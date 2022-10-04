@@ -180,12 +180,12 @@ int main(int argc, char** argv)
         elapsedCounter = endCounter - lastCounter;
         lastCounter = SDL_GetPerformanceCounter();
 
-        f32 elapsedTime = CAST(f32,elapsedCounter) / CAST(f32,perfFrequency);
+        f32 elapsedTime = NK_CAST(f32,elapsedCounter) / NK_CAST(f32,perfFrequency);
 
         updateTimer += elapsedTime;
 
         #ifdef BUILD_DEBUG
-        f32 currentFPS = CAST(f32,perfFrequency) / CAST(f32,elapsedCounter);
+        f32 currentFPS = NK_CAST(f32,perfFrequency) / NK_CAST(f32,elapsedCounter);
         std::string title = s_appConfig.title + " (FPS: " + std::to_string(currentFPS) + ")";
         SDL_SetWindowTitle(s_context.window, title.c_str());
         #endif // BUILD_DEBUG

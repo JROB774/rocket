@@ -3,7 +3,7 @@ static std::mt19937       s_randomGenerator(s_randomDevice());
 
 static void RandomSeed(s32 seed)
 {
-    if(seed < 0) seed = CAST(s32, time(NULL));
+    if(seed < 0) seed = NK_CAST(s32, time(NULL));
     s_randomGenerator.seed(seed);
 }
 
@@ -20,7 +20,7 @@ static s32 RandomS32(s32 min, s32 max)
 
 static f32 RandomF32()
 {
-    return RandomF32(0, CAST(f32, RAND_MAX));
+    return RandomF32(0, NK_CAST(f32, RAND_MAX));
 }
 
 static f32 RandomF32(f32 min, f32 max)

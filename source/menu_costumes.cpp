@@ -1,18 +1,18 @@
 static void CostumesMenuActionLeft(MenuOption& option)
 {
-    s32 costume = CAST(s32, s_rocket.costume);
+    s32 costume = NK_CAST(s32, s_rocket.costume);
     if(costume > 0) costume--;
     else costume = Costume_TOTAL-1;
-    s_rocket.costume = CAST(Costume, costume);
+    s_rocket.costume = NK_CAST(Costume, costume);
     s_costumeScale = 1.5f;
 }
 
 static void CostumesMenuActionRight(MenuOption& option)
 {
-    s32 costume = CAST(s32, s_rocket.costume);
+    s32 costume = NK_CAST(s32, s_rocket.costume);
     if(costume < Costume_TOTAL-1) costume++;
     else costume = 0;
-    s_rocket.costume = CAST(Costume, costume);
+    s_rocket.costume = NK_CAST(Costume, costume);
     s_costumeScale = 1.5f;
 }
 
@@ -59,8 +59,8 @@ static void RenderCostumesMenu(f32 dt)
     imm::DrawTexture("menu", halfW,24.0f, &titleClip);
 
     // Draw the costume.
-    f32 costumeOffset = 64 * CAST(f32, s_rocket.costume);
-    f32 nameOffset = 24 * CAST(f32, s_rocket.costume);
+    f32 costumeOffset = 64 * NK_CAST(f32, s_rocket.costume);
+    f32 nameOffset = 24 * NK_CAST(f32, s_rocket.costume);
 
     Rect costumeClip = { 64+costumeOffset,0,64,64 };
     Rect nameClip = { 0,624+nameOffset,256,24 };
