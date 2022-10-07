@@ -70,12 +70,12 @@ static void RenderMainMenu(f32 dt)
     f32 halfH   = screenH * 0.5f;
 
     s_timer += dt;
-    s_angle = nk::sin_range(-10.0f, 10.0f, s_timer*2.5f);
+    s_angle = nk_sin_range(-10.0f, 10.0f, s_timer*2.5f);
 
-    s_scaleX = nk::sin_range(0.8f, 1.0f, s_timer*1.5f);
-    s_scaleY = nk::sin_range(0.8f, 1.0f, s_timer*2.0f);
+    s_scaleX = nk_sin_range(0.8f, 1.0f, s_timer*1.5f);
+    s_scaleY = nk_sin_range(0.8f, 1.0f, s_timer*2.0f);
 
-    imm::DrawTexture("menu", halfW,48.0f, s_scaleX,s_scaleY, nk::torad(s_angle), imm::Flip_None, NULL, &titleClip);
+    imm::DrawTexture("menu", halfW,48.0f, s_scaleX,s_scaleY, nk_torad(s_angle), imm::Flip_None, NULL, &titleClip);
     imm::DrawTexture("menu", halfW,screenH-12.0f, &authorClip);
 }
 

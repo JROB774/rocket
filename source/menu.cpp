@@ -13,7 +13,7 @@ static void UpdateMenuOptions(MenuOption* options, size_t count, f32 dt)
         bool oldSelected = option.selected;
         option.selected = PointInRect(mouse, option.bounds);
         option.targetScale = (option.selected) ? 1.33f : 1.0f;
-        option.scale = nk::lerp(option.scale, option.targetScale, 0.5f);
+        option.scale = nk_lerp(option.scale, option.targetScale, 0.5f);
 
         // If the option went from non-selected to selected then play a sound.
         if(option.selected && (oldSelected != option.selected))
@@ -57,7 +57,7 @@ static void UpdateMenuOptions(MenuOption* options, size_t count, f32 dt)
                         if(option.slider <= -0.1f)
                             option.slider = 1.0f;
                     }
-                    option.slider = nk::clamp(option.slider, 0.0f, 1.0f);
+                    option.slider = nk_clamp(option.slider, 0.0f, 1.0f);
                     if(option.action)
                         option.action(option);
                 }
@@ -87,7 +87,7 @@ static void RenderMenuOption(MenuOption& option, f32 currAngle)
     {
         clip.y += (clip.h * roundf((option.slider*100.0f)/10.0f));
     }
-    imm::DrawBatchedTexture(xPos,yPos, scale,scale, nk::torad(angle), imm::Flip_None, NULL, &clip);
+    imm::DrawBatchedTexture(xPos,yPos, scale,scale, nk_torad(angle), imm::Flip_None, NULL, &clip);
 }
 
 static void RenderMenuOptions(MenuOption* options, size_t count, f32 dt)
@@ -98,7 +98,7 @@ static void RenderMenuOptions(MenuOption* options, size_t count, f32 dt)
     f32 halfW = GetScreenWidth() * 0.5f;
 
     s_timer += dt;
-    s_angle = nk::sin_range(-10.0f, 10.0f, s_timer*2.5f);
+    s_angle = nk_sin_range(-10.0f, 10.0f, s_timer*2.5f);
 
     imm::BeginTextureBatch("menu");
     for(size_t i=0; i<count; ++i)

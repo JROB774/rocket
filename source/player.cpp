@@ -168,17 +168,19 @@ static void UpdateRocket(f32 dt)
             }
         }
 
-        s_rocket.angle = nk::clamp(s_rocket.vel.x, -k_rocketMaxAngle, k_rocketMaxAngle);
+        s_rocket.angle = nk_clamp(s_rocket.vel.x, -k_rocketMaxAngle, k_rocketMaxAngle);
         s_rocket.shake = RandomF32(-k_rocketMaxShake, k_rocketMaxShake);
 
-        s_rocket.vel.x = nk::clamp(s_rocket.vel.x, -(k_rocketTerminalVelocity*1.5f), (k_rocketTerminalVelocity*1.5f));
-        s_rocket.vel.y = nk::clamp(s_rocket.vel.y, -k_rocketTerminalVelocity, k_rocketTerminalVelocity);
+        s_rocket.vel.x = nk_clamp(s_rocket.vel.x, -(k_rocketTerminalVelocity*1.5f), (k_rocketTerminalVelocity*1.5f));
+        s_rocket.vel.y = nk_clamp(s_rocket.vel.y, -k_rocketTerminalVelocity, k_rocketTerminalVelocity);
 
-        s_rocket.pos += (s_rocket.vel * k_rocketVelocityMultiplier) * dt;
-        s_rocket.pos.x = nk::clamp(s_rocket.pos.x, 0.0f, GetScreenWidth());
-        s_rocket.pos.y = nk::clamp(s_rocket.pos.y, 0.0f, GetScreenHeight());
+        s_rocket.pos = nk_v2addv(s_rocket.pos, nk_v2mulf(nk_v2mulf(s_rocket.vel, k_rocketVelocityMultiplier), dt)); // @Incomplete: Math operators!
+        s_rocket.pos.x = nk_clamp(s_rocket.pos.x, 0.0f, GetScreenWidth());
+        s_rocket.pos.y = nk_clamp(s_rocket.pos.y, 0.0f, GetScreenHeight());
 
-        s_rocket.vel = nk::lerp(s_rocket.vel, { 0,0 }, nkVec2 { 0.1f,0.1f });
+        // @Incomplete: Lerp for vectors!
+        s_rocket.vel.x = nk_lerp(s_rocket.vel.x, 0.0f, 0.1f);
+        s_rocket.vel.y = nk_lerp(s_rocket.vel.y, 0.0f, 0.1f);
 
         if(s_rocket.timer >= 0.05f)
         {
@@ -241,7 +243,7 @@ static void RenderRocket(f32 dt)
         {
             // Draw the rocket.
             Rect clip = { 48*NK_CAST(f32,s_rocket.frame), 96*NK_CAST(f32,s_rocket.costume), 48, 96 };
-            f32 angle = nk::torad(s_rocket.angle + s_rocket.shake);
+            f32 angle = nk_torad(s_rocket.angle + s_rocket.shake);
             imm::DrawTexture("rocket", s_rocket.pos.x, s_rocket.pos.y, 1.0f, 1.0f, angle, imm::Flip_None, NULL, &clip);
 
             // Draw the score.

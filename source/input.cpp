@@ -102,14 +102,14 @@ static nkVec2 GetScreenMousePos()
         } break;
         case(ScaleMode_Stretch):
         {
-            screenMouse.x = nk::map_range(screenMouse.x, 0.0f,windowWidth, 0.0f,screenWidth);
-            screenMouse.y = nk::map_range(screenMouse.y, 0.0f,windowHeight, 0.0f,screenHeight);
+            screenMouse.x = nk_map_range(screenMouse.x, 0.0f,windowWidth, 0.0f,screenWidth);
+            screenMouse.y = nk_map_range(screenMouse.y, 0.0f,windowHeight, 0.0f,screenHeight);
         } break;
         case(ScaleMode_Letterbox):
         {
             f32 sx = windowWidth / screenWidth;
             f32 sy = windowHeight / screenHeight;
-            f32 s = nk::min(sx,sy);
+            f32 s = nk_min(sx,sy);
             screenMouse.x = (screenMouse.x - screenBounds.x) / s;
             screenMouse.y = (screenMouse.y - screenBounds.y) / s;
         } break;
@@ -117,7 +117,7 @@ static nkVec2 GetScreenMousePos()
         {
             f32 sx = windowWidth / screenWidth;
             f32 sy = windowHeight / screenHeight;
-            f32 s = nk::min(sx,sy);
+            f32 s = nk_min(sx,sy);
             if(s < 1.0f) s = 1.0f; // Avoid scale of zero.
             screenMouse.x = (screenMouse.x - screenBounds.x) / floorf(s);
             screenMouse.y = (screenMouse.y - screenBounds.y) / floorf(s);

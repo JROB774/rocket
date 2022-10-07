@@ -37,14 +37,14 @@ static void QuitAudio()
 
 static void SetSoundVolume(f32 volume)
 {
-    s_audioContext.soundVolume = nk::clamp(volume, 0.0f, 1.0f);
+    s_audioContext.soundVolume = nk_clamp(volume, 0.0f, 1.0f);
     s32 iVolume = NK_CAST(s32, NK_CAST(f32, MIX_MAX_VOLUME) * s_audioContext.soundVolume);
     Mix_Volume(-1, iVolume);
 }
 
 static void SetMusicVolume(f32 volume)
 {
-    s_audioContext.musicVolume = nk::clamp(volume, 0.0f, 1.0f);
+    s_audioContext.musicVolume = nk_clamp(volume, 0.0f, 1.0f);
     s32 iVolume = NK_CAST(int, NK_CAST(f32, MIX_MAX_VOLUME) * s_audioContext.musicVolume);
     Mix_VolumeMusic(iVolume);
 }

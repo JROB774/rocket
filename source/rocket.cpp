@@ -3,6 +3,9 @@
 #define STB_IMAGE_STATIC
 #define STB_IMAGE_IMPLEMENTATION
 
+#define NK_STATIC
+#define NK_MATH_IMPLEMENTATION
+
 #define NOMINMAX
 
 #include <fstream>
@@ -19,9 +22,9 @@
 
 #include <stb_image.h>
 
-#include <nk_define.hpp>
-#include <nk_defer.hpp>
-#include <nk_math.hpp>
+#include <nk_define.h>
+#include <nk_defer.h>
+#include <nk_math.h>
 
 #ifndef __EMSCRIPTEN__
 #include <glew.c>

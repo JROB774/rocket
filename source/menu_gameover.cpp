@@ -69,7 +69,7 @@ static void RenderGameOverMenu(f32 dt)
 
     s_timer += dt;
 
-    s_unlockCostumeAngle = nk::sin_range(-10.0f, 10.0f, s_timer*2.5f);
+    s_unlockCostumeAngle = nk_sin_range(-10.0f, 10.0f, s_timer*2.5f);
     s_unlockRadialAngle += (dt * 2.0f);
 
     // If we have unlocked stuff display that first before the actual game over menu.
@@ -77,9 +77,9 @@ static void RenderGameOverMenu(f32 dt)
     {
         if(s_hasDoneInitialGameOverUnlockClick)
         {
-            s_unlockCostumeScale = nk::lerp(s_unlockCostumeScale, 2.0f, dt * 12.0f);
-            s_unlockRadialScale  = nk::lerp(s_unlockRadialAlpha,  1.0f, dt *  9.0f);
-            s_unlockRadialAlpha  = nk::lerp(s_unlockRadialAlpha,  1.0f, dt *  5.0f);
+            s_unlockCostumeScale = nk_lerp(s_unlockCostumeScale, 2.0f, dt * 12.0f);
+            s_unlockRadialScale  = nk_lerp(s_unlockRadialAlpha,  1.0f, dt *  9.0f);
+            s_unlockRadialAlpha  = nk_lerp(s_unlockRadialAlpha,  1.0f, dt *  5.0f);
 
             Costume costume = s_gameOverUnlocks[0];
 
@@ -96,7 +96,7 @@ static void RenderGameOverMenu(f32 dt)
             nkVec4 color = { 1,1,1,s_unlockRadialAlpha };
 
             imm::DrawTexture("radial", halfW,halfH, s_unlockRadialScale,s_unlockRadialScale, s_unlockRadialAngle, imm::Flip_None, NULL, NULL, color);
-            imm::DrawTexture("costume", halfW,halfH, s_unlockCostumeScale,s_unlockCostumeScale, nk::torad(s_unlockCostumeAngle), imm::Flip_None, NULL, &costumeClip);
+            imm::DrawTexture("costume", halfW,halfH, s_unlockCostumeScale,s_unlockCostumeScale, nk_torad(s_unlockCostumeAngle), imm::Flip_None, NULL, &costumeClip);
             imm::DrawTexture("menu", halfW,halfH + 80.0f, &nameClip);
             imm::DrawTexture("menu", halfW,halfH + 96.0f, &unlockClip);
         }

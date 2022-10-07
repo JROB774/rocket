@@ -12,8 +12,8 @@ static void SpawnSmoke(SmokeType type, f32 x, f32 y, s32 count)
         s.pos = { x,y };
         s.frame = 0;
         s.angle = RandomF32(0,360.0f);
-        s.vel = nk::rotate({ RandomF32(80,140),0 }, nk::torad(s.angle));
-        if(type == SmokeType_Blood) s.vel = nk::rotate({ 180.0f,0 }, nk::torad(RandomF32(45.0f,135.0f)));
+        s.vel = nk_v2_rotate({ RandomF32(80,140),0 }, nk_torad(s.angle));
+        if(type == SmokeType_Blood) s.vel = nk_v2_rotate({ 180.0f,0 }, nk_torad(RandomF32(45.0f,135.0f)));
         s.spin = RandomF32(400,600);
         s.scale = (s.type == SmokeType_Small || s.type == SmokeType_SmallStationary) ? 0.5f : 1.0f;
         if(s.type == SmokeType_Thruster || s.type == SmokeType_Blood) s.scale *= 1.0f;
@@ -22,7 +22,7 @@ static void SpawnSmoke(SmokeType type, f32 x, f32 y, s32 count)
         if(type == SmokeType_Explosion) s.spawner = RandomS32(1,100) <= 10;
         else s.spawner = false;
         s.dead = false;
-        if(s.spawner) s.vel = (s.vel * 3.0f) + RandomF32(0,40);
+        if(s.spawner) s.vel = nk_v2addf((nk_v2mulf(s.vel, 3.0f)), RandomF32(0,40)); // @Incomplete: Math operators!
         s_smoke.push_back(s);
     }
 }
@@ -56,12 +56,12 @@ static void UpdateSmoke(f32 dt)
             } break;
             case(SmokeType_Blood):
             {
-                s.pos += s.vel * dt;
+                s.pos = nk_v2addv(s.pos, nk_v2mulf(s.vel, dt)); // @Incomplete: Math operators!
             } break;
             case(SmokeType_Small):
             case(SmokeType_Explosion):
             {
-                s.pos += s.vel * dt;
+                s.pos = nk_v2addv(s.pos, nk_v2mulf(s.vel, dt)); // @Incomplete: Math operators!
                 s.angle += s.spin * dt;
                 if(s.type != SmokeType_Small)
                 {
@@ -102,7 +102,7 @@ static void RenderSmoke(f32 dt)
     for(auto& s: s_smoke)
     {
         Rect clip = { NK_CAST(f32, 16*s.frame), 16*NK_CAST(f32, s_rocket.costume), 16, 16 };
-        imm::DrawBatchedTexture(s.pos.x, s.pos.y, s.scale,s.scale, nk::torad(s.angle), imm::Flip_None, NULL, &clip);
+        imm::DrawBatchedTexture(s.pos.x, s.pos.y, s.scale,s.scale, nk_torad(s.angle), imm::Flip_None, NULL, &clip);
     }
     imm::EndTextureBatch();
 }
