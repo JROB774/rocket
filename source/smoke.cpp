@@ -12,8 +12,8 @@ static void SpawnSmoke(SmokeType type, f32 x, f32 y, s32 count)
         s.pos = { x,y };
         s.frame = 0;
         s.angle = RandomF32(0,360.0f);
-        s.vel = nk_v2_rotate({ RandomF32(80,140),0 }, nk_torad(s.angle));
-        if(type == SmokeType_Blood) s.vel = nk_v2_rotate({ 180.0f,0 }, nk_torad(RandomF32(45.0f,135.0f)));
+        s.vel = nk_rotatev2({ RandomF32(80,140),0 }, nk_torad(s.angle));
+        if(type == SmokeType_Blood) s.vel = nk_rotatev2({ 180.0f,0 }, nk_torad(RandomF32(45.0f,135.0f)));
         s.spin = RandomF32(400,600);
         s.scale = (s.type == SmokeType_Small || s.type == SmokeType_SmallStationary) ? 0.5f : 1.0f;
         if(s.type == SmokeType_Thruster || s.type == SmokeType_Blood) s.scale *= 1.0f;
@@ -22,7 +22,7 @@ static void SpawnSmoke(SmokeType type, f32 x, f32 y, s32 count)
         if(type == SmokeType_Explosion) s.spawner = RandomS32(1,100) <= 10;
         else s.spawner = false;
         s.dead = false;
-        if(s.spawner) s.vel = nk_v2addf((nk_v2mulf(s.vel, 3.0f)), RandomF32(0,40)); // @Incomplete: Math operators!
+        if(s.spawner) s.vel += (s.vel * 3.0f) + RandomF32(0,40);
         s_smoke.push_back(s);
     }
 }
@@ -56,12 +56,12 @@ static void UpdateSmoke(f32 dt)
             } break;
             case(SmokeType_Blood):
             {
-                s.pos = nk_v2addv(s.pos, nk_v2mulf(s.vel, dt)); // @Incomplete: Math operators!
+                s.pos += s.vel * dt;
             } break;
             case(SmokeType_Small):
             case(SmokeType_Explosion):
             {
-                s.pos = nk_v2addv(s.pos, nk_v2mulf(s.vel, dt)); // @Incomplete: Math operators!
+                s.pos += s.vel * dt;
                 s.angle += s.spin * dt;
                 if(s.type != SmokeType_Small)
                 {

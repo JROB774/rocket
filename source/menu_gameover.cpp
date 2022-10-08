@@ -77,9 +77,9 @@ static void RenderGameOverMenu(f32 dt)
     {
         if(s_hasDoneInitialGameOverUnlockClick)
         {
-            s_unlockCostumeScale = nk_lerp(s_unlockCostumeScale, 2.0f, dt * 12.0f);
-            s_unlockRadialScale  = nk_lerp(s_unlockRadialAlpha,  1.0f, dt *  9.0f);
-            s_unlockRadialAlpha  = nk_lerp(s_unlockRadialAlpha,  1.0f, dt *  5.0f);
+            s_unlockCostumeScale = nk_lerpf(s_unlockCostumeScale, 2.0f, dt * 12.0f);
+            s_unlockRadialScale  = nk_lerpf(s_unlockRadialAlpha,  1.0f, dt *  9.0f);
+            s_unlockRadialAlpha  = nk_lerpf(s_unlockRadialAlpha,  1.0f, dt *  5.0f);
 
             Costume costume = s_gameOverUnlocks[0];
 

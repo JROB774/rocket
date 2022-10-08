@@ -174,13 +174,11 @@ static void UpdateRocket(f32 dt)
         s_rocket.vel.x = nk_clamp(s_rocket.vel.x, -(k_rocketTerminalVelocity*1.5f), (k_rocketTerminalVelocity*1.5f));
         s_rocket.vel.y = nk_clamp(s_rocket.vel.y, -k_rocketTerminalVelocity, k_rocketTerminalVelocity);
 
-        s_rocket.pos = nk_v2addv(s_rocket.pos, nk_v2mulf(nk_v2mulf(s_rocket.vel, k_rocketVelocityMultiplier), dt)); // @Incomplete: Math operators!
+        s_rocket.pos += (s_rocket.vel * k_rocketVelocityMultiplier) * dt;
         s_rocket.pos.x = nk_clamp(s_rocket.pos.x, 0.0f, GetScreenWidth());
         s_rocket.pos.y = nk_clamp(s_rocket.pos.y, 0.0f, GetScreenHeight());
 
-        // @Incomplete: Lerp for vectors!
-        s_rocket.vel.x = nk_lerp(s_rocket.vel.x, 0.0f, 0.1f);
-        s_rocket.vel.y = nk_lerp(s_rocket.vel.y, 0.0f, 0.1f);
+        s_rocket.vel = nk_lerpv2(s_rocket.vel, { 0.0f,0.0f }, 0.1f);
 
         if(s_rocket.timer >= 0.05f)
         {

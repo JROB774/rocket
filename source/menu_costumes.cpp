@@ -71,7 +71,7 @@ static void RenderCostumesMenu(f32 dt)
         nameClip.y += k_costumeLockedTextOffset;
     }
 
-    s_costumeScale = nk_lerp(s_costumeScale, 1.0f, 0.5f);
+    s_costumeScale = nk_lerpf(s_costumeScale, 1.0f, 0.5f);
 
     imm::DrawTexture("costume", halfW,halfH, s_costumeScale,s_costumeScale, 0.0f, imm::Flip_None, NULL, &costumeClip);
     imm::DrawTexture("menu", halfW,halfH+48, &nameClip);
