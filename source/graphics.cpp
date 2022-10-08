@@ -67,9 +67,6 @@ struct ImmContext
     bool textureMapping;
 };
 
-static constexpr f32 k_pi32 = 3.141592653590f;
-static constexpr f32 k_tau32 = 6.283185307180f;
-
 static Renderer s_renderer;
 static ImmContext s_immContext;
 
@@ -911,7 +908,7 @@ namespace imm
         BeginDraw(DrawMode_LineLoop);
         for(s32 i=0; i<segments; ++i)
         {
-            f32 theta = 2 * k_tau32 * NK_CAST(f32,i) / NK_CAST(f32,segments);
+            f32 theta = 2 * NK_TAU * NK_CAST(f32,i) / NK_CAST(f32,segments);
             f32 xx = r * cosf(theta);
             f32 yy = r * sinf(theta);
             PutVertex({ {xx+x,yy+y,0,1}, color, {0,0} });
@@ -925,7 +922,7 @@ namespace imm
         PutVertex({ {x,y,0,1}, color, {0,0} });
         for(s32 i=0; i<=segments; ++i)
         {
-            f32 theta = 2 * k_tau32 * NK_CAST(f32,i) / NK_CAST(f32,segments);
+            f32 theta = 2 * NK_TAU * NK_CAST(f32,i) / NK_CAST(f32,segments);
             f32 xx = r * cosf(theta);
             f32 yy = r * sinf(theta);
             PutVertex({ {xx+x,yy+y,0,1}, color, {0,0} });
