@@ -178,7 +178,7 @@ static void UpdateRocket(f32 dt)
         s_rocket.pos.x = nk_clamp(s_rocket.pos.x, 0.0f, GetScreenWidth());
         s_rocket.pos.y = nk_clamp(s_rocket.pos.y, 0.0f, GetScreenHeight());
 
-        s_rocket.vel = nk_lerpv2(s_rocket.vel, { 0.0f,0.0f }, 0.1f);
+        s_rocket.vel = nk_v2_lerp(s_rocket.vel, { 0.0f,0.0f }, 0.1f);
 
         if(s_rocket.timer >= 0.05f)
         {

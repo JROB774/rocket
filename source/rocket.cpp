@@ -25,6 +25,7 @@
 #include <nk_define.h>
 #include <nk_defer.h>
 #include <nk_math.h>
+#include <nk_mathx.h>
 
 #ifndef __EMSCRIPTEN__
 #include <glew.c>

@@ -12,8 +12,8 @@ static void SpawnSmoke(SmokeType type, f32 x, f32 y, s32 count)
         s.pos = { x,y };
         s.frame = 0;
         s.angle = RandomF32(0,360.0f);
-        s.vel = nk_rotatev2({ RandomF32(80,140),0 }, nk_torad(s.angle));
-        if(type == SmokeType_Blood) s.vel = nk_rotatev2({ 180.0f,0 }, nk_torad(RandomF32(45.0f,135.0f)));
+        s.vel = nk_v2_rotate({ RandomF32(80,140),0 }, nk_torad(s.angle));
+        if(type == SmokeType_Blood) s.vel = nk_v2_rotate({ 180.0f,0 }, nk_torad(RandomF32(45.0f,135.0f)));
         s.spin = RandomF32(400,600);
         s.scale = (s.type == SmokeType_Small || s.type == SmokeType_SmallStationary) ? 0.5f : 1.0f;
         if(s.type == SmokeType_Thruster || s.type == SmokeType_Blood) s.scale *= 1.0f;

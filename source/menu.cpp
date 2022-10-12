@@ -13,7 +13,7 @@ static void UpdateMenuOptions(MenuOption* options, size_t count, f32 dt)
         bool oldSelected = option.selected;
         option.selected = PointInRect(mouse, option.bounds);
         option.targetScale = (option.selected) ? 1.33f : 1.0f;
-        option.scale = nk_lerpf(option.scale, option.targetScale, 0.5f);
+        option.scale = nk_lerp(option.scale, option.targetScale, 0.5f);
 
         // If the option went from non-selected to selected then play a sound.
         if(option.selected && (oldSelected != option.selected))
