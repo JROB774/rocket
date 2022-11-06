@@ -96,9 +96,7 @@ static bool CreateShader(Shader& shader, std::stringstream& stream)
 {
     shader = Allocate<GET_PTR_TYPE(shader)>(MEM_SYSTEM);
     if(!shader)
-    {
         FatalError("Failed to allocate shader!\n");
-    }
 
     shader->source = stream.str();
 
@@ -246,9 +244,7 @@ static bool CreateTexture(Texture& texture, s32 w, s32 h, s32 bpp, void* data, F
 {
     texture = Allocate<GET_PTR_TYPE(texture)>(MEM_SYSTEM);
     if(!texture)
-    {
         FatalError("Failed to allocate texture!\n");
-    }
 
     glActiveTexture(GL_TEXTURE0);
 
@@ -420,6 +416,8 @@ static void DrawVertexBuffer(VertexBuffer& buffer, DrawMode drawMode, size_t ver
 static void CreateFramebuffer(Framebuffer& framebuffer, s32 w, s32 h, Filter filter, Wrap wrap, nkVec4 clear)
 {
     framebuffer = Allocate<GET_PTR_TYPE(framebuffer)>(MEM_SYSTEM);
+    if(!framebuffer)
+        FatalError("Failed to allocate framebuffer!\n");
     ResizeFramebuffer(framebuffer, w, h, filter, wrap);
     // Clear the render target to the desired color.
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer->handle);
@@ -451,7 +449,7 @@ static void ResizeFramebuffer(Framebuffer& framebuffer, s32 w, s32 h, Filter fil
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, framebuffer->texture->handle, 0);
 
     if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-        printf("Failed to complete framebuffer resize!\n");
+        FatalError("Failed to complete framebuffer resize!\n");
 
     glBindFramebuffer(GL_FRAMEBUFFER, GL_NONE);
 }
