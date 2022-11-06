@@ -50,16 +50,16 @@ static void UpdateSmoke(f32 dt)
         // Different smoke types move differently.
         switch(s.type)
         {
-            case(SmokeType_Thruster):
+            case SmokeType_Thruster:
             {
                 s.pos.y += 180.0f * dt;
             } break;
-            case(SmokeType_Blood):
+            case SmokeType_Blood:
             {
                 s.pos += s.vel * dt;
             } break;
-            case(SmokeType_Small):
-            case(SmokeType_Explosion):
+            case SmokeType_Small:
+            case SmokeType_Explosion:
             {
                 s.pos += s.vel * dt;
                 s.angle += s.spin * dt;

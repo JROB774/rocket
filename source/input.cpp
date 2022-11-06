@@ -95,17 +95,17 @@ static nkVec2 GetScreenMousePos()
     // How we calculate the screen mouse depends on the scale mode in-use.
     switch(GetScreenScaleMode())
     {
-        case(ScaleMode_None):
+        case ScaleMode_None:
         {
             screenMouse.x -= screenBounds.x;
             screenMouse.y -= screenBounds.y;
         } break;
-        case(ScaleMode_Stretch):
+        case ScaleMode_Stretch:
         {
             screenMouse.x = nk_map_range(screenMouse.x, 0.0f,windowWidth, 0.0f,screenWidth);
             screenMouse.y = nk_map_range(screenMouse.y, 0.0f,windowHeight, 0.0f,screenHeight);
         } break;
-        case(ScaleMode_Letterbox):
+        case ScaleMode_Letterbox:
         {
             f32 sx = windowWidth / screenWidth;
             f32 sy = windowHeight / screenHeight;
@@ -113,7 +113,7 @@ static nkVec2 GetScreenMousePos()
             screenMouse.x = (screenMouse.x - screenBounds.x) / s;
             screenMouse.y = (screenMouse.y - screenBounds.y) / s;
         } break;
-        case(ScaleMode_Pixel):
+        case ScaleMode_Pixel:
         {
             f32 sx = windowWidth / screenWidth;
             f32 sy = windowHeight / screenHeight;

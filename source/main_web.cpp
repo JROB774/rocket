@@ -14,9 +14,9 @@ void main_loop()
         switch(event.type)
         {
             // Input events.
-            case(SDL_CONTROLLERDEVICEADDED): AddGamepad(); break;
-            case(SDL_CONTROLLERDEVICEREMOVED): RemoveGamepad(); break;
-            case(SDL_MOUSEWHEEL):
+            case SDL_CONTROLLERDEVICEADDED: AddGamepad(); break;
+            case SDL_CONTROLLERDEVICEREMOVED: RemoveGamepad(); break;
+            case SDL_MOUSEWHEEL:
             {
                 s_context.input.mouseWheel.x = event.wheel.x;
                 s_context.input.mouseWheel.y = event.wheel.y;

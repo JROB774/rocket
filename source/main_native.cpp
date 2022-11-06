@@ -119,23 +119,23 @@ int main(int argc, char** argv)
         {
             switch(event.type)
             {
-                case(SDL_KEYDOWN):
+                case SDL_KEYDOWN:
                 {
                     switch(event.key.keysym.sym)
                     {
-                        case(SDLK_RETURN): if(!(SDL_GetModState()&KMOD_ALT)) break;
-                        case(SDLK_F11):
+                        case SDLK_RETURN: if(!(SDL_GetModState()&KMOD_ALT)) break;
+                        case SDLK_F11:
                         {
                             FullscreenWindow(!IsFullscreen());
                             ResetCursor();
                         } break;
                     }
                 } break;
-                case(SDL_QUIT):
+                case SDL_QUIT:
                 {
                     s_appConfig.app->m_running = false;
                 } break;
-                case(SDL_WINDOWEVENT):
+                case SDL_WINDOWEVENT:
                 {
                     if(event.window.windowID == SDL_GetWindowID(s_context.window))
                     {
@@ -147,9 +147,9 @@ int main(int argc, char** argv)
                     }
                 } break;
                 // Input events.
-                case(SDL_CONTROLLERDEVICEADDED): AddGamepad(); break;
-                case(SDL_CONTROLLERDEVICEREMOVED): RemoveGamepad(); break;
-                case(SDL_MOUSEWHEEL):
+                case SDL_CONTROLLERDEVICEADDED: AddGamepad(); break;
+                case SDL_CONTROLLERDEVICEREMOVED: RemoveGamepad(); break;
+                case SDL_MOUSEWHEEL:
                 {
                     s_context.input.mouseWheel.x = event.wheel.x;
                     s_context.input.mouseWheel.y = event.wheel.y;

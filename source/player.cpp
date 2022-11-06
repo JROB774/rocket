@@ -5,10 +5,10 @@ static void StartThruster()
     thruster = "thruster";
     switch(s_rocket.costume)
     {
-        case(Costume_Meat): thruster = "squirt"; break;
-        case(Costume_Doodle): thruster = "mouth0"; break;
-        case(Costume_Rainbow): thruster = "sparkle"; break;
-        case(Costume_Glitch): thruster = "static"; break;
+        case Costume_Meat: thruster = "squirt"; break;
+        case Costume_Doodle: thruster = "mouth0"; break;
+        case Costume_Rainbow: thruster = "sparkle"; break;
+        case Costume_Glitch: thruster = "static"; break;
         default:
         {
             // Nothing...
@@ -60,10 +60,10 @@ static void HitRocket()
     std::string explosion = "explosion";
     switch(s_rocket.costume)
     {
-        case(Costume_Meat): explosion = "splat"; break;
-        case(Costume_Doodle): explosion = "mouth2"; break;
-        case(Costume_Rainbow): explosion = "ignite"; break;
-        case(Costume_Glitch): explosion = "glitch"; break;
+        case Costume_Meat: explosion = "splat"; break;
+        case Costume_Doodle: explosion = "mouth2"; break;
+        case Costume_Rainbow: explosion = "ignite"; break;
+        case Costume_Glitch: explosion = "glitch"; break;
         default:
         {
             // Nothing...
@@ -143,10 +143,10 @@ static void UpdateRocket(f32 dt)
                     std::string whoosh = "whoosh";
                     switch(s_rocket.costume)
                     {
-                        case(Costume_Meat): whoosh = "squelch"; SpawnSmoke(SmokeType_Small, s_rocket.pos.x, s_rocket.pos.y, RandomS32(2,5)); break;
-                        case(Costume_Doodle): whoosh = "mouth1"; break;
-                        case(Costume_Rainbow): whoosh = "magic"; break;
-                        case(Costume_Glitch): whoosh = "fuzz"; break;
+                        case Costume_Meat: whoosh = "squelch"; SpawnSmoke(SmokeType_Small, s_rocket.pos.x, s_rocket.pos.y, RandomS32(2,5)); break;
+                        case Costume_Doodle: whoosh = "mouth1"; break;
+                        case Costume_Rainbow: whoosh = "magic"; break;
+                        case Costume_Glitch: whoosh = "fuzz"; break;
                         default:
                         {
                             // Nothing...

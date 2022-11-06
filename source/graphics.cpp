@@ -159,8 +159,8 @@ static GLenum BPPToGLFormat(s32 bpp)
 {
     switch(bpp)
     {
-        case(3): return GL_RGB; break;
-        case(4): return GL_RGBA; break;
+        case 3: return GL_RGB; break;
+        case 4: return GL_RGBA; break;
         default:
         {
             ASSERT(false, "Unsupported BPP that has no appropriate format.");
@@ -181,8 +181,8 @@ static GLenum FilterToGLFilter(Filter filter)
 {
     switch(filter)
     {
-        case(Filter_Nearest): return GL_NEAREST; break;
-        case(Filter_Linear): return GL_LINEAR; break;
+        case Filter_Nearest: return GL_NEAREST; break;
+        case Filter_Linear: return GL_LINEAR; break;
         default:
         {
             ASSERT(false, "Unsupported texture filter.");
@@ -203,8 +203,8 @@ static GLenum WrapToGLWrap(Wrap wrap)
 {
     switch(wrap)
     {
-        case(Wrap_Repeat): return GL_REPEAT; break;
-        case(Wrap_Clamp): return GL_CLAMP_TO_EDGE; break;
+        case Wrap_Repeat: return GL_REPEAT; break;
+        case Wrap_Clamp: return GL_CLAMP_TO_EDGE; break;
         default:
         {
             ASSERT(false, "Unsupported texture wrap.");
@@ -357,9 +357,9 @@ static void UpdateVertexBuffer(VertexBuffer& buffer, void* data, size_t bytes, B
     GLenum glType;
     switch(type)
     {
-        case(BufferType_Static): glType = GL_STATIC_DRAW; break;
-        case(BufferType_Dynamic): glType = GL_DYNAMIC_DRAW; break;
-        case(BufferType_Stream): glType = GL_STREAM_DRAW; break;
+        case BufferType_Static: glType = GL_STATIC_DRAW; break;
+        case BufferType_Dynamic: glType = GL_DYNAMIC_DRAW; break;
+        case BufferType_Stream: glType = GL_STREAM_DRAW; break;
     }
 
     glBindBuffer(GL_ARRAY_BUFFER, buffer->handle);
@@ -377,13 +377,13 @@ static void DrawVertexBuffer(VertexBuffer& buffer, DrawMode drawMode, size_t ver
     GLenum primitive;
     switch(drawMode)
     {
-        case(DrawMode_Points): primitive = GL_POINTS; break;
-        case(DrawMode_LineStrip): primitive = GL_LINE_STRIP; break;
-        case(DrawMode_LineLoop): primitive = GL_LINE_LOOP; break;
-        case(DrawMode_Lines): primitive = GL_LINES; break;
-        case(DrawMode_TriangleStrip): primitive = GL_TRIANGLE_STRIP; break;
-        case(DrawMode_TriangleFan): primitive = GL_TRIANGLE_FAN; break;
-        case(DrawMode_Triangles): primitive = GL_TRIANGLES; break;
+        case DrawMode_Points: primitive = GL_POINTS; break;
+        case DrawMode_LineStrip: primitive = GL_LINE_STRIP; break;
+        case DrawMode_LineLoop: primitive = GL_LINE_LOOP; break;
+        case DrawMode_Lines: primitive = GL_LINES; break;
+        case DrawMode_TriangleStrip: primitive = GL_TRIANGLE_STRIP; break;
+        case DrawMode_TriangleFan: primitive = GL_TRIANGLE_FAN; break;
+        case DrawMode_Triangles: primitive = GL_TRIANGLES; break;
     }
 
     // Setup the attributes for the buffer.
@@ -395,11 +395,11 @@ static void DrawVertexBuffer(VertexBuffer& buffer, DrawMode drawMode, size_t ver
             GLenum attribType;
             switch(attrib.type)
             {
-                case (AttribType_SignedByte): attribType = GL_BYTE; break;
-                case (AttribType_UnsignedByte): attribType = GL_UNSIGNED_BYTE; break;
-                case (AttribType_SignedInt): attribType = GL_INT; break;
-                case (AttribType_UnsignedInt): attribType = GL_UNSIGNED_INT; break;
-                case (AttribType_Float): attribType = GL_FLOAT; break;
+                case AttribType_SignedByte: attribType = GL_BYTE; break;
+                case AttribType_UnsignedByte: attribType = GL_UNSIGNED_BYTE; break;
+                case AttribType_SignedInt: attribType = GL_INT; break;
+                case AttribType_UnsignedInt: attribType = GL_UNSIGNED_INT; break;
+                case AttribType_Float: attribType = GL_FLOAT; break;
             }
 
             glVertexAttribPointer(i, attrib.components, attribType, GL_FALSE, buffer->byteStride, NK_CAST(void*,attrib.byteOffset));
@@ -510,14 +510,14 @@ static void BeginRenderFrame()
     f32 x,y,w,h;
     switch(s_renderer.screen.scaleMode)
     {
-        case(ScaleMode_None):
+        case ScaleMode_None:
         {
             x = (windowWidth - screenWidth) * 0.5f;
             y = (windowHeight - screenHeight) * 0.5f;
             w = screenWidth;
             h = screenHeight;
         } break;
-        case(ScaleMode_Fit):
+        case ScaleMode_Fit:
         {
             ResizeFramebuffer(s_renderer.screen.buffer, NK_CAST(s32,windowWidth),NK_CAST(s32,windowHeight), s_renderer.screen.filter);
             x = 0.0f;
@@ -525,14 +525,14 @@ static void BeginRenderFrame()
             w = windowWidth;
             h = windowHeight;
         } break;
-        case(ScaleMode_Stretch):
+        case ScaleMode_Stretch:
         {
             x = 0.0f;
             y = 0.0f;
             w = windowWidth;
             h = windowHeight;
         } break;
-        case(ScaleMode_Letterbox):
+        case ScaleMode_Letterbox:
         {
             f32 dstWidth = windowWidth;
             f32 dstHeight = windowHeight;
@@ -545,7 +545,7 @@ static void BeginRenderFrame()
             w = dstWidth;
             h = dstHeight;
         } break;
-        case(ScaleMode_Pixel):
+        case ScaleMode_Pixel:
         {
             f32 dstWidth = screenWidth;
             f32 dstHeight = screenHeight;

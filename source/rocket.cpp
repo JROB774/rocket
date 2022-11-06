@@ -150,10 +150,10 @@ public:
         {
             switch(s_gameState)
             {
-                case(GameState_MainMenu): UpdateMainMenu(dt); break;
-                case(GameState_ScoresMenu): UpdateScoresMenu(dt); break;
-                case(GameState_CostumesMenu): UpdateCostumesMenu(dt); break;
-                case(GameState_SettingsMenu): UpdateSettingsMenu(dt); break;
+                caseGameState_MainMenu: UpdateMainMenu(dt); break;
+                caseGameState_ScoresMenu: UpdateScoresMenu(dt); break;
+                caseGameState_CostumesMenu: UpdateCostumesMenu(dt); break;
+                caseGameState_SettingsMenu: UpdateSettingsMenu(dt); break;
                 default:
                 {
                     // Nothing...

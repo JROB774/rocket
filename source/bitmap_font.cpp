@@ -15,18 +15,18 @@ static f32 GetCharWidth(BitmapFont& font, char c)
     {
         switch(c)
         {
-            case('!'): return  6;
+            case '!': return  6;
             /*
-            case('0'): return 13;
-            case('1'): return 10;
-            case('2'): return 13;
-            case('3'): return 13;
-            case('4'): return 13;
-            case('5'): return 13;
-            case('6'): return 13;
-            case('7'): return 13;
-            case('8'): return 13;
-            case('9'): return 13;
+            case '0': return 13;
+            case '1': return 10;
+            case '2': return 13;
+            case '3': return 13;
+            case '4': return 13;
+            case '5': return 13;
+            case '6': return 13;
+            case '7': return 13;
+            case '8': return 13;
+            case '9': return 13;
             */
         }
     }
@@ -34,17 +34,17 @@ static f32 GetCharWidth(BitmapFont& font, char c)
     {
         switch(c)
         {
-            case('!'): return  8;
-            case('0'): return 21;
-            case('1'): return 14;
-            case('2'): return 21;
-            case('3'): return 21;
-            case('4'): return 23;
-            case('5'): return 20;
-            case('6'): return 21;
-            case('7'): return 21;
-            case('8'): return 21;
-            case('9'): return 20;
+            case '!': return  8;
+            case '0': return 21;
+            case '1': return 14;
+            case '2': return 21;
+            case '3': return 21;
+            case '4': return 23;
+            case '5': return 20;
+            case '6': return 21;
+            case '7': return 21;
+            case '8': return 21;
+            case '9': return 20;
         }
     }
     return font.charWidth;
