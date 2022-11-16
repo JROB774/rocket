@@ -606,8 +606,8 @@ static void EndRenderFrame()
     auto& model = imm::GetModelMatrix();
 
     projection = nk_orthographic(0,GetWindowWidth(),GetWindowHeight(),0,0,1);
-    view = nk_identitym4();
-    model = nk_identitym4();
+    view = nk_m4_identity();
+    model = nk_m4_identity();
 
     imm::DrawFramebuffer(s_renderer.screen.buffer, dstX0,dstY0,dstX1,dstY1);
 }
@@ -854,8 +854,8 @@ namespace imm
         s_immContext.textureMapping = false;
 
         s_immContext.projectionMatrix = nk_orthographic(0.0f,w,h,0.0f,0.0f,1.0f);
-        s_immContext.viewMatrix = nk_identitym4();
-        s_immContext.modelMatrix = nk_identitym4();
+        s_immContext.viewMatrix = nk_m4_identity();
+        s_immContext.modelMatrix = nk_m4_identity();
     }
 
     static void FreeContext()
@@ -1024,7 +1024,7 @@ namespace imm
         nkMat4& modelMatrix = GetModelMatrix();
         nkMat4 cachedMatrix = modelMatrix;
 
-        modelMatrix = nk_identitym4();
+        modelMatrix = nk_m4_identity();
         modelMatrix = nk_translate(modelMatrix, { ox,oy,0.0f });
         modelMatrix = nk_scale(modelMatrix, { sx,sy,1.0f });
         modelMatrix = nk_rotate(modelMatrix, { 0.0f,0.0f,1.0f }, angle);
@@ -1193,7 +1193,7 @@ namespace imm
         if(NK_CHECK_FLAGS(flip, Flip_Horizontal)) sx = -sx;
         if(NK_CHECK_FLAGS(flip, Flip_Vertical)) sy = -sy;
 
-        nkMat4 modelMatrix = nk_identitym4();
+        nkMat4 modelMatrix = nk_m4_identity();
         modelMatrix = nk_translate(modelMatrix, { ox,oy,0.0f });
         modelMatrix = nk_scale(modelMatrix, { sx,sy,1.0f });
         modelMatrix = nk_rotate(modelMatrix, { 0.0f,0.0f,1.0f }, angle);
