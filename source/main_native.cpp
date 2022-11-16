@@ -141,8 +141,8 @@ int main(int argc, char** argv)
                     {
                         switch(event.window.event)
                         {
-                            case(SDL_WINDOWEVENT_MAXIMIZED): s_context.maximized = true; break;
-                            case(SDL_WINDOWEVENT_RESTORED): s_context.maximized = false; break;
+                            case SDL_WINDOWEVENT_MAXIMIZED: s_context.maximized = true; break;
+                            case SDL_WINDOWEVENT_RESTORED: s_context.maximized = false; break;
                         }
                     }
                 } break;
