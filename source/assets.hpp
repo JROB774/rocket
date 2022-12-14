@@ -4,7 +4,8 @@
 class AssetBase
 {
 public:
-    virtual bool        Load(std::string fileName) = 0;
+    virtual bool        LoadFromFile(std::string fileName) = 0;
+    virtual bool        LoadFromData(void* data, size_t bytes) = 0;
     virtual void        Free() = 0;
     virtual const char* GetPath() const = 0;
     virtual const char* GetExt() const = 0;
@@ -23,11 +24,14 @@ class Asset: public AssetBase
 };
 
 struct AssetManager
-{
-    std::map<std::string,bool> assetFilters;
+{;
+    nkNPAK npak;
+    bool   npakLoaded;
+
+    std::map<std::string,bool>       assetFilters;
     std::map<std::string,AssetBase*> assetMap;
-    std::vector<AssetBase*> assetList;
-    std::vector<std::string> assetPaths;
+    std::vector<AssetBase*>          assetList;
+    std::vector<std::string>         assetPaths;
 };
 
 static AssetManager s_assetManager;

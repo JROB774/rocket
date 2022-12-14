@@ -1,5 +1,13 @@
 static void InitAssetManager()
 {
+    // Attempt to load the NPAK, if not then it doesn't matter.
+    std::string npakFilePath = GetExecPath() + "assets.npak";
+    if(nk_npak_load(&s_assetManager.npak, npakFilePath.c_str()))
+    {
+        printf("Successfully loaded NPAK assets!\n");
+        s_assetManager.npakLoaded = true;
+    }
+
     // The executable's location is the highest priority location for assets.
     s_assetManager.assetPaths.push_back(GetExecPath());
     s_assetManager.assetPaths.push_back(GetExecPath() + "assets/");
@@ -27,6 +35,12 @@ static void QuitAssetManager()
         }
     }
     s_assetManager.assetMap.clear();
+
+    // We need to free the NPAK if we did end up loading it.
+    if(s_assetManager.npakLoaded)
+    {
+        nk_npak_free(&s_assetManager.npak);
+    }
 }
 
 //
@@ -64,14 +78,32 @@ static bool LoadAsset(std::string name)
     std::string lookup = name + dummy.GetExt();
     AssetType* asset = dynamic_cast<AssetType*>(s_assetManager.assetMap[lookup]);
     if(asset && asset->m_loaded) return true;
-    // Load the asset is we need to.
+
+    // Load the asset if we need to.
     printf("Loading %s: %s\n", dummy.GetType(), name.c_str());
+
     if(!asset) asset = Allocate<AssetType>(MEM_ASSET);
     if(!asset) return false;
+
     asset->m_name = ValidatePath(name);
     asset->m_lookup = lookup;
     asset->m_fileName = GetAssetPath<T>(asset->m_name);
-    asset->m_loaded = asset->Load(asset->m_fileName);
+
+    // First look in the NPAK and then fallback to looking on disk.
+    if(s_assetManager.npakLoaded)
+    {
+        std::string npakName = dummy.GetPath() + lookup;
+        nkU64 fileSize;
+        void* fileData = nk_npak_get_file_data(&s_assetManager.npak, npakName.c_str(), &fileSize);
+        if(fileData)
+        {
+            asset->m_loaded = asset->LoadFromData(fileData, fileSize);
+        }
+    }
+    if(!asset->m_loaded)
+    {
+        asset->m_loaded = asset->LoadFromFile(asset->m_fileName);
+    }
 
     // Add it to the asset containers.
     s_assetManager.assetMap[lookup] = asset;
@@ -81,7 +113,9 @@ static bool LoadAsset(std::string name)
 
     // If the type is new add it to the debug UI filters.
     if(!Contains(s_assetManager.assetFilters, std::string(asset->GetType())))
+    {
         s_assetManager.assetFilters.insert({ asset->GetType(), true });
+    }
 
     return true;
 }

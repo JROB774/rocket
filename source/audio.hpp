@@ -41,8 +41,9 @@ DECLARE_ASSET(Sound)
 public:
     Sound m_data;
 
-    bool Load(std::string fileName) override { return LoadSound(m_data, fileName); }
-    void Free() override { FreeSound(m_data); }
+    bool        LoadFromFile(std::string fileName) override { return LoadSound(m_data, fileName); }
+    bool        LoadFromData(void* data, size_t bytes) override { return false; } // @Incomplete!
+    void        Free() override { FreeSound(m_data); }
     const char* GetPath() const override { return "sounds/"; }
     const char* GetExt() const override { return ".ogg"; }
     const char* GetType() const override { return "Sound"; }
@@ -53,8 +54,9 @@ DECLARE_ASSET(Music)
 public:
     Music m_data;
 
-    bool Load(std::string fileName) override { return LoadMusic(m_data, fileName); }
-    void Free() override { FreeMusic(m_data); }
+    bool        LoadFromFile(std::string fileName) override { return LoadMusic(m_data, fileName); }
+    bool        LoadFromData(void* data, size_t bytes) override { return false; } // @Incomplete!
+    void        Free() override { FreeMusic(m_data); }
     const char* GetPath() const override { return "music/"; }
     const char* GetExt() const override { return ".ogg"; }
     const char* GetType() const override { return "Music"; }

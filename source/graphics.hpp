@@ -133,8 +133,9 @@ DECLARE_ASSET(Shader)
 public:
     Shader m_data;
 
-    bool Load(std::string fileName) override { return LoadShader(m_data, fileName); }
-    void Free() override { FreeShader(m_data); }
+    bool        LoadFromFile(std::string fileName) override { return LoadShader(m_data, fileName); }
+    bool        LoadFromData(void* data, size_t bytes) override { return false; } // @Incomplete!
+    void        Free() override { FreeShader(m_data); }
     #ifndef __EMSCRIPTEN__
     const char* GetPath() const override { return "shaders/gl_330/"; }
     #else
@@ -149,8 +150,9 @@ DECLARE_ASSET(Texture)
 public:
     Texture m_data;
 
-    bool Load(std::string fileName) override { return LoadTexture(m_data, fileName); }
-    void Free() override { FreeTexture(m_data); }
+    bool        LoadFromFile(std::string fileName) override { return LoadTexture(m_data, fileName); }
+    bool        LoadFromData(void* data, size_t bytes) override { return false; } // @Incomplete!
+    void        Free() override { FreeTexture(m_data); }
     const char* GetPath() const override { return "textures/"; }
     const char* GetExt() const override { return ".png"; }
     const char* GetType() const override { return "Texture"; }
