@@ -1,12 +1,14 @@
 static void InitAssetManager()
 {
     // Attempt to load the NPAK, if not then it doesn't matter.
+    #if defined(BUILD_NATIVE)
     std::string npakFilePath = GetExecPath() + "assets.npak";
     if(nk_npak_load(&s_assetManager.npak, npakFilePath.c_str()))
     {
         printf("Successfully loaded NPAK assets!\n");
         s_assetManager.npakLoaded = true;
     }
+    #endif // BUILD_NATIVE
 
     // The executable's location is the highest priority location for assets.
     s_assetManager.assetPaths.push_back(GetExecPath());
@@ -37,10 +39,12 @@ static void QuitAssetManager()
     s_assetManager.assetMap.clear();
 
     // We need to free the NPAK if we did end up loading it.
+    #if defined(BUILD_NATIVE)
     if(s_assetManager.npakLoaded)
     {
         nk_npak_free(&s_assetManager.npak);
     }
+    #endif // BUILD_NATIVE
 }
 
 //
@@ -90,6 +94,7 @@ static bool LoadAsset(std::string name)
     asset->m_fileName = GetAssetPath<T>(asset->m_name);
 
     // First look in the NPAK and then fallback to looking on disk.
+    #if defined(BUILD_NATIVE)
     if(s_assetManager.npakLoaded)
     {
         std::string npakName = dummy.GetPath() + lookup;
@@ -100,6 +105,7 @@ static bool LoadAsset(std::string name)
             asset->m_loaded = asset->LoadFromData(fileData, fileSize);
         }
     }
+    #endif // BUILD_NATIVE
     if(!asset->m_loaded)
     {
         asset->m_loaded = asset->LoadFromFile(asset->m_fileName);
