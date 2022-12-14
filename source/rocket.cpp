@@ -5,6 +5,8 @@
 
 #define NK_STATIC
 #define NK_MATH_IMPLEMENTATION
+#define NK_FILESYS_IMPLEMENTATION
+#define NK_PACK_IMPLEMENTATION
 
 #define NOMINMAX
 
@@ -26,6 +28,7 @@
 #include <nk_defer.h>
 #include <nk_math.h>
 #include <nk_mathx.h>
+#include <nk_pack.h>
 
 #ifndef __EMSCRIPTEN__
 #include <glew.c>
