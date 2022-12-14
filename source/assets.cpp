@@ -57,7 +57,7 @@ static std::string GetAssetPath(std::string name)
     typedef Asset<T> AssetType;
     name = ValidatePath(name);
 
-    AssetType dummy; // @Cleanup @Hack: Kind of hacky...
+    AssetType dummy;
 
     std::string lookup = name + dummy.GetExt();
     std::string fileName;
@@ -76,7 +76,7 @@ static bool LoadAsset(std::string name)
     if(name.empty()) return false;
     name = ValidatePath(name);
 
-    AssetType dummy; // @Cleanup @Hack: Kind of hacky...
+    AssetType dummy;
 
     // Don't load the asset if it already exists.
     std::string lookup = name + dummy.GetExt();
@@ -133,7 +133,7 @@ static T* GetAsset(std::string name)
     if(name.empty()) return NULL;
     name = ValidatePath(name);
 
-    AssetType dummy; // @Cleanup @Hack: Kind of hacky...
+    AssetType dummy;
 
     // Get the asset if it is already loaded, otherwise load it now.
     std::string lookup = name + dummy.GetExt();
@@ -151,7 +151,7 @@ template<typename T>
 static void LoadAllAssetsOfType()
 {
     typedef Asset<T> AssetType;
-    AssetType dummy; // @Cleanup @Hack: Kind of hacky...
+    AssetType dummy;
 
     std::vector<std::string> files;
     for(auto& assetPath: s_assetManager.assetPaths)
@@ -175,7 +175,7 @@ template<typename T>
 static std::vector<T*> GetAllAssetsOfType()
 {
     typedef Asset<T> AssetType;
-    AssetType dummy; // @Cleanup @Hack: Kind of hacky...
+    AssetType dummy;
 
     std::vector<std::string> files;
     std::vector<T*> assets;
