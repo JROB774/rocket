@@ -3,8 +3,21 @@ setlocal
 
 if "%~1"=="win32" goto build_win32
 if "%~1"=="web" goto build_web
+if "%~1"=="tools" goto build_tools
 
-echo please specify a platform to build for (win32 or web)...
+echo please specify a platform to build for (win32, web, tools)...
+goto end
+
+:build_tools
+echo ----------------------------------------
+
+if not exist tools mkdir tools
+
+pushd tools
+cl ../source/tools/packer.cpp -I ../depends/nksdk/nklibs -Fe:packer.exe
+del *.obj
+popd
+
 goto end
 
 :build_win32
@@ -28,6 +41,9 @@ if "%~2"=="release" (
     set defs=
     set cflg=%cflg% -O2
     set lflg=%lflg% -release -subsystem:windows
+
+    tools\packer.exe
+    echo.
 )
 
 pushd binary\win32
