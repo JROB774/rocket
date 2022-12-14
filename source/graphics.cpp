@@ -215,7 +215,7 @@ static GLenum WrapToGLWrap(Wrap wrap)
 // Shader
 //
 
-static bool LoadShader(Shader& shader, std::string fileName)
+static bool LoadShaderFromFile(Shader& shader, std::string fileName)
 {
     std::ifstream file(fileName);
     if (!file.is_open())
@@ -227,6 +227,12 @@ static bool LoadShader(Shader& shader, std::string fileName)
         return CreateShader(shader, stream);
     }
     return false;
+}
+
+static bool LoadShaderFromData(Shader& shader, void* data, size_t bytes)
+{
+    std::stringstream stream(std::string(NK_CAST(char*, data), bytes));
+    return CreateShader(shader, stream);
 }
 
 static void FreeShader(Shader& shader)
@@ -267,13 +273,28 @@ static bool CreateTexture(Texture& texture, s32 w, s32 h, s32 bpp, void* data, F
     return true;
 }
 
-static bool LoadTexture(Texture& texture, std::string fileName, Filter filter, Wrap wrap)
+static bool LoadTextureFromFile(Texture& texture, std::string fileName, Filter filter, Wrap wrap)
 {
     const s32 k_bytesPerPixel = 4;
     s32 width,height,bytesPerPixel;
     u8* rawData = stbi_load(fileName.c_str(), &width,&height,&bytesPerPixel,k_bytesPerPixel); // We force all textures to 4-channel RGBA.
     if(!rawData)
         printf("Failed to load texture from file '%s'!\n", fileName.c_str());
+    else
+    {
+        NK_DEFER(stbi_image_free(rawData));
+        return CreateTexture(texture, width,height,k_bytesPerPixel, rawData, filter, wrap);
+    }
+    return false;
+}
+
+static bool LoadTextureFromData(Texture& texture, void* data, size_t bytes, Filter filter, Wrap wrap)
+{
+    const s32 k_bytesPerPixel = 4;
+    s32 width,height,bytesPerPixel;
+    u8* rawData = stbi_load_from_memory(NK_CAST(stbi_uc*,data),bytes, &width,&height,&bytesPerPixel,k_bytesPerPixel); // We force all textures to 4-channel RGBA.
+    if(!rawData)
+        printf("Failed to load texture from data!\n");
     else
     {
         NK_DEFER(stbi_image_free(rawData));

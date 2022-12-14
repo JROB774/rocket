@@ -78,7 +78,7 @@ static bool IsMusicPlaying()
 // Sound
 //
 
-static bool LoadSound(Sound& sound, std::string fileName)
+static bool LoadSoundFromFile(Sound& sound, std::string fileName)
 {
     sound = Allocate<GET_PTR_TYPE(sound)>(MEM_SYSTEM);
     if(!sound) FatalError("Failed to allocate sound!\n");
@@ -86,6 +86,20 @@ static bool LoadSound(Sound& sound, std::string fileName)
     sound->chunk = Mix_LoadWAV(fileName.c_str());
     if(!sound->chunk)
         FatalError("Failed to load sound: %s (%s)\n", fileName.c_str(), Mix_GetError());
+    return true;
+}
+
+static bool LoadSoundFromData(Sound& sound, void* data, size_t bytes)
+{
+    sound = Allocate<GET_PTR_TYPE(sound)>(MEM_SYSTEM);
+    if(!sound) FatalError("Failed to allocate sound!\n");
+
+    SDL_RWops* rwops = SDL_RWFromMem(data, bytes);
+    if(!rwops)
+        FatalError("Failed to create RWops from data! (%s)", SDL_GetError());
+    sound->chunk = Mix_LoadWAV_RW(rwops, SDL_TRUE);
+    if(!sound->chunk)
+        FatalError("Failed to load sound from data! (%s)", Mix_GetError());
     return true;
 }
 
@@ -123,13 +137,28 @@ static void StopSound(SoundRef soundRef)
 // Music
 //
 
-static bool LoadMusic(Music& music, std::string fileName)
+static bool LoadMusicFromFile(Music& music, std::string fileName)
 {
     music = Allocate<GET_PTR_TYPE(music)>(MEM_SYSTEM);
     if(!music) FatalError("Failed to allocate music!\n");
+
     music->music = Mix_LoadMUS(fileName.c_str());
     if(!music->music)
         FatalError("Failed to load music: %s (%s)\n", fileName.c_str(), Mix_GetError());
+    return true;
+}
+
+static bool LoadMusicFromData(Music& music, void* data, size_t bytes)
+{
+    music = Allocate<GET_PTR_TYPE(music)>(MEM_SYSTEM);
+    if(!music) FatalError("Failed to allocate music!\n");
+
+    SDL_RWops* rwops = SDL_RWFromMem(data, bytes);
+    if(!rwops)
+        FatalError("Failed to create RWops from data! (%s)", SDL_GetError());
+    music->music = Mix_LoadMUS_RW(rwops, SDL_TRUE);
+    if(!music->music)
+        FatalError("Failed to load music from data! (%s)", Mix_GetError());
     return true;
 }
 

@@ -101,12 +101,14 @@ static void SetShaderMat3(std::string name, nkMat3 mat);
 static void SetShaderMat4(std::string name, nkMat4 mat);
 
 // Shader
-static bool LoadShader(Shader& shader, std::string fileName);
+static bool LoadShaderFromFile(Shader& shader, std::string fileName);
+static bool LoadShaderFromData(Shader& shader, void* data, size_t bytes);
 static void FreeShader(Shader& shader);
 
 // Texture
 static bool CreateTexture(Texture& texture, s32 w, s32 h, s32 bpp, void* data, Filter filter = Filter_Linear, Wrap wrap = Wrap_Clamp); // Expects RGBA order.
-static bool LoadTexture(Texture& texture, std::string fileName, Filter filter = Filter_Linear, Wrap wrap = Wrap_Clamp);
+static bool LoadTextureFromFile(Texture& texture, std::string fileName, Filter filter = Filter_Linear, Wrap wrap = Wrap_Clamp);
+static bool LoadTextureFromData(Texture& texture, void* data, size_t bytes, Filter filter = Filter_Linear, Wrap wrap = Wrap_Clamp);
 static void FreeTexture(Texture& texture);
 static f32 GetTextureWidth(Texture& texture);
 static f32 GetTextureHeight(Texture& texture);
@@ -133,8 +135,8 @@ DECLARE_ASSET(Shader)
 public:
     Shader m_data;
 
-    bool        LoadFromFile(std::string fileName) override { return LoadShader(m_data, fileName); }
-    bool        LoadFromData(void* data, size_t bytes) override { return false; } // @Incomplete!
+    bool        LoadFromFile(std::string fileName) override { return LoadShaderFromFile(m_data, fileName); }
+    bool        LoadFromData(void* data, size_t bytes) override { return LoadShaderFromData(m_data, data, bytes); }
     void        Free() override { FreeShader(m_data); }
     #ifndef __EMSCRIPTEN__
     const char* GetPath() const override { return "shaders/gl_330/"; }
@@ -150,8 +152,8 @@ DECLARE_ASSET(Texture)
 public:
     Texture m_data;
 
-    bool        LoadFromFile(std::string fileName) override { return LoadTexture(m_data, fileName); }
-    bool        LoadFromData(void* data, size_t bytes) override { return false; } // @Incomplete!
+    bool        LoadFromFile(std::string fileName) override { return LoadTextureFromFile(m_data, fileName); }
+    bool        LoadFromData(void* data, size_t bytes) override { return LoadTextureFromData(m_data, data, bytes); }
     void        Free() override { FreeTexture(m_data); }
     const char* GetPath() const override { return "textures/"; }
     const char* GetExt() const override { return ".png"; }

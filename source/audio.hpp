@@ -20,14 +20,16 @@ static bool IsMusicOn();
 static bool IsMusicPlaying();
 
 // Sound
-static bool LoadSound(Sound& sound, std::string fileNmae);
+static bool LoadSoundFromFile(Sound& sound, std::string fileNmae);
+static bool LoadSoundFromData(Sound& sound, void* data, size_t bytes);
 static void FreeSound(Sound& sound);
 static SoundRef PlaySound(std::string soundName, s32 loops = 0);
 static SoundRef PlaySound(Sound sound, s32 loops = 0);
 static void StopSound(SoundRef soundRef);
 
 // Music
-static bool LoadMusic(Music& music, std::string fileName);
+static bool LoadMusicFromFile(Music& music, std::string fileName);
+static bool LoadMusicFromData(Music& music, void* data, size_t bytes);
 static void FreeMusic(Music& music);
 static void PlayMusic(std::string musicName, s32 loops = 0);
 static void PlayMusic(Music music, s32 loops = 0);
@@ -41,8 +43,8 @@ DECLARE_ASSET(Sound)
 public:
     Sound m_data;
 
-    bool        LoadFromFile(std::string fileName) override { return LoadSound(m_data, fileName); }
-    bool        LoadFromData(void* data, size_t bytes) override { return false; } // @Incomplete!
+    bool        LoadFromFile(std::string fileName) override { return LoadSoundFromFile(m_data, fileName); }
+    bool        LoadFromData(void* data, size_t bytes) override { return LoadSoundFromData(m_data, data, bytes); }
     void        Free() override { FreeSound(m_data); }
     const char* GetPath() const override { return "sounds/"; }
     const char* GetExt() const override { return ".ogg"; }
@@ -54,8 +56,8 @@ DECLARE_ASSET(Music)
 public:
     Music m_data;
 
-    bool        LoadFromFile(std::string fileName) override { return LoadMusic(m_data, fileName); }
-    bool        LoadFromData(void* data, size_t bytes) override { return false; } // @Incomplete!
+    bool        LoadFromFile(std::string fileName) override { return LoadMusicFromFile(m_data, fileName); }
+    bool        LoadFromData(void* data, size_t bytes) override { return LoadMusicFromData(m_data, data, bytes); }
     void        Free() override { FreeMusic(m_data); }
     const char* GetPath() const override { return "music/"; }
     const char* GetExt() const override { return ".ogg"; }
