@@ -30,7 +30,7 @@ copy depends\sdl_mixer\bin\win32\*.dll binary\win32\ > NUL
 copy docs\asset_paths.txt binary\win32\asset_paths.txt > NUL
 copy docs\credits.txt binary\win32\credits.txt > NUL
 
-set defs=-D BUILD_DEBUG -D SDL_MAIN_HANDLED
+set defs=
 set idir=-I ../../depends/sdl/include -I ../../depends/sdl_mixer/include -I ../../depends/glew/include -I ../../depends/glew/source -I ../../depends/stb -I ../../depends/nksdk/nklibs -I ../../depends/gon
 set ldir=-libpath:../../depends/sdl/lib/win32 -libpath:../../depends/sdl_mixer/lib/win32
 set libs=SDL2main.lib SDL2.lib SDL2_mixer.lib opengl32.lib shell32.lib
@@ -41,9 +41,11 @@ if "%~2"=="release" (
     set defs=
     set cflg=%cflg% -O2
     set lflg=%lflg% -release -subsystem:windows
-
     tools\packer.exe
     echo.
+) else (
+    set defs=%defs% -D BUILD_DEBUG -D SDL_MAIN_HANDLED
+    set cflg=%cflg% -Z7
 )
 
 pushd binary\win32
