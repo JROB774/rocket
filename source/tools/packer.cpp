@@ -1,13 +1,13 @@
 /*////////////////////////////////////////////////////////////////////////////*/
 
-#define NK_PACK_IMPLEMENTATION
+#define NK_NPAK_IMPLEMENTATION
 #define NK_FILESYS_IMPLEMENTATION
 
 #define NK_STATIC
 
 #include <stdio.h>
 
-#include <nk_pack.h>
+#include <nk_npak.h>
 
 int main(int argc, char** argv)
 {
