@@ -14,7 +14,7 @@ echo ----------------------------------------
 if not exist tools mkdir tools
 
 pushd tools
-cl ../source/tools/packer.cpp -I ../depends/nksdk/nklibs -Fe:packer.exe
+cl ../source/tools/packer.cpp -I ../depends/nksdk -Fe:packer.exe
 del *.obj
 popd
 
@@ -31,7 +31,7 @@ copy docs\asset_paths.txt binary\win32\asset_paths.txt > NUL
 copy docs\credits.txt binary\win32\credits.txt > NUL
 
 set defs=-D BUILD_NATIVE
-set idir=-I ../../depends/sdl/include -I ../../depends/sdl_mixer/include -I ../../depends/glew/include -I ../../depends/glew/source -I ../../depends/stb -I ../../depends/nksdk/nklibs -I ../../depends/gon
+set idir=-I ../../depends/sdl/include -I ../../depends/sdl_mixer/include -I ../../depends/glew/include -I ../../depends/glew/source -I ../../depends/stb -I ../../depends/nksdk -I ../../depends/gon
 set ldir=-libpath:../../depends/sdl/lib/win32 -libpath:../../depends/sdl_mixer/lib/win32
 set libs=SDL2main.lib SDL2.lib SDL2_mixer.lib opengl32.lib shell32.lib
 set cflg=-EHsc -std:c++17 -Zc:__cplusplus
@@ -62,7 +62,7 @@ call depends\emsdk\emsdk activate latest
 call depends\emsdk\emsdk_env.bat
 
 set defs=-D BUILD_WEB
-set idir=-I ../../depends/stb -I ../../depends/nksdk/nklibs
+set idir=-I ../../depends/stb -I ../../depends/nksdk
 set libs=-s WASM=1 -s USE_SDL=2 -s USE_SDL_MIXER=2 -s USE_OGG=1 -s USE_VORBIS=1 -s MIN_WEBGL_VERSION=2 -s MAX_WEBGL_VERSION=2 -lidbfs.js
 set cflg=-std=c++17
 set lflg=--preload-file ../../assets -s EXPORTED_FUNCTIONS="['_main','_main_start']" -s EXPORTED_RUNTIME_METHODS="['ccall']"
