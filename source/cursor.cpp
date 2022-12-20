@@ -17,7 +17,7 @@ EM_JS(bool, CanvasHasFocus, (),
 static void UpdateCursor(f32 dt)
 {
     s_wantLockCursor = (!s_gamePaused && !s_rocket.dead && (s_gameState == GameState_Game));
-    s_gameUnfocused = ((s_gameState == GameState_Game) && !CanvasHasFocus());
+    s_gameUnfocused = ((s_gameState == GameState_Game) && !s_rocket.dead && !CanvasHasFocus());
 
     #ifndef __EMSCRIPTEN__
     LockMouse(s_wantLockCursor);
