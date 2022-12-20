@@ -48,7 +48,9 @@ static void RenderUnfocused(f32 dt)
 {
     if(s_gameUnfocused)
     {
-        imm::DrawTexture("unfocused", GetWindowWidth()/4,GetWindowHeight()/4);
+        f32 x = NK_CAST(f32, GetWindowWidth()/4);
+        f32 y = NK_CAST(f32, GetWindowHeight()/4);
+        imm::DrawTexture("unfocused", x,y);
     }
 }
 

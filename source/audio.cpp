@@ -94,7 +94,7 @@ static bool LoadSoundFromData(Sound& sound, void* data, size_t bytes)
     sound = Allocate<GET_PTR_TYPE(sound)>(MEM_SYSTEM);
     if(!sound) FatalError("Failed to allocate sound!\n");
 
-    SDL_RWops* rwops = SDL_RWFromMem(data, bytes);
+    SDL_RWops* rwops = SDL_RWFromMem(data, NK_CAST(int, bytes));
     if(!rwops)
         FatalError("Failed to create RWops from data! (%s)", SDL_GetError());
     sound->chunk = Mix_LoadWAV_RW(rwops, SDL_TRUE);
@@ -153,7 +153,7 @@ static bool LoadMusicFromData(Music& music, void* data, size_t bytes)
     music = Allocate<GET_PTR_TYPE(music)>(MEM_SYSTEM);
     if(!music) FatalError("Failed to allocate music!\n");
 
-    SDL_RWops* rwops = SDL_RWFromMem(data, bytes);
+    SDL_RWops* rwops = SDL_RWFromMem(data, NK_CAST(int, bytes));
     if(!rwops)
         FatalError("Failed to create RWops from data! (%s)", SDL_GetError());
     music->music = Mix_LoadMUS_RW(rwops, SDL_TRUE);

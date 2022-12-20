@@ -64,12 +64,12 @@ static bool IsAnyKeyReleased()
 
 static s32 GetMouseScrollHorizontal()
 {
-    return GetInput().mouseWheel.x;
+    return NK_CAST(s32, GetInput().mouseWheel.x);
 }
 
 static s32 GetMouseScrollVertical()
 {
-    return GetInput().mouseWheel.y;
+    return NK_CAST(s32, GetInput().mouseWheel.y);
 }
 
 static nkVec2 GetWindowMousePos()

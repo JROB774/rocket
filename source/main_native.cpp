@@ -23,8 +23,8 @@ int main(int argc, char** argv)
 
     s32 windowX = SDL_WINDOWPOS_CENTERED;
     s32 windowY = SDL_WINDOWPOS_CENTERED;
-    s32 windowW = s_appConfig.window.size.x;
-    s32 windowH = s_appConfig.window.size.y;
+    s32 windowW = NK_CAST(s32, s_appConfig.window.size.x);
+    s32 windowH = NK_CAST(s32, s_appConfig.window.size.y);
     bool windowMaximized = s_appConfig.window.maximized;
     bool windowFullscreen = s_appConfig.window.fullscreen;
     s32 windowDisplay = 0;
@@ -50,8 +50,8 @@ int main(int argc, char** argv)
     windowMaximized = engineState["maximized"].Bool(windowMaximized);
     windowFullscreen = engineState["fullscreen"].Bool(windowFullscreen);
     windowDisplay = engineState["display"].Int(windowDisplay);
-    soundVolume = engineState["sound_volume"].Number(soundVolume);
-    musicVolume = engineState["music_volume"].Number(musicVolume);
+    soundVolume = NK_CAST(f32, engineState["sound_volume"].Number(soundVolume));
+    musicVolume = NK_CAST(f32, engineState["music_volume"].Number(musicVolume));
 
     SDL_Rect displayBounds;
     if(SDL_GetDisplayBounds(windowDisplay, &displayBounds) < 0)
@@ -71,7 +71,7 @@ int main(int argc, char** argv)
     if(!s_context.window)
         FatalError("Failed to create window!\n");
     NK_DEFER(SDL_DestroyWindow(s_context.window));
-    SDL_SetWindowMinimumSize(s_context.window, s_appConfig.window.min.x, s_appConfig.window.min.y);
+    SDL_SetWindowMinimumSize(s_context.window, NK_CAST(s32,s_appConfig.window.min.x), NK_CAST(s32,s_appConfig.window.min.y));
 
     s_context.glContext = SDL_GL_CreateContext(s_context.window);
     if(!s_context.glContext)
@@ -151,8 +151,8 @@ int main(int argc, char** argv)
                 case SDL_CONTROLLERDEVICEREMOVED: RemoveGamepad(); break;
                 case SDL_MOUSEWHEEL:
                 {
-                    s_context.input.mouseWheel.x = event.wheel.x;
-                    s_context.input.mouseWheel.y = event.wheel.y;
+                    s_context.input.mouseWheel.x = NK_CAST(f32,event.wheel.x);
+                    s_context.input.mouseWheel.y = NK_CAST(f32,event.wheel.y);
                 } break;
             }
         }

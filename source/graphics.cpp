@@ -292,7 +292,7 @@ static bool LoadTextureFromData(Texture& texture, void* data, size_t bytes, Filt
 {
     const s32 k_bytesPerPixel = 4;
     s32 width,height,bytesPerPixel;
-    u8* rawData = stbi_load_from_memory(NK_CAST(stbi_uc*,data),bytes, &width,&height,&bytesPerPixel,k_bytesPerPixel); // We force all textures to 4-channel RGBA.
+    u8* rawData = stbi_load_from_memory(NK_CAST(stbi_uc*,data),NK_CAST(int,bytes), &width,&height,&bytesPerPixel,k_bytesPerPixel); // We force all textures to 4-channel RGBA.
     if(!rawData)
         printf("Failed to load texture from data!\n");
     else
@@ -419,8 +419,8 @@ static void DrawVertexBuffer(VertexBuffer& buffer, DrawMode drawMode, size_t ver
                 case AttribType_Float: attribType = GL_FLOAT; break;
             }
 
-            glVertexAttribPointer(i, attrib.components, attribType, GL_FALSE, buffer->byteStride, NK_CAST(void*,attrib.byteOffset));
-            glEnableVertexAttribArray(i);
+            glVertexAttribPointer(NK_CAST(GLuint,i), attrib.components, attribType, GL_FALSE, NK_CAST(GLsizei,buffer->byteStride), NK_CAST(void*,attrib.byteOffset));
+            glEnableVertexAttribArray(NK_CAST(GLuint,i));
         }
     }
 
@@ -491,8 +491,8 @@ static void InitGraphics()
     printf("Renderer: %s\n", glGetString(GL_RENDERER));
     printf("Vendor: %s\n", glGetString(GL_VENDOR));
 
-    s32 width = GetAppConfig().screenSize.x;
-    s32 height = GetAppConfig().screenSize.y;
+    s32 width = NK_CAST(s32, GetAppConfig().screenSize.x);
+    s32 height = NK_CAST(s32, GetAppConfig().screenSize.y);
 
     #ifndef __EMSCRIPTEN__
     glGenVertexArrays(1, &s_renderer.vao);
@@ -607,6 +607,9 @@ static void BeginRenderFrame()
 
 static void EndRenderFrame()
 {
+    f32 ww = NK_CAST(f32,GetWindowWidth());
+    f32 wh = NK_CAST(f32,GetWindowHeight());
+
     glColorMask(false,false,false,true);
     glClearColor(0,0,0,1);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -614,7 +617,7 @@ static void EndRenderFrame()
 
     glBindFramebuffer(GL_FRAMEBUFFER, GL_NONE);
 
-    Rect viewport = { 0,0,NK_CAST(f32,GetWindowWidth()),NK_CAST(f32,GetWindowHeight()) };
+    Rect viewport = { 0,0,ww,wh };
     SetViewport(&viewport);
 
     f32 dstX0 = s_renderer.screen.bounds.x;
@@ -626,7 +629,7 @@ static void EndRenderFrame()
     auto& view = imm::GetViewMatrix();
     auto& model = imm::GetModelMatrix();
 
-    projection = nk_orthographic(0,GetWindowWidth(),GetWindowHeight(),0,0,1);
+    projection = nk_orthographic(0,ww,wh,0,0,1);
     view = nk_m4_identity();
     model = nk_m4_identity();
 
