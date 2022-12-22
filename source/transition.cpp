@@ -49,10 +49,16 @@ static void RenderTransition(f32 dt)
             if(s_gameState == GameState_Game)
             {
                 StartThruster();
+
+                // Pick a random game music.
+                s32 musicVariant = RandomS32(0,3);
+                std::string musicName = "game" + std::to_string(musicVariant);
+                PlayMusic(musicName);
             }
             else if(s_gameState == GameState_MainMenu)
             {
                 GoToMainMenu();
+                PlayMusic("menu", -1);
             }
         }
     }

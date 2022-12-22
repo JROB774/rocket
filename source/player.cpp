@@ -74,6 +74,8 @@ static void HitRocket()
     s_rocket.timer = 0.0f;
     s_rocket.dead = true;
 
+    StopMusic();
+
     // Check to see if any new costumes were unlocked.
     for(s32 i=0; i<NK_ARRAY_SIZE(k_unlocks); ++i)
     {

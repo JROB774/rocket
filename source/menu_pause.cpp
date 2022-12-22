@@ -11,7 +11,7 @@ static void PauseMenuActionSettings(MenuOption& option)
 static void PauseMenuActionMenu(MenuOption& option)
 {
     ResetGame(GameState_MainMenu);
-    ResumeMusic();
+    StopMusic();
 }
 
 static MenuOption s_pauseMenuOptions[PauseMenuOption_TOTAL]
