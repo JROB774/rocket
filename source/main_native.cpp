@@ -28,8 +28,8 @@ int main(int argc, char** argv)
     bool windowMaximized = s_appConfig.window.maximized;
     bool windowFullscreen = s_appConfig.window.fullscreen;
     s32 windowDisplay = 0;
-    f32 soundVolume = 0.5f;
-    f32 musicVolume = 0.5f;
+    f32 soundVolume = k_defaultSoundVolume;
+    f32 musicVolume = k_defaultMusicVolume;
 
     // If we have the previous session's window state stored then restore the window.
     GonObject engineState;

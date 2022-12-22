@@ -3,7 +3,10 @@ typedef u32 SoundRef;
 DECLARE_PRIVATE_STRUCT(Sound);
 DECLARE_PRIVATE_STRUCT(Music);
 
-static const SoundRef k_invalidSoundRef = 0xFFFFFFFF;
+static constexpr f32 k_defaultSoundVolume = 0.8f;
+static constexpr f32 k_defaultMusicVolume = 0.6f;
+
+static constexpr SoundRef k_invalidSoundRef = 0xFFFFFFFF;
 
 static void InitAudio();
 static void QuitAudio();

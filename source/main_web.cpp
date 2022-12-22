@@ -95,8 +95,8 @@ void actual_main_start()
     InitGraphics();
     InitAudio();
 
-    SetSoundVolume(0.5f);
-    SetMusicVolume(0.5f);
+    SetSoundVolume(k_defaultSoundVolume);
+    SetMusicVolume(k_defaultMusicVolume);
 
     s_appConfig.app->OnInit();
     s_appConfig.app->m_running = true;
