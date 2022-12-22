@@ -53,7 +53,7 @@ static void RenderTransition(f32 dt)
                 // Pick a random game music.
                 s32 musicVariant = RandomS32(0,3);
                 std::string musicName = "game" + std::to_string(musicVariant);
-                PlayMusic(musicName);
+                PlayMusic(musicName, -1);
             }
             else if(s_gameState == GameState_MainMenu)
             {
