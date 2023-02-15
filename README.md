@@ -1,6 +1,6 @@
 # Rocket Rumble
 
-A small arcade game released in 2015. The goal of the game is to dodge asteroids whilst flying through
+A small arcade game released in 2022. The goal of the game is to dodge asteroids whilst flying through
 space, the longer you survive the higher your end score will be. Reaching certain milestones will also
 unlock new cosmetic costumes for your rocket which you can use whilst you play. A download for the game
 can be found over on **[itch.io](https://jrob774.itch.io/rocket-rumble)** where there is also a browser
